@@ -182,9 +182,12 @@ def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elap
         "seeds": f"{min(r.seed for r in results)}..{max(r.seed for r in results)}",
         "wall_clock_s": elapsed,
         "summary": table,
-        "episodes": [asdict(r) for r in results],
+        # One compact row per episode, floats rounded, so reports stay small enough to version.
+        "episodes": [{k: round(v, 5) if isinstance(v, float) else v for k, v in asdict(r).items()} for r in results],
     }
-    (out / "grasp_report.json").write_text(json.dumps(report, indent=1))
+    text = json.dumps({k: v for k, v in report.items() if k != "episodes"}, indent=1)
+    rows = ",\n  ".join(json.dumps(e, separators=(",", ":")) for e in report["episodes"])
+    (out / "grasp_report.json").write_text(f'{text[:-2]},\n "episodes": [\n  {rows}\n ]\n}}\n')
 
     lines = [
         "# Grasp stabilisation benchmark",

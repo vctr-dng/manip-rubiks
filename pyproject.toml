@@ -11,6 +11,8 @@ dependencies = [
     "gymnasium>=1.4.0",
     "mujoco>=4.0.1",
     "numpy>=2.5.4",
+    "stable-baselines3>=2.4",
+    "tensorboard>=2.21.0",
 ]
 
 [project.scripts]

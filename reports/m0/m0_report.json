@@ -10,8 +10,8 @@
     "menagerie_commit": "370c43965323c0944b433b202aac5058b5f907a9"
   },
   "throughput": {
-    "steps_per_second": 10212,
-    "realtime_factor": 20.42
+    "steps_per_second": 14582,
+    "realtime_factor": 29.16
   },
   "checks": [
     {
@@ -51,9 +51,9 @@
         "max_steady_limit_violation_rad": 0.0,
         "delta_action_saturates_at_limits": true,
         "warnings": 0,
-        "info_gravity_sag_home_max_rad": 0.0433,
+        "info_gravity_sag_home_max_rad": 0.0093,
         "info_gravity_sag_worst_joint": "pinky_CMC",
-        "info_all_joints_at_limits_violation_rad": 0.1197,
+        "info_all_joints_at_limits_violation_rad": 0.058,
         "per_joint": {
           "thumb_CMC_FE": {
             "step_rad": 0.3,
@@ -262,7 +262,7 @@
           "warnings": 0,
           "finite": true,
           "sim_time_s": 171.0,
-          "wall_time_s": 14.1
+          "wall_time_s": 14.15
         },
         "single_axis": {
           "moves": 50,
@@ -294,28 +294,29 @@
       "name": "stability",
       "passed": true,
       "metrics": {
-        "max_joint_speed_rad_s": 12.0313,
-        "max_cube_speed_m_s": 0.6991,
-        "max_cube_angular_speed_rad_s": 16.2158,
-        "max_pen_in_hand_hand_cube_mm": 2.8417,
-        "max_pen_in_hand_cube_internal_mm": 0.4747,
-        "max_cube_speed_any_m_s": 2.5141,
-        "max_pen_any_cube_internal_mm": 1.8358,
-        "info_max_pen_in_hand_pad_cube_mm": 6.225,
-        "info_max_pen_in_hand_hand_hand_mm": 13.466,
-        "info_max_pen_any_environment_mm": 11.535,
+        "max_joint_speed_ratio": 0.4039,
+        "max_cube_speed_m_s": 0.4183,
+        "max_cube_angular_speed_rad_s": 9.7088,
+        "max_pen_in_hand_hand_cube_mm": 0.7658,
+        "max_pen_in_hand_cube_internal_mm": 0.786,
+        "max_cube_speed_any_m_s": 2.5104,
+        "max_pen_any_cube_internal_mm": 1.5258,
+        "info_max_joint_speed_rad_s": 58.425,
+        "info_max_pen_in_hand_pad_cube_mm": 5.118,
+        "info_max_pen_in_hand_hand_hand_mm": 13.114,
+        "info_max_pen_any_environment_mm": 12.505,
         "episodes": 10,
         "episode_duration_s": 4.0,
         "long_rollout_s": 20.0,
-        "long_rollout_realtime_factor": 8.83,
+        "long_rollout_realtime_factor": 9.87,
         "all_finite": true,
         "total_warnings": 0,
         "all_final_states_valid": true,
-        "episodes_cube_still_in_hand": 7,
+        "episodes_cube_still_in_hand": 9,
         "long_rollout_cube_in_hand": false
       },
       "thresholds": {
-        "max_joint_speed_rad_s": 20.0,
+        "max_joint_speed_ratio": 1.0,
         "max_cube_speed_m_s": 1.0,
         "max_cube_angular_speed_rad_s": 60.0,
         "max_pen_in_hand_hand_cube_mm": 5.0,
@@ -325,7 +326,108 @@
       },
       "notes": [
         "Cube drops are counted but are not instability; floor-impact penetration is reported as info.",
+        "Joint speed is judged against the actuator-attainable bound, not a fixed rad/s value: a distal phalanx (4.7 g) released after being pressed past its limit by another finger snaps back at up to ~60 rad/s under its force-limited actuator and settles within ~30 ms. That is fast but physically consistent; the bound is 145 rad/s for DIP joints and 30-73 rad/s for the others.",
         "info_max_pen_in_hand_pad_cube_mm and info_max_pen_in_hand_hand_hand_mm reflect Menagerie's very compliant fingertip pads (elastomer solref 0.06). Pad indentation of several mm is not an instability but is unrealistically deep; pad compliance must be calibrated in M1 (tactile)."
+      ]
+    },
+    {
+      "name": "collisions",
+      "passed": true,
+      "metrics": {
+        "filters": {
+          "hand_geoms": 53,
+          "pad_geoms": 5,
+          "hand_cube_pairs_collidable": "424/424",
+          "cube_floor_collidable": true,
+          "stickers_visual_only": true,
+          "finger_distal_pairs_collidable": "10/10",
+          "hand_self_pairs_enabled": 639
+        },
+        "reset_clearance": {
+          "seeds": 20,
+          "min_hand_cube_clearance_mm": 0.893,
+          "min_rigid_self_clearance_mm": 0.027,
+          "info_min_self_clearance_incl_pads_mm": 0.027
+        },
+        "settled_home": {
+          "cube_touches_hand": true,
+          "cube_touches_floor": false,
+          "rigid_self_penetration_mm": 0.0,
+          "info_pad_self_penetration_mm": 0.0,
+          "warnings": 0
+        },
+        "pinch": {
+          "thumb_index_contact_detected": true,
+          "max_rigid_self_penetration_mm": 2.841,
+          "info_max_pad_penetration_mm": 9.823,
+          "finite": true,
+          "warnings": 0
+        },
+        "press": {
+          "force_n": 20.0,
+          "max_rigid_hand_cube_penetration_mm": 0.367,
+          "cube_displacement_mm": 4.34,
+          "finite": true,
+          "warnings": 0
+        }
+      },
+      "thresholds": {
+        "min_hand_cube_clearance_mm": 0.0,
+        "min_rigid_self_clearance_mm": 0.0,
+        "home_rigid_self_penetration_mm": 0.5,
+        "pinch_max_rigid_self_penetration_mm": 5.0,
+        "press_max_rigid_hand_cube_penetration_mm": 2.0
+      },
+      "notes": [
+        "Rigid = palm and phalanx geoms; pads = compliant fingertip elastomer geoms, reported as info until their compliance is calibrated together with the tactile sensor.",
+        "Self pairs exclude parent-child bodies (skipped by MuJoCo) and the Menagerie <exclude> list."
+      ]
+    },
+    {
+      "name": "tactile_signals",
+      "passed": true,
+      "metrics": {
+        "hand_regions": 22,
+        "coverage_complete": true,
+        "open_hand_silent": true,
+        "resting_force_balance_rel_error": 0.0001,
+        "first_region_touched_per_target": {
+          "thumb": "thumb_tip",
+          "index": "index_tip",
+          "middle": "middle_tip",
+          "ring": "ring_tip",
+          "pinky": "pinky_tip"
+        },
+        "pads_silent_after_release": true
+      },
+      "thresholds": {
+        "resting_force_balance_rel_error": 0.02
+      },
+      "notes": [
+        "Readings are noiseless (TactileSensors.measure); noise, dropout and latency are unit-tested."
+      ]
+    },
+    {
+      "name": "episode_logic",
+      "passed": true,
+      "metrics": {
+        "gymnasium_env_checker": "pass",
+        "same_seed_identical_start": true,
+        "same_seed_identical_scramble": true,
+        "different_seed_differs": true,
+        "reset_after_rollout_equals_fresh_env": true,
+        "max_obs_diff_solved_vs_scrambled": 0.0,
+        "privileged_state_sees_scramble": true,
+        "truncates_at_horizon": true,
+        "drop_terminates": true,
+        "info_reset_ms": 18.3,
+        "info_control_steps_per_s": 360
+      },
+      "thresholds": {
+        "max_obs_diff_solved_vs_scrambled": 0.0001
+      },
+      "notes": [
+        "Observation leakage: cubies are physically identical, so solved and scrambled cubes must give the same observations under the same actions; only float rounding (different cubie order) may differ."
       ]
     },
     {

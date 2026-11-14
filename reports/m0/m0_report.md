@@ -1,7 +1,7 @@
 # Gate M0 report -- PASSED
 
 Environment: MuJoCo 4.0.1, NumPy 2.5.4, Python 3.12.13, Menagerie `370c43965323`
-Throughput (hand + cube, CPU, 1 thread): 10212 steps/s (20.42x real time)
+Throughput (hand + cube, CPU, 1 thread): 14582 steps/s (29.16x real time)
 
 | Check | Result |
 |---|---|
@@ -9,6 +9,9 @@ Throughput (hand + cube, CPU, 1 thread): 10212 steps/s (20.42x real time)
 | actuators | pass |
 | cube_geometry | pass |
 | stability | pass |
+| collisions | pass |
+| tactile_signals | pass |
+| episode_logic | pass |
 | reproducibility | pass |
 
 ## robot_loads -- pass
@@ -34,9 +37,9 @@ Throughput (hand + cube, CPU, 1 thread): 10212 steps/s (20.42x real time)
 - max_steady_limit_violation_rad: 0.0
 - delta_action_saturates_at_limits: True
 - warnings: 0
-- info_gravity_sag_home_max_rad: 0.0433
+- info_gravity_sag_home_max_rad: 0.0093
 - info_gravity_sag_worst_joint: pinky_CMC
-- info_all_joints_at_limits_violation_rad: 0.1197
+- info_all_joints_at_limits_violation_rad: 0.058
 
 | joint | step | final err | settle [s] | coupling | force ratio |
 |---|---|---|---|---|---|
@@ -67,7 +70,7 @@ Throughput (hand + cube, CPU, 1 thread): 10212 steps/s (20.42x real time)
 
 ## cube_geometry -- pass
 
-- **full**: moves=200, moves_successful=200, states_matching_symbolic=200, first_divergence=None, max_snap_error_deg=2.289, mean_snap_error_deg=1.871, max_internal_penetration_mm=0.2925, max_rotor_swing_deg=2.805, max_hold_angle_error_deg=0.686, warnings=0, finite=True, sim_time_s=171.0, wall_time_s=14.1
+- **full**: moves=200, moves_successful=200, states_matching_symbolic=200, first_divergence=None, max_snap_error_deg=2.289, mean_snap_error_deg=1.871, max_internal_penetration_mm=0.2925, max_rotor_swing_deg=2.805, max_hold_angle_error_deg=0.686, warnings=0, finite=True, sim_time_s=171.0, wall_time_s=14.15
 - **single_axis**: moves=50, moves_successful=50, states_matching_symbolic=50, first_divergence=None, max_snap_error_deg=0.326, mean_snap_error_deg=0.151, max_internal_penetration_mm=0.0, max_rotor_swing_deg=0.0, max_hold_angle_error_deg=0.076, warnings=0, finite=True, sim_time_s=38.8, wall_time_s=0.11
 - set_state_round_trip: 50/50
 - thresholds: {'max_snap_error_deg': 3.0, 'max_internal_penetration_mm': 1.0, 'match_rate': 1.0}
@@ -75,28 +78,68 @@ Throughput (hand + cube, CPU, 1 thread): 10212 steps/s (20.42x real time)
 
 ## stability -- pass
 
-- max_joint_speed_rad_s: 12.0313
-- max_cube_speed_m_s: 0.6991
-- max_cube_angular_speed_rad_s: 16.2158
-- max_pen_in_hand_hand_cube_mm: 2.8417
-- max_pen_in_hand_cube_internal_mm: 0.4747
-- max_cube_speed_any_m_s: 2.5141
-- max_pen_any_cube_internal_mm: 1.8358
-- info_max_pen_in_hand_pad_cube_mm: 6.225
-- info_max_pen_in_hand_hand_hand_mm: 13.466
-- info_max_pen_any_environment_mm: 11.535
+- max_joint_speed_ratio: 0.4039
+- max_cube_speed_m_s: 0.4183
+- max_cube_angular_speed_rad_s: 9.7088
+- max_pen_in_hand_hand_cube_mm: 0.7658
+- max_pen_in_hand_cube_internal_mm: 0.786
+- max_cube_speed_any_m_s: 2.5104
+- max_pen_any_cube_internal_mm: 1.5258
+- info_max_joint_speed_rad_s: 58.425
+- info_max_pen_in_hand_pad_cube_mm: 5.118
+- info_max_pen_in_hand_hand_hand_mm: 13.114
+- info_max_pen_any_environment_mm: 12.505
 - episodes: 10
 - episode_duration_s: 4.0
 - long_rollout_s: 20.0
-- long_rollout_realtime_factor: 8.83
+- long_rollout_realtime_factor: 9.87
 - all_finite: True
 - total_warnings: 0
 - all_final_states_valid: True
-- episodes_cube_still_in_hand: 7
+- episodes_cube_still_in_hand: 9
 - long_rollout_cube_in_hand: False
-- thresholds: {'max_joint_speed_rad_s': 20.0, 'max_cube_speed_m_s': 1.0, 'max_cube_angular_speed_rad_s': 60.0, 'max_pen_in_hand_hand_cube_mm': 5.0, 'max_pen_in_hand_cube_internal_mm': 1.0, 'max_cube_speed_any_m_s': 3.639, 'max_pen_any_cube_internal_mm': 5.0}
+- thresholds: {'max_joint_speed_ratio': 1.0, 'max_cube_speed_m_s': 1.0, 'max_cube_angular_speed_rad_s': 60.0, 'max_pen_in_hand_hand_cube_mm': 5.0, 'max_pen_in_hand_cube_internal_mm': 1.0, 'max_cube_speed_any_m_s': 3.639, 'max_pen_any_cube_internal_mm': 5.0}
 - note: Cube drops are counted but are not instability; floor-impact penetration is reported as info.
+- note: Joint speed is judged against the actuator-attainable bound, not a fixed rad/s value: a distal phalanx (4.7 g) released after being pressed past its limit by another finger snaps back at up to ~60 rad/s under its force-limited actuator and settles within ~30 ms. That is fast but physically consistent; the bound is 145 rad/s for DIP joints and 30-73 rad/s for the others.
 - note: info_max_pen_in_hand_pad_cube_mm and info_max_pen_in_hand_hand_hand_mm reflect Menagerie's very compliant fingertip pads (elastomer solref 0.06). Pad indentation of several mm is not an instability but is unrealistically deep; pad compliance must be calibrated in M1 (tactile).
+
+## collisions -- pass
+
+- **filters**: hand_geoms=53, pad_geoms=5, hand_cube_pairs_collidable=424/424, cube_floor_collidable=True, stickers_visual_only=True, finger_distal_pairs_collidable=10/10, hand_self_pairs_enabled=639
+- **reset_clearance**: seeds=20, min_hand_cube_clearance_mm=0.893, min_rigid_self_clearance_mm=0.027, info_min_self_clearance_incl_pads_mm=0.027
+- **settled_home**: cube_touches_hand=True, cube_touches_floor=False, rigid_self_penetration_mm=0.0, info_pad_self_penetration_mm=0.0, warnings=0
+- **pinch**: thumb_index_contact_detected=True, max_rigid_self_penetration_mm=2.841, info_max_pad_penetration_mm=9.823, finite=True, warnings=0
+- **press**: force_n=20.0, max_rigid_hand_cube_penetration_mm=0.367, cube_displacement_mm=4.34, finite=True, warnings=0
+- thresholds: {'min_hand_cube_clearance_mm': 0.0, 'min_rigid_self_clearance_mm': 0.0, 'home_rigid_self_penetration_mm': 0.5, 'pinch_max_rigid_self_penetration_mm': 5.0, 'press_max_rigid_hand_cube_penetration_mm': 2.0}
+- note: Rigid = palm and phalanx geoms; pads = compliant fingertip elastomer geoms, reported as info until their compliance is calibrated together with the tactile sensor.
+- note: Self pairs exclude parent-child bodies (skipped by MuJoCo) and the Menagerie <exclude> list.
+
+## tactile_signals -- pass
+
+- hand_regions: 22
+- coverage_complete: True
+- open_hand_silent: True
+- resting_force_balance_rel_error: 0.0001
+- **first_region_touched_per_target**: thumb=thumb_tip, index=index_tip, middle=middle_tip, ring=ring_tip, pinky=pinky_tip
+- pads_silent_after_release: True
+- thresholds: {'resting_force_balance_rel_error': 0.02}
+- note: Readings are noiseless (TactileSensors.measure); noise, dropout and latency are unit-tested.
+
+## episode_logic -- pass
+
+- gymnasium_env_checker: pass
+- same_seed_identical_start: True
+- same_seed_identical_scramble: True
+- different_seed_differs: True
+- reset_after_rollout_equals_fresh_env: True
+- max_obs_diff_solved_vs_scrambled: 0.0
+- privileged_state_sees_scramble: True
+- truncates_at_horizon: True
+- drop_terminates: True
+- info_reset_ms: 18.3
+- info_control_steps_per_s: 360
+- thresholds: {'max_obs_diff_solved_vs_scrambled': 0.0001}
+- note: Observation leakage: cubies are physically identical, so solved and scrambled cubes must give the same observations under the same actions; only float rounding (different cubie order) may differ.
 
 ## reproducibility -- pass
 

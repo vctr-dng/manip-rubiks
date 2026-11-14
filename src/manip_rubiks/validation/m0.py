@@ -12,6 +12,10 @@ Further simulation checks:
 
 * collision filters, contact-free resets, self-collision and tunnelling
                                   -> :func:`manip_rubiks.validation.collisions.check_collisions`
+* tactile signals are physically consistent
+                                  -> :func:`manip_rubiks.validation.tactile.check_tactile_signals`
+* environment seeding, resets, termination and observation leakage
+                                  -> :func:`manip_rubiks.validation.episodes.check_episode_logic`
 
 Run ``uv run manip-rubiks-m0`` to execute every check and write a report.
 Thresholds are engineering choices, recorded next to the measured values.
@@ -40,6 +44,8 @@ from manip_rubiks.validation.collisions import check_collisions
 from manip_rubiks.validation.common import CheckResult
 from manip_rubiks.validation.common import finite as _finite
 from manip_rubiks.validation.common import warnings_count as _warnings
+from manip_rubiks.validation.episodes import check_episode_logic
+from manip_rubiks.validation.tactile import check_tactile_signals
 
 
 # --------------------------------------------------------------------------- 1
@@ -558,6 +564,8 @@ def run_all(quick: bool = False) -> dict:
         check_cube_geometry(**scale),
         check_stability(**({"n_episodes": 3, "duration": 2.0, "long_duration": 5.0} if quick else {})),
         check_collisions(**({"n_seeds": 5} if quick else {})),
+        check_tactile_signals(),
+        check_episode_logic(),
         check_reproducibility(),
     ]
     return {

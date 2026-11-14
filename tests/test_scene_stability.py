@@ -44,6 +44,15 @@ def test_random_finger_rollout_is_stable(scene):
     assert stats["max_pen_in_hand_cube_internal_mm"] < 1.0
     assert stats["max_pen_in_hand_hand_cube_mm"] < 5.0
     assert stats["final_state_valid"]
+    assert stats["max_joint_speed_ratio"] < 1.0
+
+
+def test_actuator_speed_bounds(scene):
+    scene.reset(seed=0)
+    bounds = m0.actuator_speed_bounds(scene)
+    assert bounds.shape == (scene.robot.n,)
+    assert np.all(np.isfinite(bounds))
+    assert np.all((bounds > 20.0) & (bounds < 500.0))
 
 
 def test_reproducibility_check():

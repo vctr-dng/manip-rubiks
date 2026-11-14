@@ -360,6 +360,23 @@ def _contact_penetrations(
     return out
 
 
+def actuator_speed_bounds(scene: HandCubeScene) -> np.ndarray:
+    """Fastest speed each joint's actuator could produce on its own [rad/s].
+
+    ``sqrt(2 * tau_max * range / I)``: the actuator's force limit accelerating
+    the joint's inertia (diagonal of the mass matrix at the current pose, which
+    includes armature and the distal links) across its whole range. A joint
+    moving faster than this has gained energy the actuators cannot supply, which
+    signals numerical instability rather than a fast but legitimate motion.
+    """
+    m, d, r = scene.model, scene.data, scene.robot
+    mujoco.mj_forward(m, d)
+    full = np.zeros((m.nv, m.nv))
+    mujoco.mj_fullM(m, d, full)
+    inertia = np.diag(full)[r.dof_adr]
+    return np.sqrt(2.0 * r.force_limit * (r.q_max - r.q_min) / inertia)
+
+
 def rollout(scene: HandCubeScene, seed: int, duration: float) -> dict:
     """Random finger motions with the cube in hand; returns stability metrics.
 
@@ -374,9 +391,12 @@ def rollout(scene: HandCubeScene, seed: int, duration: float) -> dict:
     hand_geoms = np.array([g for g in range(m.ngeom) if m.body(m.geom_bodyid[g]).name.startswith("hand/")])
     pad_geoms = np.array([g for g in hand_geoms if m.geom(g).name.endswith("fingertip_collision")])
     w0 = _warnings(d)
+    speed_bounds = actuator_speed_bounds(scene)
     free = scene.cube.free_dof
     finite = True
-    in_hand = {"max_joint_speed_rad_s": 0.0, "max_cube_speed_m_s": 0.0, "max_cube_angular_speed_rad_s": 0.0}
+    in_hand = dict.fromkeys(
+        ("max_joint_speed_rad_s", "max_joint_speed_ratio", "max_cube_speed_m_s", "max_cube_angular_speed_rad_s"), 0.0
+    )
     pen_in_hand = dict.fromkeys(("hand_cube", "pad_cube", "cube_internal", "hand_hand", "environment"), 0.0)
     pen_any = dict(pen_in_hand)
     max_speed_any = 0.0
@@ -403,9 +423,9 @@ def rollout(scene: HandCubeScene, seed: int, duration: float) -> dict:
         if holding:
             for k, v in pens.items():
                 pen_in_hand[k] = max(pen_in_hand[k], v)
-            in_hand["max_joint_speed_rad_s"] = max(
-                in_hand["max_joint_speed_rad_s"], float(np.abs(scene.robot.qd()).max())
-            )
+            qd = np.abs(scene.robot.qd())
+            in_hand["max_joint_speed_rad_s"] = max(in_hand["max_joint_speed_rad_s"], float(qd.max()))
+            in_hand["max_joint_speed_ratio"] = max(in_hand["max_joint_speed_ratio"], float((qd / speed_bounds).max()))
             in_hand["max_cube_speed_m_s"] = max(in_hand["max_cube_speed_m_s"], speed)
             in_hand["max_cube_angular_speed_rad_s"] = max(
                 in_hand["max_cube_angular_speed_rad_s"], float(np.linalg.norm(d.qvel[free + 3 : free + 6]))
@@ -433,7 +453,8 @@ def check_stability(n_episodes: int = 10, duration: float = 4.0, long_duration: 
     smooth finger motions) and one long rollout. Pass criteria:
 
     * simulation always finite and free of MuJoCo warnings;
-    * while the cube is held: bounded joint and cube speeds, rigid hand-link
+    * while the cube is held: joint speeds below what each actuator could
+      produce (:func:`actuator_speed_bounds`), bounded cube speeds, rigid hand-link
       penetration into the cube below 5 mm, cubie interpenetration below
       the cube's mechanical gap scale;
     * at all times (including after a drop): cube speed below 1.5x the
@@ -455,7 +476,7 @@ def check_stability(n_episodes: int = 10, duration: float = 4.0, long_duration: 
 
     free_fall = float(np.sqrt(2 * 9.81 * scene.cfg.wrist_height))
     limits = {
-        "max_joint_speed_rad_s": 20.0,
+        "max_joint_speed_ratio": 1.0,
         "max_cube_speed_m_s": 1.0,
         "max_cube_angular_speed_rad_s": 60.0,
         "max_pen_in_hand_hand_cube_mm": 5.0,
@@ -466,6 +487,7 @@ def check_stability(n_episodes: int = 10, duration: float = 4.0, long_duration: 
     metrics = {k: round(worst(k), 4) for k in limits}
     metrics.update(
         {
+            "info_max_joint_speed_rad_s": round(worst("max_joint_speed_rad_s"), 3),
             "info_max_pen_in_hand_pad_cube_mm": round(worst("max_pen_in_hand_pad_cube_mm"), 3),
             "info_max_pen_in_hand_hand_hand_mm": round(worst("max_pen_in_hand_hand_hand_mm"), 3),
             "info_max_pen_any_environment_mm": round(worst("max_pen_any_environment_mm"), 3),
@@ -488,6 +510,10 @@ def check_stability(n_episodes: int = 10, duration: float = 4.0, long_duration: 
     )
     notes = [
         "Cube drops are counted but are not instability; floor-impact penetration is reported as info.",
+        "Joint speed is judged against the actuator-attainable bound, not a fixed rad/s value: a distal "
+        "phalanx (4.7 g) released after being pressed past its limit by another finger snaps back at up "
+        "to ~60 rad/s under its force-limited actuator and settles within ~30 ms. That is fast but "
+        "physically consistent; the bound is 145 rad/s for DIP joints and 30-73 rad/s for the others.",
         "info_max_pen_in_hand_pad_cube_mm and info_max_pen_in_hand_hand_hand_mm reflect Menagerie's very "
         "compliant fingertip pads (elastomer solref 0.06). Pad indentation of several mm is not an "
         "instability but is unrealistically deep; pad compliance must be calibrated in M1 (tactile).",

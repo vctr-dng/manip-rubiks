@@ -3,13 +3,6 @@
 Blindfolded Rubik's cube solving through tactile robotic manipulation, simulated in MuJoCo with a
 Sharpa Wave hand. See [`docs/project-draft.md`](docs/project-draft.md) for the research plan.
 
-## Status
-
-| Gate | Status | Evidence |
-|---|---|---|
-| **M0 — Simulation foundation** | passed | [`reports/m0/m0_report.md`](reports/m0/m0_report.md) |
-| M1 — Tactile foundation | not started | |
-
 ## Setup
 
 ```bash

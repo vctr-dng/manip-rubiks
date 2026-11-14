@@ -10,6 +10,11 @@ uv sync
 uv run pytest             # fast tests (~15 s)
 uv run pytest -m slow     # gate M0 in quick mode (~1 min)
 uv run manip-rubiks-m0    # full gate M0 validation, writes reports/m0/
+
+uv run manip-rubiks-train-grasp --name ppo_asym_s0      # PPO grasp policy, writes runs/grasp/ (~2.3 h)
+uv run tensorboard --logdir runs/grasp
+uv run manip-rubiks-eval-grasp --policy passive --policy scripted \
+    --policy learned=runs/grasp/ppo_asym_s0             # writes reports/grasp/
 ```
 
 ```python
@@ -39,6 +44,12 @@ src/manip_rubiks/
   simulation/tactile_sensors.py  contact-derived tactile readings (binary contact / 3D force per region)
   simulation/assets.py           pinned Menagerie fetch
   environments/hand_cube_env.py  Gymnasium base environment (episode logic, observation/privileged split)
+  environments/grasp_env.py      grasp stabilisation under wrist reorientation and pushes
+  policies/grasp_policy.py       passive and scripted power-grasp baselines
+  policies/learned.py            blindfolded deployment of a trained PPO actor
+  training/asymmetric.py         PPO actor-critic whose critic alone sees privileged cube state
+  training/train_grasp.py        PPO training with a difficulty curriculum
+  evaluation/grasp_benchmark.py  held-out grasp benchmark and report
   validation/m0.py               validation suite entry point and report
   validation/collisions.py       collision filters, reset clearance, pinch and press audits
   validation/tactile.py          tactile signal sanity checks
@@ -87,7 +98,57 @@ Cubies are physically identical, so a scramble cannot be seen in them; a test en
 and evaluation. It must never feed a blindfolded policy (draft section 3). The environment exposes it
 only in `info["privileged"]` (for asymmetric critics) and `info["cube_state"]`.
 
+## Grasp stabilisation
+
+**Task.** Palm-up, the cube simply rests in the hand. `GraspEnv` (`ManipRubiks/Grasp-v0`) emulates an
+arm reorienting the fixed wrist by rotating gravity around the hand. For the hand-cube dynamics this
+is equivalent to a static wrist rotation; arm accelerations are not modelled. Each 10 s episode
+starts palm-up. After 0.2–0.6 s the wrist follows minimum-jerk reorientations to random tilts up to
+palm-down, with dwells in between, while random pushes (up to 1.5 N and 0.02 N m, ~3 per episode)
+hit the cube. The actor observes the base observation plus `gravity`, the gravity direction in the
+hand frame: a real robot knows its wrist orientation from the arm's encoders.
+
+**Success** means the episode reaches its time limit with the cube in the hand, the puzzle
+configuration unchanged and every cubie within 10° of alignment. Twisting a layer while holding the
+cube counts as failure, since it corrupts the memorised puzzle state. A layer turned past 45°
+changes the snapped configuration and ends the episode.
+
+**Reward** (privileged ground truth allowed): alive bonus minus penalties on cube displacement,
+whole-cube rotation, layer misalignment, cube velocity, actuator effort and action rate, plus a large
+penalty on drops or unintended layer turns.
+
+**Training.** PPO (Stable-Baselines3) with an asymmetric actor-critic (draft section 25): the
+critic also reads the simulator's cube state, and the actor's MLP is fed only the non-privileged
+slice of the features, which a test enforces. Tilt range and push strength ramp linearly from 20 %
+to full difficulty over the first 40 % of training. PPO was chosen over SAC because many parallel
+environments are available. Throughput is physics-bound: a grasping control step costs ~4.5 ms of
+`mj_step`, and synchronous stepping waits for the slowest worker on the 8P+8E-core CPU, giving
+~1.2–1.5k steps/s with 24 workers. The reference run (`ppo_asym_s0`, 12M steps, 2.9 h) plateaued
+once full difficulty was reached at ~5M steps. The best checkpoint (7M steps, selected on
+in-training evaluation reward) is evaluated below.
+
+**Results** ([`reports/grasp/grasp_report.md`](reports/grasp/grasp_report.md), 100 held-out
+episodes per cell, 95 % Wilson intervals):
+
+| Condition | Passive cage | Scripted power grasp | PPO (blindfolded) |
+|---|---|---|---|
+| Palm-down hold | 0 % (100 % dropped) | 31 % | **98 %** (93–99 %) |
+| 90° tilt, random direction | 30 % | 35 % | **100 %** (96–100 %) |
+| Random reorientations | 3 % | 29 % | **100 %** (96–100 %) |
+| Random reorientations + pushes | 0 % | 13 % (67 % layer turned) | **77 %** (68–84 %) |
+
+The scripted power grasp never drops the cube, but its squeeze shears the R and L layers by
+~13° (median) and pushes then turn a layer outright. The learned grasp keeps layers within 2.8°
+(median) using ~40 % of the scripted grasp's actuator effort. Under pushes it still fails in
+23 % of episodes: 18 % unintended layer turns and 5 % drops. The 95 % target is met for wrist
+reorientation but not yet for external pushes.
+
 ## Known limitations / follow-ups
+
+- **Push robustness.** The grasp policy turns a layer in 18 % of pushed episodes. Possible next
+  steps: longer training at full difficulty, a recurrent actor, stronger alignment shaping, and
+  multiple seeds for the comparison. Trained weights (~6 MB) are not versioned: they exceed the
+  repository's large-file limit, so `runs/` must be regenerated with `manip-rubiks-train-grasp`.
 
 - **Fingertip pad compliance.** Menagerie's elastomer pads (`solref 0.06`) are very soft: the pads
   sink up to ~5 mm into the cube and ~10 mm into other links under full actuator force. This is not

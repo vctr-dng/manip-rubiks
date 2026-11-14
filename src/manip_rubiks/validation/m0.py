@@ -8,6 +8,11 @@ Acceptance requirements and how they are checked:
 4. No unacceptable instability during repeated interactions
                                   -> :func:`check_stability` (+ :func:`check_reproducibility`)
 
+Further simulation checks:
+
+* collision filters, contact-free resets, self-collision and tunnelling
+                                  -> :func:`manip_rubiks.validation.collisions.check_collisions`
+
 Run ``uv run manip-rubiks-m0`` to execute every check and write a report.
 Thresholds are engineering choices, recorded next to the measured values.
 """
@@ -18,7 +23,7 @@ import argparse
 import json
 import platform
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict
 from pathlib import Path
 
 import mujoco
@@ -31,23 +36,10 @@ from manip_rubiks.simulation.cube_model import fixture_cube_xml
 from manip_rubiks.simulation.robot_interface import JOINTS
 from manip_rubiks.simulation.rotations import min_jerk
 from manip_rubiks.simulation.scene_builder import HandCubeScene, SceneConfig
-
-
-@dataclass
-class CheckResult:
-    name: str
-    passed: bool
-    metrics: dict = field(default_factory=dict)
-    thresholds: dict = field(default_factory=dict)
-    notes: list[str] = field(default_factory=list)
-
-
-def _warnings(d: mujoco.MjData) -> int:
-    return int(sum(w.number for w in d.warning))
-
-
-def _finite(d: mujoco.MjData) -> bool:
-    return bool(np.isfinite(d.qpos).all() and np.isfinite(d.qvel).all() and np.isfinite(d.qacc).all())
+from manip_rubiks.validation.collisions import check_collisions
+from manip_rubiks.validation.common import CheckResult
+from manip_rubiks.validation.common import finite as _finite
+from manip_rubiks.validation.common import warnings_count as _warnings
 
 
 # --------------------------------------------------------------------------- 1
@@ -565,6 +557,7 @@ def run_all(quick: bool = False) -> dict:
         check_actuators(),
         check_cube_geometry(**scale),
         check_stability(**({"n_episodes": 3, "duration": 2.0, "long_duration": 5.0} if quick else {})),
+        check_collisions(**({"n_seeds": 5} if quick else {})),
         check_reproducibility(),
     ]
     return {

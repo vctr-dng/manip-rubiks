@@ -11,8 +11,8 @@ uv run pytest             # fast tests (~15 s)
 uv run pytest -m slow     # gate M0 in quick mode (~1 min)
 uv run manip-rubiks-m0    # full gate M0 validation, writes reports/m0/
 
+docker/up.sh                                            # MLflow server on http://127.0.0.1:5000
 uv run manip-rubiks-train-grasp --name ppo_asym_s0      # PPO grasp policy, writes runs/grasp/ (~2.3 h)
-uv run tensorboard --logdir runs/grasp
 uv run manip-rubiks-eval-grasp --policy passive --policy scripted \
     --policy learned=runs/grasp/ppo_asym_s0             # writes reports/grasp/
 ```
@@ -26,6 +26,11 @@ env = gym.make("ManipRubiks/HandCube-v0", config=EnvConfig(scramble_moves=5))
 obs, info = env.reset(seed=0)  # obs: q, qd, effort, q_target, tactile, prev_action
 obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
 ```
+
+Training logs metrics, parameters and the final and best checkpoints to MLflow (experiment `grasp`,
+run `--name`). The tracking server is `$MLFLOW_TRACKING_URI` if set, otherwise the local Docker server
+started by `docker/up.sh`; `--mlflow-uri` and `--experiment` override both. Training stops at once if
+the server is unreachable.
 
 Offscreen rendering (`render_mode="rgb_array"`) on a headless Linux machine needs `MUJOCO_GL=egl`.
 
@@ -49,12 +54,14 @@ src/manip_rubiks/
   policies/learned.py            blindfolded deployment of a trained PPO actor
   training/asymmetric.py         PPO actor-critic whose critic alone sees privileged cube state
   training/train_grasp.py        PPO training with a difficulty curriculum
+  training/tracking.py           MLflow tracking: SB3 logger output, server check
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
   validation/m0.py               validation suite entry point and report
   validation/collisions.py       collision filters, reset clearance, pinch and press audits
   validation/tactile.py          tactile signal sanity checks
   validation/episodes.py         environment seeding, reset, termination and leakage checks
 tests/                           pytest suite
+docker/                          MLflow tracking server (Docker Compose, started by up.sh)
 ```
 
 ## Simulation design (M0)

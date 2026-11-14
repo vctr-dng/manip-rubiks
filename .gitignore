@@ -230,5 +230,5 @@ __marimo__/
 # MuJoCo runtime warnings
 MUJOCO_LOG.TXT
 
-# Training runs (checkpoints, TensorBoard logs)
+# Training runs (local checkpoints; metrics and models also go to MLflow)
 runs/

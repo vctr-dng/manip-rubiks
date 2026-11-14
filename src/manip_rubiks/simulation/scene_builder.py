@@ -24,9 +24,10 @@ HAND_PREFIX = "hand/"
 CUBE_PREFIX = "cube/"
 
 # A light cage: fingers flexed into a wall in front of the cube, thumb opposed.
+# Thumb and pinky are abducted slightly so the hand starts free of self-contact.
 HOME_POSE: dict[str, float] = {
     "thumb_CMC_FE": 1.2,
-    "thumb_CMC_AA": 0.0,
+    "thumb_CMC_AA": -0.15,
     "thumb_MCP_FE": 0.3,
     "thumb_MCP_AA": 0.0,
     "thumb_IP": 0.3,
@@ -44,7 +45,7 @@ HOME_POSE: dict[str, float] = {
     "ring_DIP": 0.3,
     "pinky_CMC": 0.1,
     "pinky_MCP_FE": 0.9,
-    "pinky_MCP_AA": 0.0,
+    "pinky_MCP_AA": 0.1,
     "pinky_PIP": 0.6,
     "pinky_DIP": 0.3,
 }
@@ -80,9 +81,22 @@ class SceneConfig:
     tilt: float = np.deg2rad(10.0)  # raise the fingertips by this angle [rad]
     timestep: float = 0.002
     cube_offset: float = 0.06  # cube centre along the fingers from the wrist [m]
+    # Cube centre across the palm (hand y, negative = away from the thumb) [m].
+    # At 0 the cube would spawn 15 mm inside the thumb metacarpal.
+    cube_lateral: float = -0.02
     drop_height: float = 0.003  # clearance between palm and cube at reset [m]
     home_pose: dict[str, float] = field(default_factory=lambda: dict(HOME_POSE))
     settle_time: float = 0.3  # passive settling after reset [s]
+    # Contact time constant and damping ratio for the rigid hand links (palm,
+    # phalanges). Menagerie ships them at 10-20 ms, soft enough for a strong
+    # pinch to push two links ~15 mm into each other. ``None`` keeps
+    # Menagerie's values. The compliant fingertip pads are never changed.
+    link_solref: tuple[float, float] | None = (0.005, 1.0)
+
+
+def is_pad(geom_name: str) -> bool:
+    """Fingertip elastomer pads (compliant contact, the tactile surface)."""
+    return geom_name.endswith("fingertip_collision")
 
 
 def mount_rotation(tilt: float) -> np.ndarray:
@@ -93,6 +107,10 @@ def mount_rotation(tilt: float) -> np.ndarray:
 def build_spec(cfg: SceneConfig) -> mujoco.MjSpec:
     parent = mujoco.MjSpec.from_string(_PARENT_XML.format(timestep=cfg.timestep))
     hand = mujoco.MjSpec.from_file(str(sharpa_wave_xml(cfg.side)))
+    if cfg.link_solref is not None:
+        for g in hand.geoms:
+            if (g.contype or g.conaffinity) and not is_pad(g.name):
+                g.solref = list(cfg.link_solref)
     r_mount = mount_rotation(cfg.tilt)
     frame = parent.worldbody.add_frame(name="wrist_mount", pos=[0.0, 0.0, cfg.wrist_height], quat=mat_to_quat(r_mount))
     parent.attach(hand, frame=frame, prefix=HAND_PREFIX)
@@ -121,7 +139,7 @@ class HandCubeScene:
     def cube_rest_pose(self) -> tuple[np.ndarray, np.ndarray]:
         """Nominal cube pose above the palm, aligned with the hand."""
         palm_top = 0.0215 + self.cfg.drop_height + self.cfg.cube_params.size / 2
-        offset_hand = np.array([palm_top, 0.0, self.cfg.cube_offset])  # along palm normal, along fingers
+        offset_hand = np.array([palm_top, self.cfg.cube_lateral, self.cfg.cube_offset])  # normal, across, along
         pos = self.wrist_pos + self.r_mount @ offset_hand
         r_cube = axis_angle_matrix(np.array([0.0, 1.0, 0.0]), -self.cfg.tilt)  # cube z = palm normal
         return pos, r_cube

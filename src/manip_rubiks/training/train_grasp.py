@@ -1,0 +1,192 @@
+"""Train a blindfolded grasp-stabilisation policy with PPO.
+
+The actor sees proprioception, tactile readings and the wrist's gravity
+direction. With ``--asymmetric`` (the default) the critic also sees the
+privileged cube state (draft section 25). Tilt range and pushes ramp up from
+``--difficulty-start`` to full difficulty over the first
+``--curriculum-fraction`` of training, while evaluation always runs at full
+difficulty.
+
+Example::
+
+    uv run manip-rubiks-train-grasp --timesteps 20_000_000 --n-envs 20 --name ppo_asym
+    uv run tensorboard --logdir runs/grasp
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import time
+from dataclasses import asdict
+from pathlib import Path
+
+import numpy as np
+import torch as th
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import BaseCallback, CallbackList, EvalCallback
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor, VecNormalize
+from torch import nn
+
+from manip_rubiks.environments import GRASP_OBS_KEYS, GraspConfig, GraspEnv
+from manip_rubiks.training.asymmetric import PRIVILEGED_KEY, AsymmetricActorCriticPolicy, PrivilegedObservation
+
+EPISODE_METRICS = ("misalignment", "displacement", "rotation", "dropped", "state_preserved")
+
+
+def make_env(difficulty: float, asymmetric: bool):
+    def _init():
+        env = GraspEnv(GraspConfig(difficulty=difficulty))
+        return PrivilegedObservation(env) if asymmetric else env
+
+    return _init
+
+
+def make_vec_env(n: int, difficulty: float, asymmetric: bool, seed: int) -> VecMonitor:
+    venv = SubprocVecEnv([make_env(difficulty, asymmetric) for _ in range(n)], start_method="forkserver")
+    venv.seed(seed)
+    return VecMonitor(venv)
+
+
+class DifficultyCurriculum(BaseCallback):
+    """Linear difficulty ramp, applied at the start of every rollout."""
+
+    def __init__(self, start: float, ramp_steps: int) -> None:
+        super().__init__()
+        self.start, self.ramp_steps = start, max(ramp_steps, 1)
+
+    def difficulty(self) -> float:
+        return float(min(1.0, self.start + (1.0 - self.start) * self.num_timesteps / self.ramp_steps))
+
+    def _on_rollout_start(self) -> None:
+        d = self.difficulty()
+        self.training_env.env_method("set_difficulty", d)
+        self.logger.record("curriculum/difficulty", d)
+
+    def _on_step(self) -> bool:
+        return True
+
+
+class EpisodeMetrics(BaseCallback):
+    """Log privileged end-of-episode metrics (evaluation only, never fed to the actor)."""
+
+    def _on_step(self) -> bool:
+        for done, info in zip(self.locals["dones"], self.locals["infos"], strict=True):
+            if done:
+                for k in EPISODE_METRICS:
+                    self.logger.record_mean(f"episode/{k}", float(info[k]))
+        return True
+
+
+class SaveNormalizerOnBest(BaseCallback):
+    """Store the VecNormalize statistics next to each new best model."""
+
+    def __init__(self, path: Path) -> None:
+        super().__init__()
+        self.path = path
+
+    def _on_step(self) -> bool:
+        self.model.get_vec_normalize_env().save(str(self.path))
+        return True
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--name", default=time.strftime("ppo_%Y%m%d_%H%M%S"))
+    p.add_argument("--out", type=Path, default=Path("runs/grasp"))
+    p.add_argument("--timesteps", type=int, default=20_000_000)
+    p.add_argument("--n-envs", type=int, default=20)
+    p.add_argument("--n-eval-envs", type=int, default=4)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--asymmetric", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--difficulty-start", type=float, default=0.2)
+    p.add_argument("--curriculum-fraction", type=float, default=0.4)
+    p.add_argument("--n-steps", type=int, default=256, help="rollout length per environment")
+    p.add_argument("--batch-size", type=int, default=2560)
+    p.add_argument("--n-epochs", type=int, default=5)
+    p.add_argument("--lr", type=float, default=3e-4)
+    p.add_argument("--gamma", type=float, default=0.99)
+    p.add_argument("--gae-lambda", type=float, default=0.95)
+    p.add_argument("--clip-range", type=float, default=0.2)
+    p.add_argument("--ent-coef", type=float, default=0.0)
+    p.add_argument("--target-kl", type=float, default=0.02)
+    p.add_argument("--log-std-init", type=float, default=-1.0)
+    p.add_argument("--eval-every", type=int, default=500_000, help="timesteps between evaluations")
+    p.add_argument("--eval-episodes", type=int, default=40)
+    p.add_argument("--torch-threads", type=int, default=4)
+    return p.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    th.set_num_threads(args.torch_threads)
+    run_dir = args.out / args.name
+    (run_dir / "best").mkdir(parents=True, exist_ok=True)
+    config = {"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
+    config["grasp_config"] = asdict(GraspConfig())
+    (run_dir / "config.json").write_text(json.dumps(config, indent=2, default=float))
+
+    venv = VecNormalize(make_vec_env(args.n_envs, args.difficulty_start, args.asymmetric, args.seed), gamma=args.gamma)
+    eval_venv = VecNormalize(
+        make_vec_env(args.n_eval_envs, 1.0, args.asymmetric, args.seed + 10_000), training=False, norm_reward=False
+    )
+    policy_kwargs = {
+        "net_arch": {"pi": [256, 256], "vf": [512, 512]},
+        "activation_fn": nn.ELU,
+        "log_std_init": args.log_std_init,
+        "actor_keys": GRASP_OBS_KEYS,
+        "critic_keys": (PRIVILEGED_KEY,) if args.asymmetric else (),
+    }
+    model = PPO(
+        AsymmetricActorCriticPolicy,
+        venv,
+        n_steps=args.n_steps,
+        batch_size=args.batch_size,
+        n_epochs=args.n_epochs,
+        learning_rate=args.lr,
+        gamma=args.gamma,
+        gae_lambda=args.gae_lambda,
+        clip_range=args.clip_range,
+        ent_coef=args.ent_coef,
+        target_kl=args.target_kl,
+        policy_kwargs=policy_kwargs,
+        tensorboard_log=str(args.out / "tb"),
+        seed=args.seed,
+        device="cpu",
+        verbose=1,
+    )
+    eval_cb = EvalCallback(
+        eval_venv,
+        n_eval_episodes=args.eval_episodes,
+        eval_freq=max(args.eval_every // args.n_envs, 1),
+        best_model_save_path=str(run_dir / "best"),
+        callback_on_new_best=SaveNormalizerOnBest(run_dir / "best" / "vecnormalize.pkl"),
+        deterministic=True,
+    )
+    callbacks = CallbackList(
+        [
+            DifficultyCurriculum(args.difficulty_start, int(args.curriculum_fraction * args.timesteps)),
+            EpisodeMetrics(),
+            eval_cb,
+        ]
+    )
+    t0 = time.time()
+    try:
+        model.learn(args.timesteps, callback=callbacks, tb_log_name=args.name)
+    finally:
+        model.save(run_dir / "model.zip")
+        venv.save(str(run_dir / "vecnormalize.pkl"))
+        elapsed = time.time() - t0
+        summary = {
+            "timesteps": int(model.num_timesteps),
+            "wall_clock_s": elapsed,
+            "steps_per_s": model.num_timesteps / max(elapsed, 1e-9),
+            "best_eval_mean_reward": float(getattr(eval_cb, "best_mean_reward", np.nan)),
+        }
+        (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
+        venv.close()
+        eval_venv.close()
+
+
+if __name__ == "__main__":
+    main()

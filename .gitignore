@@ -229,3 +229,6 @@ __marimo__/
 
 # MuJoCo runtime warnings
 MUJOCO_LOG.TXT
+
+# Training runs (checkpoints, TensorBoard logs)
+runs/

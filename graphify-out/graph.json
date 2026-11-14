@@ -34,94 +34,92 @@
       "norm_label": "important: keep the reminder string free of backticks and $(...) constructs."
     },
     {
-      "label": "curves.py",
+      "label": "act.py",
       "file_type": "code",
-      "source_file": ".scratch/curves.py",
+      "source_file": ".scratch/act.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "scratch_curves",
-      "community": 58,
-      "norm_label": "curves.py"
-    },
-    {
-      "label": "g1.py",
-      "file_type": "code",
-      "source_file": ".scratch/g1.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_g1",
-      "community": 59,
-      "norm_label": "g1.py"
-    },
-    {
-      "label": "g2.py",
-      "file_type": "code",
-      "source_file": ".scratch/g2.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_g2",
-      "community": 60,
-      "norm_label": "g2.py"
-    },
-    {
-      "label": "g3.py",
-      "file_type": "code",
-      "source_file": ".scratch/g3.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_g3",
-      "community": 61,
-      "norm_label": "g3.py"
-    },
-    {
-      "label": "g4.py",
-      "file_type": "code",
-      "source_file": ".scratch/g4.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_g4",
+      "id": "scratch_act",
       "community": 62,
-      "norm_label": "g4.py"
+      "norm_label": "act.py"
     },
     {
-      "label": "g5.py",
+      "label": "close.py",
       "file_type": "code",
-      "source_file": ".scratch/g5.py",
+      "source_file": ".scratch/close.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "scratch_g5",
+      "id": "scratch_close",
+      "community": 0,
+      "norm_label": "close.py"
+    },
+    {
+      "label": "grav()",
+      "file_type": "code",
+      "source_file": ".scratch/close.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "scratch_close_grav",
+      "community": 0,
+      "norm_label": "grav()"
+    },
+    {
+      "label": "grav.py",
+      "file_type": "code",
+      "source_file": ".scratch/grav.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "scratch_grav",
+      "community": 0,
+      "norm_label": "grav.py"
+    },
+    {
+      "label": "grav()",
+      "file_type": "code",
+      "source_file": ".scratch/grav.py",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "scratch_grav_grav",
+      "community": 0,
+      "norm_label": "grav()"
+    },
+    {
+      "label": "speed.py",
+      "file_type": "code",
+      "source_file": ".scratch/speed.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "scratch_speed",
       "community": 63,
-      "norm_label": "g5.py"
+      "norm_label": "speed.py"
     },
     {
-      "label": "rewrite_report.py",
+      "label": "up.sh",
       "file_type": "code",
-      "source_file": ".scratch/rewrite_report.py",
+      "source_file": "docker/up.sh",
       "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
       "_origin": "ast",
-      "id": "scratch_rewrite_report",
-      "community": 64,
-      "norm_label": "rewrite_report.py"
+      "id": "docker_up",
+      "community": 61,
+      "norm_label": "up.sh"
     },
     {
-      "label": "steptime.py",
+      "label": "up.sh script",
       "file_type": "code",
-      "source_file": ".scratch/steptime.py",
+      "source_file": "docker/up.sh",
       "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
       "_origin": "ast",
-      "id": "scratch_steptime",
-      "community": 65,
-      "norm_label": "steptime.py"
-    },
-    {
-      "label": "vecspeed.py",
-      "file_type": "code",
-      "source_file": ".scratch/vecspeed.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_vecspeed",
-      "community": 66,
-      "norm_label": "vecspeed.py"
+      "id": "docker_up_sh__entry",
+      "community": 61,
+      "norm_label": "up.sh script"
     },
     {
       "label": "manip-rubiks",
@@ -893,7 +891,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state",
-      "community": 3,
+      "community": 32,
       "norm_label": "cube_state.py"
     },
     {
@@ -903,7 +901,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rotation_group",
-      "community": 3,
+      "community": 32,
       "norm_label": "_rotation_group()"
     },
     {
@@ -913,7 +911,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_py_ndarray",
-      "community": 3,
+      "community": 32,
       "norm_label": "ndarray"
     },
     {
@@ -923,7 +921,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_axis_rotation",
-      "community": 3,
+      "community": 32,
       "norm_label": "axis_rotation()"
     },
     {
@@ -933,7 +931,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_snap_rotation",
-      "community": 3,
+      "community": 32,
       "norm_label": "snap_rotation()"
     },
     {
@@ -963,7 +961,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_parse",
-      "community": 3,
+      "community": 51,
       "norm_label": ".parse()"
     },
     {
@@ -973,7 +971,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_normal",
-      "community": 3,
+      "community": 32,
       "norm_label": ".normal()"
     },
     {
@@ -993,7 +991,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_rotation",
-      "community": 3,
+      "community": 32,
       "norm_label": ".rotation()"
     },
     {
@@ -1033,7 +1031,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_format_moves",
-      "community": 3,
+      "community": 32,
       "norm_label": "format_moves()"
     },
     {
@@ -1063,7 +1061,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_solved",
-      "community": 3,
+      "community": 40,
       "norm_label": ".solved()"
     },
     {
@@ -1083,7 +1081,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_positions",
-      "community": 3,
+      "community": 58,
       "norm_label": ".positions()"
     },
     {
@@ -1183,7 +1181,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_repr",
-      "community": 3,
+      "community": 58,
       "norm_label": ".__repr__()"
     },
     {
@@ -1193,7 +1191,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_is_valid",
-      "community": 3,
+      "community": 58,
       "norm_label": ".is_valid()"
     },
     {
@@ -1203,7 +1201,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_to_perm_ori",
-      "community": 3,
+      "community": 58,
       "norm_label": ".to_perm_ori()"
     },
     {
@@ -1213,7 +1211,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_random_moves",
-      "community": 3,
+      "community": 51,
       "norm_label": ".random_moves()"
     },
     {
@@ -1223,7 +1221,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_1",
-      "community": 3,
+      "community": 32,
       "norm_label": "symbolic 2x2x2 cube state.  state is stored the same way the physics model is pa"
     },
     {
@@ -1233,7 +1231,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_68",
-      "community": 3,
+      "community": 32,
       "norm_label": "all 24 proper rotation matrices with integer entries (signed permutations)."
     },
     {
@@ -1243,7 +1241,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_88",
-      "community": 3,
+      "community": 32,
       "norm_label": "integer rotation matrix for ``quarter_turns`` * 90 degrees about a unit axis."
     },
     {
@@ -1253,7 +1251,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_101",
-      "community": 3,
+      "community": 32,
       "norm_label": "return (index into rotations, angular distance in radians) of the closest group"
     },
     {
@@ -1283,7 +1281,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_179",
-      "community": 3,
+      "community": 58,
       "norm_label": "current position signs (8, 3) of every cubie."
     },
     {
@@ -1323,7 +1321,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_235",
-      "community": 3,
+      "community": 58,
       "norm_label": "every cubie occupies a distinct slot and the total twist is 0 mod 3."
     },
     {
@@ -1333,7 +1331,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_245",
-      "community": 3,
+      "community": 58,
       "norm_label": "kociemba corner representation.          ``perm[slot]`` is the cubie in ``slot``"
     },
     {
@@ -1343,7 +1341,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_267",
-      "community": 3,
+      "community": 51,
       "norm_label": "random sequence avoiding consecutive moves on the same axis.          if all all"
     },
     {
@@ -2613,7 +2611,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder",
-      "community": 9,
+      "community": 2,
       "norm_label": "scene_builder.py"
     },
     {
@@ -2623,7 +2621,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_sceneconfig",
-      "community": 9,
+      "community": 2,
       "norm_label": "sceneconfig"
     },
     {
@@ -2633,7 +2631,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_is_pad",
-      "community": 9,
+      "community": 2,
       "norm_label": "is_pad()"
     },
     {
@@ -2643,7 +2641,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_mount_rotation",
-      "community": 9,
+      "community": 2,
       "norm_label": "mount_rotation()"
     },
     {
@@ -2653,7 +2651,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_py_ndarray",
-      "community": 9,
+      "community": 44,
       "norm_label": "ndarray"
     },
     {
@@ -2663,7 +2661,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_build_spec",
-      "community": 9,
+      "community": 2,
       "norm_label": "build_spec()"
     },
     {
@@ -2673,7 +2671,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_py_mjspec",
-      "community": 9,
+      "community": 2,
       "norm_label": "mjspec"
     },
     {
@@ -2683,7 +2681,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene",
-      "community": 44,
+      "community": 4,
       "norm_label": "handcubescene"
     },
     {
@@ -2693,7 +2691,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene_init",
-      "community": 9,
+      "community": 2,
       "norm_label": ".__init__()"
     },
     {
@@ -2743,7 +2741,7 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene_step",
-      "community": 44,
+      "community": 4,
       "norm_label": ".step()"
     },
     {
@@ -2753,7 +2751,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene_warnings",
-      "community": 44,
+      "community": 4,
       "norm_label": ".warnings()"
     },
     {
@@ -2763,7 +2761,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_rationale_1",
-      "community": 9,
+      "community": 2,
       "norm_label": "hand + cube scene with a fixed wrist (docs/project-draft.md sections 6 and 12)."
     },
     {
@@ -2773,7 +2771,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_rationale_99",
-      "community": 9,
+      "community": 2,
       "norm_label": "fingertip elastomer pads (compliant contact, the tactile surface)."
     },
     {
@@ -2783,7 +2781,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_rationale_125",
-      "community": 44,
+      "community": 4,
       "norm_label": "compiled scene with robot and cube interfaces and deterministic resets."
     },
     {
@@ -3683,7 +3681,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_geoms_init",
-      "community": 9,
+      "community": 2,
       "norm_label": ".__init__()"
     },
     {
@@ -3873,7 +3871,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common",
-      "community": 51,
+      "community": 39,
       "norm_label": "common.py"
     },
     {
@@ -3893,7 +3891,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_warnings_count",
-      "community": 51,
+      "community": 39,
       "norm_label": "warnings_count()"
     },
     {
@@ -3903,7 +3901,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_py_mjdata",
-      "community": 51,
+      "community": 39,
       "norm_label": "mjdata"
     },
     {
@@ -3913,7 +3911,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_finite",
-      "community": 51,
+      "community": 39,
       "norm_label": "finite()"
     },
     {
@@ -3923,7 +3921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_rationale_1",
-      "community": 51,
+      "community": 39,
       "norm_label": "shared helpers for the simulation validation checks."
     },
     {
@@ -3933,7 +3931,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes",
-      "community": 30,
+      "community": 52,
       "norm_label": "episodes.py"
     },
     {
@@ -3943,7 +3941,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_obs_equal",
-      "community": 30,
+      "community": 52,
       "norm_label": "_obs_equal()"
     },
     {
@@ -3953,7 +3951,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_max_obs_diff",
-      "community": 30,
+      "community": 52,
       "norm_label": "_max_obs_diff()"
     },
     {
@@ -3963,7 +3961,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_check_episode_logic",
-      "community": 30,
+      "community": 52,
       "norm_label": "check_episode_logic()"
     },
     {
@@ -3973,7 +3971,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_rationale_1",
-      "community": 30,
+      "community": 52,
       "norm_label": "episode logic of the gymnasium environment: seeding, resets, termination, leakag"
     },
     {
@@ -4033,7 +4031,7 @@
       "source_location": "L329",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_m0_contact_penetrations",
-      "community": 52,
+      "community": 4,
       "norm_label": "_contact_penetrations()"
     },
     {
@@ -4043,7 +4041,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_m0_py_ndarray",
-      "community": 52,
+      "community": 4,
       "norm_label": "ndarray"
     },
     {
@@ -4053,7 +4051,7 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_m0_actuator_speed_bounds",
-      "community": 52,
+      "community": 4,
       "norm_label": "actuator_speed_bounds()"
     },
     {
@@ -4183,7 +4181,7 @@
       "source_location": "L332",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_m0_rationale_332",
-      "community": 52,
+      "community": 4,
       "norm_label": "deepest current penetration [m] per contact category.      ``hand_cube`` covers"
     },
     {
@@ -4193,7 +4191,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_m0_rationale_362",
-      "community": 52,
+      "community": 4,
       "norm_label": "fastest speed each joint's actuator could produce on its own [rad/s].      ``sqr"
     },
     {
@@ -4233,7 +4231,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile",
-      "community": 9,
+      "community": 59,
       "norm_label": "tactile.py"
     },
     {
@@ -4243,7 +4241,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_sensors",
-      "community": 9,
+      "community": 59,
       "norm_label": "_sensors()"
     },
     {
@@ -4253,7 +4251,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_probe_fingertips",
-      "community": 9,
+      "community": 59,
       "norm_label": "probe_fingertips()"
     },
     {
@@ -4263,7 +4261,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_check_tactile_signals",
-      "community": 9,
+      "community": 59,
       "norm_label": "check_tactile_signals()"
     },
     {
@@ -4273,7 +4271,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_rationale_1",
-      "community": 9,
+      "community": 59,
       "norm_label": "tactile signal sanity checks (contact-derived sensors).  these establish that th"
     },
     {
@@ -4283,7 +4281,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_rationale_27",
-      "community": 9,
+      "community": 59,
       "norm_label": "drop a small sphere onto each fingertip pad of the open hand.      returns the f"
     },
     {
@@ -4333,7 +4331,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_cube_kinematics.py"
     },
     {
@@ -4343,7 +4341,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_make_fixture",
-      "community": 3,
+      "community": 51,
       "norm_label": "make_fixture()"
     },
     {
@@ -4373,7 +4371,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_set_state_round_trip",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_set_state_round_trip()"
     },
     {
@@ -4383,7 +4381,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_read_is_invariant_to_whole_set_rotation",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_read_is_invariant_to_whole_set_rotation()"
     },
     {
@@ -4393,7 +4391,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_single_axis_set_state_rejects_unreachable_states",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_single_axis_set_state_rejects_unreachable_states()"
     },
     {
@@ -4403,7 +4401,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_full_cube_single_move_from_solved",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_full_cube_single_move_from_solved()"
     },
     {
@@ -4413,7 +4411,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_full_cube_random_sequence_matches_symbolic",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_full_cube_random_sequence_matches_symbolic()"
     },
     {
@@ -4423,7 +4421,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_single_axis_sequence",
-      "community": 3,
+      "community": 51,
       "norm_label": "test_single_axis_sequence()"
     },
     {
@@ -4443,7 +4441,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_rationale_1",
-      "community": 3,
+      "community": 51,
       "norm_label": "physical cube models: structure, state i/o and externally driven legal moves."
     },
     {
@@ -4533,7 +4531,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_environment_test_initial_state_options",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_initial_state_options()"
     },
     {
@@ -4833,7 +4831,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "tests_test_grasp_env_test_unintended_layer_turn_terminates",
-      "community": 3,
+      "community": 36,
       "norm_label": "test_unintended_layer_turn_terminates()"
     },
     {
@@ -4853,7 +4851,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_observation_leakage",
-      "community": 2,
+      "community": 30,
       "norm_label": "test_observation_leakage.py"
     },
     {
@@ -4873,7 +4871,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_observation_contains_only_robot_and_tactile_signals",
-      "community": 2,
+      "community": 30,
       "norm_label": "test_observation_contains_only_robot_and_tactile_signals()"
     },
     {
@@ -4883,7 +4881,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_observations_do_not_depend_on_the_scramble",
-      "community": 2,
+      "community": 30,
       "norm_label": "test_observations_do_not_depend_on_the_scramble()"
     },
     {
@@ -4893,7 +4891,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_privileged_state_layout",
-      "community": 2,
+      "community": 30,
       "norm_label": "test_privileged_state_layout()"
     },
     {
@@ -4903,7 +4901,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_rationale_1",
-      "community": 2,
+      "community": 30,
       "norm_label": "the actor observation must not carry privileged cube state (docs/project-draft.m"
     },
     {
@@ -4913,7 +4911,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_rationale_34",
-      "community": 2,
+      "community": 30,
       "norm_label": "cubies are physically identical, so a scramble is invisible without vision."
     },
     {
@@ -4923,7 +4921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_robot",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_robot.py"
     },
     {
@@ -4933,7 +4931,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_test_robot_hand_scene",
-      "community": 9,
+      "community": 2,
       "norm_label": "hand_scene()"
     },
     {
@@ -4943,7 +4941,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_robot_test_hand_loads_with_22_actuated_joints",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_hand_loads_with_22_actuated_joints()"
     },
     {
@@ -4953,7 +4951,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_test_robot_test_mount_is_palm_up",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_mount_is_palm_up()"
     },
     {
@@ -4963,7 +4961,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_robot_test_fingertips_above_palm_and_forward",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_fingertips_above_palm_and_forward()"
     },
     {
@@ -4973,7 +4971,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_robot_test_targets_are_clipped",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_targets_are_clipped()"
     },
     {
@@ -4983,7 +4981,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "tests_test_robot_test_delta_action",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_delta_action()"
     },
     {
@@ -4993,7 +4991,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_robot_test_position_actuator_tracks_step",
-      "community": 9,
+      "community": 2,
       "norm_label": "test_position_actuator_tracks_step()"
     },
     {
@@ -5003,7 +5001,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_robot_rationale_1",
-      "community": 9,
+      "community": 2,
       "norm_label": "sharpa wave integration: loading, actuator mapping and action interface."
     },
     {
@@ -5123,7 +5121,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_symbolic_transitions.py"
     },
     {
@@ -5133,7 +5131,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_rotation_group_has_24_proper_rotations",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_rotation_group_has_24_proper_rotations()"
     },
     {
@@ -5143,7 +5141,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_axis_rotation_right_hand_rule",
-      "community": 3,
+      "community": 32,
       "norm_label": "test_axis_rotation_right_hand_rule()"
     },
     {
@@ -5153,7 +5151,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_snap_rotation_reports_angle",
-      "community": 3,
+      "community": 32,
       "norm_label": "test_snap_rotation_reports_angle()"
     },
     {
@@ -5163,7 +5161,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_quarter_turn_has_order_four",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_quarter_turn_has_order_four()"
     },
     {
@@ -5173,7 +5171,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_layer_contains_four_cubies",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_layer_contains_four_cubies()"
     },
     {
@@ -5183,7 +5181,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_inverse_and_parsing",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_inverse_and_parsing()"
     },
     {
@@ -5193,7 +5191,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_sexy_move_has_order_six",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_sexy_move_has_order_six()"
     },
     {
@@ -5203,7 +5201,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_kociemba_orientation_convention",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_kociemba_orientation_convention()"
     },
     {
@@ -5213,7 +5211,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_opposite_faces_are_equivalent_up_to_whole_cube_rotation",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_opposite_faces_are_equivalent_up_to_whole_cube_rotation()"
     },
     {
@@ -5223,7 +5221,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_random_sequences_stay_valid",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_random_sequences_stay_valid()"
     },
     {
@@ -5233,7 +5231,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_single_corner_twist_is_detected_as_illegal",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_single_corner_twist_is_detected_as_illegal()"
     },
     {
@@ -5243,7 +5241,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_swapped_corners_without_twist_is_valid_on_2x2",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_swapped_corners_without_twist_is_valid_on_2x2()"
     },
     {
@@ -5253,7 +5251,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_symbolic_transitions_test_reachable_state_count_with_fixed_corner",
-      "community": 3,
+      "community": 40,
       "norm_label": "test_reachable_state_count_with_fixed_corner()"
     },
     {
@@ -5263,7 +5261,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_tactile",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_tactile.py"
     },
     {
@@ -5273,7 +5271,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_tactile_settled",
-      "community": 32,
+      "community": 31,
       "norm_label": "settled()"
     },
     {
@@ -5283,7 +5281,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_tactile_sensors",
-      "community": 32,
+      "community": 31,
       "norm_label": "sensors()"
     },
     {
@@ -5293,7 +5291,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_test_tactile_test_fingertip_layout",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_fingertip_layout()"
     },
     {
@@ -5303,7 +5301,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_tactile_test_hand_coverage_includes_every_hand_collision_geom",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_hand_coverage_includes_every_hand_collision_geom()"
     },
     {
@@ -5313,7 +5311,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_tactile_test_whole_hand_force_balances_cube_weight",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_whole_hand_force_balances_cube_weight()"
     },
     {
@@ -5323,7 +5321,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "tests_test_tactile_test_local_frame_preserves_magnitude",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_local_frame_preserves_magnitude()"
     },
     {
@@ -5333,7 +5331,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tests_test_tactile_test_open_hand_reads_zero",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_open_hand_reads_zero()"
     },
     {
@@ -5343,7 +5341,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "tests_test_tactile_test_contact_appears_when_cube_is_pressed_onto_a_fingertip",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_contact_appears_when_cube_is_pressed_onto_a_fingertip()"
     },
     {
@@ -5353,7 +5351,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_tactile_test_latency",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_latency()"
     },
     {
@@ -5363,7 +5361,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_tactile_test_dropout_and_noise",
-      "community": 32,
+      "community": 31,
       "norm_label": "test_dropout_and_noise()"
     },
     {
@@ -5373,7 +5371,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_tactile_rationale_1",
-      "community": 32,
+      "community": 31,
       "norm_label": "contact-derived tactile readings: layout, physical consistency and corruption."
     },
     {
@@ -5383,7 +5381,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_tactile_rationale_42",
-      "community": 32,
+      "community": 31,
       "norm_label": "hand-hand contacts cancel, so the net force on the hand is the cube's weight."
     },
     {
@@ -5493,7 +5491,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_validation_checks",
-      "community": 9,
+      "community": 52,
       "norm_label": "test_validation_checks.py"
     },
     {
@@ -5503,7 +5501,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_test_validation_checks_test_tactile_signals_check",
-      "community": 9,
+      "community": 52,
       "norm_label": "test_tactile_signals_check()"
     },
     {
@@ -5513,7 +5511,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_test_validation_checks_test_episode_logic_check",
-      "community": 9,
+      "community": 52,
       "norm_label": "test_episode_logic_check()"
     },
     {
@@ -5523,23 +5521,23 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_validation_checks_rationale_1",
-      "community": 9,
+      "community": 52,
       "norm_label": "tactile-signal and episode-logic validation checks."
     },
     {
-      "label": "CLAUDE.md",
+      "label": "AGENTS.md",
       "file_type": "document",
-      "source_file": "CLAUDE.md",
+      "source_file": "AGENTS.md",
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
       "community": 24,
-      "norm_label": "claude.md"
+      "norm_label": "agents.md"
     },
     {
       "label": "graphify",
       "file_type": "document",
-      "source_file": "CLAUDE.md",
+      "source_file": "AGENTS.md",
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_graphify",
@@ -5549,7 +5547,7 @@
     {
       "label": "Versioning",
       "file_type": "document",
-      "source_file": "CLAUDE.md",
+      "source_file": "AGENTS.md",
       "source_location": "L14",
       "_origin": "ast",
       "id": "claude_versioning",
@@ -7413,7 +7411,7 @@
       "source_location": "L2261",
       "_origin": "ast",
       "id": "docs_project_draft_part_xvii_final_recommendations",
-      "community": 34,
+      "community": 60,
       "norm_label": "part xvii \u2014 final recommendations"
     },
     {
@@ -7423,7 +7421,7 @@
       "source_location": "L2263",
       "_origin": "ast",
       "id": "docs_project_draft_41_recommended_implementation_decisions",
-      "community": 34,
+      "community": 60,
       "norm_label": "41. recommended implementation decisions"
     },
     {
@@ -7433,7 +7431,7 @@
       "source_location": "L2287",
       "_origin": "ast",
       "id": "docs_project_draft_42_recommended_order_of_execution",
-      "community": 34,
+      "community": 60,
       "norm_label": "42. recommended order of execution"
     },
     {
@@ -7443,7 +7441,7 @@
       "source_location": "L2305",
       "_origin": "ast",
       "id": "docs_project_draft_43_final_project_definition",
-      "community": 34,
+      "community": 60,
       "norm_label": "43. final project definition"
     },
     {
@@ -7453,7 +7451,7 @@
       "source_location": "L2341",
       "_origin": "ast",
       "id": "docs_project_draft_appendix_a_essential_resources",
-      "community": 40,
+      "community": 34,
       "norm_label": "appendix a \u2014 essential resources"
     },
     {
@@ -7463,7 +7461,7 @@
       "source_location": "L2343",
       "_origin": "ast",
       "id": "docs_project_draft_simulation_and_robot_models",
-      "community": 40,
+      "community": 34,
       "norm_label": "simulation and robot models"
     },
     {
@@ -7473,7 +7471,7 @@
       "source_location": "L2363",
       "_origin": "ast",
       "id": "docs_project_draft_core_research_papers",
-      "community": 40,
+      "community": 34,
       "norm_label": "core research papers"
     },
     {
@@ -7483,7 +7481,7 @@
       "source_location": "L2383",
       "_origin": "ast",
       "id": "docs_project_draft_additional_research_directions",
-      "community": 40,
+      "community": 34,
       "norm_label": "additional research directions"
     },
     {
@@ -7646,6 +7644,58 @@
       "weight": 1.0,
       "source": "opencode_plugins_graphify_rationale_4",
       "target": "opencode_plugins_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".scratch/close.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "scratch_close",
+      "target": "scratch_close_grav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": ".scratch/close.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "scratch_close_grav",
+      "target": "src_manip_rubiks_simulation_rotations_axis_angle_matrix"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".scratch/grav.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "scratch_grav",
+      "target": "scratch_grav_grav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": ".scratch/grav.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "scratch_grav_grav",
+      "target": "src_manip_rubiks_simulation_rotations_axis_angle_matrix"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docker/up.sh",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docker_up",
+      "target": "docker_up_sh__entry",
       "confidence_score": 1.0
     },
     {
@@ -18445,7 +18495,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
+      "source_file": "AGENTS.md",
       "source_location": "L1",
       "weight": 1.0,
       "source": "claude",
@@ -18455,7 +18505,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
+      "source_file": "AGENTS.md",
       "source_location": "L14",
       "weight": 1.0,
       "source": "claude",
@@ -20514,5 +20564,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "1927ed5af88f19768a65a586810a6aee95af4919"
+  "built_at_commit": "68508ed2a1944d3ad4e58ee52ccff1398f081e38"
 }

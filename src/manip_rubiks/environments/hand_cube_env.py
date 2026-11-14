@@ -112,6 +112,7 @@ class HandCubeEnv(gym.Env):
         self._steps = 0
         self._tactile_reading = np.zeros(self.tactile.shape)
         self.initial_state = CubeState.solved()
+        self.cube_reading = None  # snapped ground-truth reading from the last ``_info`` call
         self._renderer: mujoco.Renderer | None = None
 
     # ------------------------------------------------------------- episode
@@ -195,12 +196,13 @@ class HandCubeEnv(gym.Env):
         unstable = self.scene.warnings() > 0 or not (
             np.isfinite(self.data.qpos).all() and np.isfinite(self.data.qvel).all()
         )
+        self.cube_reading = self.cube.read()  # privileged; cached for task rewards
         return {
             "steps": self._steps,
             "sim_time": float(self.data.time),
             "dropped": bool(np.linalg.norm(pos - self.rest_pos) > self.cfg.drop_distance),
             "unstable": bool(unstable),
-            "cube_state": self.cube.read().state,
+            "cube_state": self.cube_reading.state,
             "initial_state": self.initial_state,
             "privileged": self.privileged_state(),
         }

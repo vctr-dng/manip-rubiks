@@ -9,27 +9,34 @@ difficulty.
 
 Example::
 
+    docker/up.sh                                  # MLflow server on http://127.0.0.1:5000
     uv run manip-rubiks-train-grasp --timesteps 12_000_000 --name ppo_asym
-    uv run tensorboard --logdir runs/grasp
+
+Metrics, parameters and the trained model are logged to MLflow (experiment
+``--experiment``, run ``--name``). Checkpoints are also kept in ``runs/grasp``.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from dataclasses import asdict
 from pathlib import Path
 
+import mlflow
 import numpy as np
 import torch as th
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, EvalCallback
+from stable_baselines3.common.logger import HumanOutputFormat, Logger
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor, VecNormalize
 from torch import nn
 
 from manip_rubiks.environments import GRASP_OBS_KEYS, GraspConfig, GraspEnv
 from manip_rubiks.training.asymmetric import PRIVILEGED_KEY, AsymmetricActorCriticPolicy, PrivilegedObservation
+from manip_rubiks.training.tracking import MLflowOutputFormat, check_server, flatten_params, tracking_uri
 
 EPISODE_METRICS = ("misalignment", "displacement", "rotation", "dropped", "state_preserved")
 
@@ -114,18 +121,33 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--eval-every", type=int, default=500_000, help="timesteps between evaluations")
     p.add_argument("--eval-episodes", type=int, default=40)
     p.add_argument("--torch-threads", type=int, default=4)
+    p.add_argument("--mlflow-uri", default=None, help="tracking URI (default: $MLFLOW_TRACKING_URI or local server)")
+    p.add_argument("--experiment", default="grasp", help="MLflow experiment name")
     return p.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     th.set_num_threads(args.torch_threads)
+    uri = args.mlflow_uri or tracking_uri()
+    check_server(uri)
+    mlflow.set_tracking_uri(uri)
+    mlflow.set_experiment(args.experiment)
     run_dir = args.out / args.name
     (run_dir / "best").mkdir(parents=True, exist_ok=True)
     config = {"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     config["grasp_config"] = asdict(GraspConfig())
     (run_dir / "config.json").write_text(json.dumps(config, indent=2, default=float))
+    with mlflow.start_run(run_name=args.name):
+        mlflow.log_params(flatten_params(config))
+        mlflow.set_tags({"task": "grasp", "algorithm": "PPO", "run_dir": str(run_dir)})
+        try:
+            _train(args, run_dir)
+        finally:  # keep whatever was saved, also when training is interrupted
+            mlflow.log_artifacts(str(run_dir), artifact_path="run")
 
+
+def _train(args: argparse.Namespace, run_dir: Path) -> None:
     venv = VecNormalize(make_vec_env(args.n_envs, args.difficulty_start, args.asymmetric, args.seed), gamma=args.gamma)
     eval_venv = VecNormalize(
         make_vec_env(args.n_eval_envs, 1.0, args.asymmetric, args.seed + 10_000), training=False, norm_reward=False
@@ -150,11 +172,11 @@ def main(argv: list[str] | None = None) -> None:
         ent_coef=args.ent_coef,
         target_kl=args.target_kl,
         policy_kwargs=policy_kwargs,
-        tensorboard_log=str(args.out / "tb"),
         seed=args.seed,
         device="cpu",
         verbose=1,
     )
+    model.set_logger(Logger(str(run_dir), [HumanOutputFormat(sys.stdout), MLflowOutputFormat()]))
     eval_cb = EvalCallback(
         eval_venv,
         n_eval_episodes=args.eval_episodes,
@@ -172,7 +194,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     t0 = time.time()
     try:
-        model.learn(args.timesteps, callback=callbacks, tb_log_name=args.name)
+        model.learn(args.timesteps, callback=callbacks)
     finally:
         model.save(run_dir / "model.zip")
         venv.save(str(run_dir / "vecnormalize.pkl"))
@@ -184,6 +206,9 @@ def main(argv: list[str] | None = None) -> None:
             "best_eval_mean_reward": float(getattr(eval_cb, "best_mean_reward", np.nan)),
         }
         (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
+        mlflow.log_metrics(
+            {f"summary/{k}": float(v) for k, v in summary.items() if np.isfinite(v)}, step=int(model.num_timesteps)
+        )
         venv.close()
         eval_venv.close()
 

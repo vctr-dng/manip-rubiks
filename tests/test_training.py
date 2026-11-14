@@ -1,5 +1,6 @@
 """Asymmetric PPO: the actor must never depend on privileged state; deployment must stay blindfolded."""
 
+import mlflow
 import numpy as np
 import pytest
 import torch as th
@@ -80,11 +81,15 @@ def test_saved_policy_deploys_without_privileged_state(model, tmp_path):
 
 
 @pytest.mark.slow
-def test_training_cli_writes_a_loadable_run(tmp_path):
+def test_training_cli_writes_a_loadable_run(tmp_path, monkeypatch):
+    monkeypatch.setenv("MLFLOW_ALLOW_FILE_STORE", "true")
+    mlruns = tmp_path / "mlruns"
     train_main(
         [
             "--name=t",
             f"--out={tmp_path}",
+            f"--mlflow-uri=file://{mlruns}",
+            "--experiment=test",
             "--timesteps=256",
             "--n-envs=2",
             "--n-eval-envs=1",
@@ -100,3 +105,12 @@ def test_training_cli_writes_a_loadable_run(tmp_path):
     policy = LearnedPolicy.from_run(run)
     obs, _ = GraspEnv().reset(seed=0)
     assert policy(obs).shape == (22,)
+
+    mlflow.set_tracking_uri(f"file://{mlruns}")
+    (logged,) = mlflow.search_runs(experiment_names=["test"], output_format="list")
+    assert logged.info.run_name == "t" and logged.info.status == "FINISHED"
+    assert logged.data.params["args.timesteps"] == "256"
+    assert "time/fps" in logged.data.metrics and "summary/timesteps" in logged.data.metrics
+    artifacts = {a.path for a in mlflow.MlflowClient().list_artifacts(logged.info.run_id, "run")}
+    assert {"run/model.zip", "run/vecnormalize.pkl", "run/config.json", "run/summary.json", "run/best"} <= artifacts
+    mlflow.set_tracking_uri(None)

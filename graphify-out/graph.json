@@ -34,66 +34,6 @@
       "norm_label": "important: keep the reminder string free of backticks and $(...) constructs."
     },
     {
-      "label": "act.py",
-      "file_type": "code",
-      "source_file": ".scratch/act.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_act",
-      "community": 62,
-      "norm_label": "act.py"
-    },
-    {
-      "label": "close.py",
-      "file_type": "code",
-      "source_file": ".scratch/close.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_close",
-      "community": 0,
-      "norm_label": "close.py"
-    },
-    {
-      "label": "grav()",
-      "file_type": "code",
-      "source_file": ".scratch/close.py",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "scratch_close_grav",
-      "community": 0,
-      "norm_label": "grav()"
-    },
-    {
-      "label": "grav.py",
-      "file_type": "code",
-      "source_file": ".scratch/grav.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_grav",
-      "community": 0,
-      "norm_label": "grav.py"
-    },
-    {
-      "label": "grav()",
-      "file_type": "code",
-      "source_file": ".scratch/grav.py",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "scratch_grav_grav",
-      "community": 0,
-      "norm_label": "grav()"
-    },
-    {
-      "label": "speed.py",
-      "file_type": "code",
-      "source_file": ".scratch/speed.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scratch_speed",
-      "community": 63,
-      "norm_label": "speed.py"
-    },
-    {
       "label": "up.sh",
       "file_type": "code",
       "source_file": "docker/up.sh",
@@ -181,7 +121,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_environments_grasp_env",
-      "community": 36,
+      "community": 30,
       "norm_label": "grasp_env.py"
     },
     {
@@ -421,7 +361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_environments_grasp_env_rationale_1",
-      "community": 36,
+      "community": 30,
       "norm_label": "grasp stabilisation: keep hold of the cube while the wrist reorients (docs/proje"
     },
     {
@@ -941,7 +881,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move",
-      "community": 0,
+      "community": 32,
       "norm_label": "move"
     },
     {
@@ -951,7 +891,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_post_init",
-      "community": 0,
+      "community": 32,
       "norm_label": ".__post_init__()"
     },
     {
@@ -961,7 +901,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_parse",
-      "community": 51,
+      "community": 40,
       "norm_label": ".parse()"
     },
     {
@@ -981,7 +921,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_signed_angle",
-      "community": 0,
+      "community": 32,
       "norm_label": ".signed_angle()"
     },
     {
@@ -1001,7 +941,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_inverse",
-      "community": 0,
+      "community": 32,
       "norm_label": ".inverse()"
     },
     {
@@ -1011,7 +951,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_move_str",
-      "community": 0,
+      "community": 32,
       "norm_label": ".__str__()"
     },
     {
@@ -1021,7 +961,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_parse_moves",
-      "community": 3,
+      "community": 40,
       "norm_label": "parse_moves()"
     },
     {
@@ -1081,7 +1021,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_positions",
-      "community": 58,
+      "community": 3,
       "norm_label": ".positions()"
     },
     {
@@ -1091,7 +1031,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_layer",
-      "community": 3,
+      "community": 32,
       "norm_label": ".layer()"
     },
     {
@@ -1101,7 +1041,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_apply",
-      "community": 3,
+      "community": 32,
       "norm_label": ".apply()"
     },
     {
@@ -1111,7 +1051,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_apply_sequence",
-      "community": 3,
+      "community": 32,
       "norm_label": ".apply_sequence()"
     },
     {
@@ -1181,7 +1121,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_repr",
-      "community": 58,
+      "community": 3,
       "norm_label": ".__repr__()"
     },
     {
@@ -1191,7 +1131,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_is_valid",
-      "community": 58,
+      "community": 3,
       "norm_label": ".is_valid()"
     },
     {
@@ -1201,7 +1141,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_to_perm_ori",
-      "community": 58,
+      "community": 3,
       "norm_label": ".to_perm_ori()"
     },
     {
@@ -1211,7 +1151,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_cubestate_random_moves",
-      "community": 51,
+      "community": 40,
       "norm_label": ".random_moves()"
     },
     {
@@ -1261,7 +1201,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_135",
-      "community": 0,
+      "community": 32,
       "norm_label": "rotation angle about the outward face normal, in (-pi, pi]."
     },
     {
@@ -1281,7 +1221,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_179",
-      "community": 58,
+      "community": 3,
       "norm_label": "current position signs (8, 3) of every cubie."
     },
     {
@@ -1291,7 +1231,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_183",
-      "community": 3,
+      "community": 32,
       "norm_label": "indices of the cubies currently in ``face``."
     },
     {
@@ -1321,7 +1261,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_235",
-      "community": 58,
+      "community": 3,
       "norm_label": "every cubie occupies a distinct slot and the total twist is 0 mod 3."
     },
     {
@@ -1331,7 +1271,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_245",
-      "community": 58,
+      "community": 3,
       "norm_label": "kociemba corner representation.          ``perm[slot]`` is the cubie in ``slot``"
     },
     {
@@ -1341,7 +1281,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "src_manip_rubiks_planning_cube_state_rationale_267",
-      "community": 51,
+      "community": 40,
       "norm_label": "random sequence avoiding consecutive moves on the same axis.          if all all"
     },
     {
@@ -1371,7 +1311,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy",
-      "community": 5,
+      "community": 36,
       "norm_label": "grasp_policy.py"
     },
     {
@@ -1381,7 +1321,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_passivepolicy",
-      "community": 5,
+      "community": 36,
       "norm_label": "passivepolicy"
     },
     {
@@ -1391,7 +1331,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_passivepolicy_init",
-      "community": 5,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -1401,7 +1341,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_passivepolicy_reset",
-      "community": 5,
+      "community": 36,
       "norm_label": ".reset()"
     },
     {
@@ -1411,7 +1351,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_passivepolicy_call",
-      "community": 5,
+      "community": 36,
       "norm_label": ".__call__()"
     },
     {
@@ -1421,7 +1361,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_py_ndarray",
-      "community": 5,
+      "community": 36,
       "norm_label": "ndarray"
     },
     {
@@ -1431,7 +1371,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_scriptedgrasppolicy",
-      "community": 5,
+      "community": 36,
       "norm_label": "scriptedgrasppolicy"
     },
     {
@@ -1441,7 +1381,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_scriptedgrasppolicy_init",
-      "community": 5,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -1451,7 +1391,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_scriptedgrasppolicy_reset",
-      "community": 5,
+      "community": 36,
       "norm_label": ".reset()"
     },
     {
@@ -1461,7 +1401,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_scriptedgrasppolicy_call",
-      "community": 5,
+      "community": 36,
       "norm_label": ".__call__()"
     },
     {
@@ -1471,7 +1411,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_rationale_1",
-      "community": 5,
+      "community": 36,
       "norm_label": "scripted grasp baselines.  both policies use only the non-privileged observation"
     },
     {
@@ -1481,7 +1421,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_rationale_29",
-      "community": 5,
+      "community": 36,
       "norm_label": "zero action: the hand keeps its home cage."
     },
     {
@@ -1491,7 +1431,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_manip_rubiks_policies_grasp_policy_rationale_42",
-      "community": 5,
+      "community": 36,
       "norm_label": "drive the joint targets to a fixed grasp pose as fast as the action bound allows"
     },
     {
@@ -1741,7 +1681,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface",
-      "community": 0,
+      "community": 6,
       "norm_label": "cubeinterface"
     },
     {
@@ -1751,7 +1691,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_init",
-      "community": 0,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -1761,7 +1701,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_py_mjmodel",
-      "community": 0,
+      "community": 6,
       "norm_label": "mjmodel"
     },
     {
@@ -1771,7 +1711,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_py_mjdata",
-      "community": 0,
+      "community": 6,
       "norm_label": "mjdata"
     },
     {
@@ -1781,7 +1721,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_py_variant",
-      "community": 0,
+      "community": 6,
       "norm_label": "variant"
     },
     {
@@ -1791,7 +1731,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_cube_body_ids",
-      "community": 0,
+      "community": 6,
       "norm_label": "._cube_body_ids()"
     },
     {
@@ -1801,7 +1741,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_py_ndarray",
-      "community": 0,
+      "community": 6,
       "norm_label": "ndarray"
     },
     {
@@ -1811,7 +1751,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_core_pose",
-      "community": 0,
+      "community": 6,
       "norm_label": ".core_pose()"
     },
     {
@@ -1821,7 +1761,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_cubie_rotations",
-      "community": 0,
+      "community": 6,
       "norm_label": ".cubie_rotations()"
     },
     {
@@ -1841,7 +1781,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_set_state",
-      "community": 0,
+      "community": 6,
       "norm_label": ".set_state()"
     },
     {
@@ -1851,7 +1791,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_set_pose",
-      "community": 0,
+      "community": 6,
       "norm_label": ".set_pose()"
     },
     {
@@ -1861,7 +1801,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_hold",
-      "community": 0,
+      "community": 6,
       "norm_label": ".hold()"
     },
     {
@@ -1871,7 +1811,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_release",
-      "community": 0,
+      "community": 6,
       "norm_label": ".release()"
     },
     {
@@ -1891,7 +1831,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_cubeinterface_cubie_angular_velocities",
-      "community": 0,
+      "community": 6,
       "norm_label": ".cubie_angular_velocities()"
     },
     {
@@ -1991,7 +1931,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_rationale_42",
-      "community": 0,
+      "community": 6,
       "norm_label": "reads and writes the physical state of a cube built by :mod:`cube_model`."
     },
     {
@@ -2001,7 +1941,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_rationale_75",
-      "community": 0,
+      "community": 6,
       "norm_label": "(8, 3, 3) cubie rotations relative to the core body."
     },
     {
@@ -2021,7 +1961,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_rationale_106",
-      "community": 0,
+      "community": 6,
       "norm_label": "write a symbolic configuration into ``qpos`` (call ``mj_forward`` afterwards)."
     },
     {
@@ -2031,7 +1971,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_rationale_132",
-      "community": 0,
+      "community": 6,
       "norm_label": "activate the fixture weld holding cubie ``index`` at a rotation relative to the"
     },
     {
@@ -2051,7 +1991,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_cube_interface_rationale_156",
-      "community": 0,
+      "community": 6,
       "norm_label": "(8, 3) world-frame angular velocity of each cubie relative to the core (full var"
     },
     {
@@ -2251,7 +2191,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface",
-      "community": 6,
+      "community": 2,
       "norm_label": "robot_interface.py"
     },
     {
@@ -2261,7 +2201,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface",
-      "community": 6,
+      "community": 2,
       "norm_label": "robotinterface"
     },
     {
@@ -2271,7 +2211,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_init",
-      "community": 6,
+      "community": 2,
       "norm_label": ".__init__()"
     },
     {
@@ -2281,7 +2221,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_py_mjmodel",
-      "community": 6,
+      "community": 2,
       "norm_label": "mjmodel"
     },
     {
@@ -2291,7 +2231,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_py_mjdata",
-      "community": 6,
+      "community": 2,
       "norm_label": "mjdata"
     },
     {
@@ -2301,7 +2241,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_n",
-      "community": 6,
+      "community": 2,
       "norm_label": ".n()"
     },
     {
@@ -2311,7 +2251,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_q",
-      "community": 6,
+      "community": 2,
       "norm_label": ".q()"
     },
     {
@@ -2321,7 +2261,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_py_ndarray",
-      "community": 6,
+      "community": 2,
       "norm_label": "ndarray"
     },
     {
@@ -2331,7 +2271,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_qd",
-      "community": 6,
+      "community": 2,
       "norm_label": ".qd()"
     },
     {
@@ -2341,7 +2281,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_effort",
-      "community": 6,
+      "community": 2,
       "norm_label": ".effort()"
     },
     {
@@ -2351,7 +2291,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_target",
-      "community": 6,
+      "community": 2,
       "norm_label": ".target()"
     },
     {
@@ -2361,7 +2301,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_fingertip_positions",
-      "community": 6,
+      "community": 2,
       "norm_label": ".fingertip_positions()"
     },
     {
@@ -2371,7 +2311,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_set_target",
-      "community": 6,
+      "community": 2,
       "norm_label": ".set_target()"
     },
     {
@@ -2381,7 +2321,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_apply_action",
-      "community": 6,
+      "community": 2,
       "norm_label": ".apply_action()"
     },
     {
@@ -2391,7 +2331,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_robotinterface_reset",
-      "community": 6,
+      "community": 2,
       "norm_label": ".reset()"
     },
     {
@@ -2401,7 +2341,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_rationale_1",
-      "community": 6,
+      "community": 2,
       "norm_label": "joint-level interface to the sharpa wave hand (docs/project-draft.md section 31)"
     },
     {
@@ -2411,7 +2351,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_rationale_21",
-      "community": 6,
+      "community": 2,
       "norm_label": "read joint state and command position targets for the hand.      actions follow"
     },
     {
@@ -2421,7 +2361,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_rationale_58",
-      "community": 6,
+      "community": 2,
       "norm_label": "actuator forces (the simulated analogue of joint-torque feedback)."
     },
     {
@@ -2431,7 +2371,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_robot_interface_rationale_74",
-      "community": 6,
+      "community": 2,
       "norm_label": "delta joint-target action from section 12 (``k_a`` in rad per control step)."
     },
     {
@@ -2441,7 +2381,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations",
-      "community": 0,
+      "community": 44,
       "norm_label": "rotations.py"
     },
     {
@@ -2451,7 +2391,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_skew",
-      "community": 0,
+      "community": 44,
       "norm_label": "skew()"
     },
     {
@@ -2461,7 +2401,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_py_ndarray",
-      "community": 0,
+      "community": 44,
       "norm_label": "ndarray"
     },
     {
@@ -2471,7 +2411,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_axis_angle_matrix",
-      "community": 0,
+      "community": 44,
       "norm_label": "axis_angle_matrix()"
     },
     {
@@ -2481,7 +2421,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_log_rotation",
-      "community": 0,
+      "community": 44,
       "norm_label": "log_rotation()"
     },
     {
@@ -2501,7 +2441,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_twist_angle",
-      "community": 0,
+      "community": 44,
       "norm_label": "twist_angle()"
     },
     {
@@ -2511,7 +2451,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_wrap_angle",
-      "community": 0,
+      "community": 44,
       "norm_label": "wrap_angle()"
     },
     {
@@ -2521,7 +2461,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_mat_to_quat",
-      "community": 0,
+      "community": 44,
       "norm_label": "mat_to_quat()"
     },
     {
@@ -2531,7 +2471,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_chordal_mean",
-      "community": 0,
+      "community": 44,
       "norm_label": "chordal_mean()"
     },
     {
@@ -2551,7 +2491,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_rationale_1",
-      "community": 0,
+      "community": 44,
       "norm_label": "small rotation helpers (numpy only)."
     },
     {
@@ -2561,7 +2501,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_rationale_20",
-      "community": 0,
+      "community": 44,
       "norm_label": "rotation vector (axis * angle) of a rotation matrix, robust near pi."
     },
     {
@@ -2571,7 +2511,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_rationale_40",
-      "community": 0,
+      "community": 44,
       "norm_label": "signed twist of rotation ``r`` about unit ``axis`` (swing-twist decomposition),"
     },
     {
@@ -2581,7 +2521,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_rationale_51",
-      "community": 0,
+      "community": 44,
       "norm_label": "rotation matrix to unit quaternion (w, x, y, z) with w >= 0."
     },
     {
@@ -2591,7 +2531,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_rotations_rationale_71",
-      "community": 0,
+      "community": 44,
       "norm_label": "rotation closest (frobenius) to the arithmetic mean of rotation matrices."
     },
     {
@@ -2711,7 +2651,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene_reset",
-      "community": 44,
+      "community": 4,
       "norm_label": ".reset()"
     },
     {
@@ -2731,7 +2671,7 @@
       "source_location": "L190",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_handcubescene_hand_in_contact",
-      "community": 44,
+      "community": 4,
       "norm_label": "._hand_in_contact()"
     },
     {
@@ -2801,7 +2741,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_rationale_158",
-      "community": 44,
+      "community": 4,
       "norm_label": "deterministic reset: hand to home, cube onto the palm, then settle passively."
     },
     {
@@ -2811,7 +2751,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "src_manip_rubiks_simulation_scene_builder_rationale_191",
-      "community": 44,
+      "community": 4,
       "norm_label": "any penetrating contact involving a hand geom (with itself or the cube)."
     },
     {
@@ -3061,7 +3001,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric",
-      "community": 49,
+      "community": 47,
       "norm_label": "asymmetric.py"
     },
     {
@@ -3081,7 +3021,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_privilegedobservation_init",
-      "community": 45,
+      "community": 43,
       "norm_label": ".__init__()"
     },
     {
@@ -3091,7 +3031,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "env",
-      "community": 45,
+      "community": 43,
       "norm_label": "env"
     },
     {
@@ -3151,7 +3091,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_keyedflattenextractor",
-      "community": 45,
+      "community": 47,
       "norm_label": "keyedflattenextractor"
     },
     {
@@ -3161,7 +3101,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basefeaturesextractor",
-      "community": 45,
+      "community": 47,
       "norm_label": "basefeaturesextractor"
     },
     {
@@ -3171,7 +3111,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_keyedflattenextractor_init",
-      "community": 45,
+      "community": 47,
       "norm_label": ".__init__()"
     },
     {
@@ -3191,7 +3131,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_keyedflattenextractor_forward",
-      "community": 45,
+      "community": 47,
       "norm_label": ".forward()"
     },
     {
@@ -3321,7 +3261,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy_init",
-      "community": 45,
+      "community": 47,
       "norm_label": ".__init__()"
     },
     {
@@ -3331,7 +3271,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "space",
-      "community": 45,
+      "community": 47,
       "norm_label": "space"
     },
     {
@@ -3361,7 +3301,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_rationale_1",
-      "community": 49,
+      "community": 47,
       "norm_label": "asymmetric actor-critic for stable-baselines3 ppo (docs/project-draft.md section"
     },
     {
@@ -3381,7 +3321,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_asymmetric_rationale_54",
-      "community": 45,
+      "community": 47,
       "norm_label": "concatenate the flattened dict entries in an explicit key order."
     },
     {
@@ -3405,6 +3345,136 @@
       "norm_label": "ppo policy whose actor reads ``actor_keys`` and whose critic also reads ``critic"
     },
     {
+      "label": "tracking.py",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking",
+      "community": 39,
+      "norm_label": "tracking.py"
+    },
+    {
+      "label": "tracking_uri()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_tracking_uri",
+      "community": 39,
+      "norm_label": "tracking_uri()"
+    },
+    {
+      "label": "check_server()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_check_server",
+      "community": 39,
+      "norm_label": "check_server()"
+    },
+    {
+      "label": "flatten_params()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_flatten_params",
+      "community": 39,
+      "norm_label": "flatten_params()"
+    },
+    {
+      "label": "Any",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_py_any",
+      "community": 39,
+      "norm_label": "any"
+    },
+    {
+      "label": "MLflowOutputFormat",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "community": 39,
+      "norm_label": "mlflowoutputformat"
+    },
+    {
+      "label": "KVWriter",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "kvwriter",
+      "community": 39,
+      "norm_label": "kvwriter"
+    },
+    {
+      "label": ".write()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_mlflowoutputformat_write",
+      "community": 39,
+      "norm_label": ".write()"
+    },
+    {
+      "label": ".close()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_mlflowoutputformat_close",
+      "community": 39,
+      "norm_label": ".close()"
+    },
+    {
+      "label": "Experiment tracking with MLflow.  The MLflow server runs in Docker (``docker/up.",
+      "file_type": "rationale",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_rationale_1",
+      "community": 39,
+      "norm_label": "experiment tracking with mlflow.  the mlflow server runs in docker (``docker/up."
+    },
+    {
+      "label": "Fail fast with a useful message when an HTTP tracking server is down.      MLflo",
+      "file_type": "rationale",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_rationale_32",
+      "community": 39,
+      "norm_label": "fail fast with a useful message when an http tracking server is down.      mlflo"
+    },
+    {
+      "label": "Flatten nested mappings into dotted keys; sequences become strings.",
+      "file_type": "rationale",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_rationale_48",
+      "community": 39,
+      "norm_label": "flatten nested mappings into dotted keys; sequences become strings."
+    },
+    {
+      "label": "Write the scalar values of each SB3 logger dump to the active MLflow run.",
+      "file_type": "rationale",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_tracking_rationale_64",
+      "community": 39,
+      "norm_label": "write the scalar values of each sb3 logger dump to the active mlflow run."
+    },
+    {
       "label": "train_grasp.py",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
@@ -3418,7 +3488,7 @@
       "label": "make_env()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L37",
+      "source_location": "L44",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_make_env",
       "community": 41,
@@ -3428,7 +3498,7 @@
       "label": "make_vec_env()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L45",
+      "source_location": "L52",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_make_vec_env",
       "community": 41,
@@ -3448,7 +3518,7 @@
       "label": "DifficultyCurriculum",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L51",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "community": 48,
@@ -3468,17 +3538,17 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L54",
+      "source_location": "L61",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_difficultycurriculum_init",
-      "community": 48,
+      "community": 41,
       "norm_label": ".__init__()"
     },
     {
       "label": ".difficulty()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L58",
+      "source_location": "L65",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_difficultycurriculum_difficulty",
       "community": 48,
@@ -3488,7 +3558,7 @@
       "label": "._on_rollout_start()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L61",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_difficultycurriculum_on_rollout_start",
       "community": 48,
@@ -3498,7 +3568,7 @@
       "label": "._on_step()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L66",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_difficultycurriculum_on_step",
       "community": 48,
@@ -3508,7 +3578,7 @@
       "label": "EpisodeMetrics",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L70",
+      "source_location": "L77",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "community": 41,
@@ -3518,7 +3588,7 @@
       "label": "._on_step()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L73",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_episodemetrics_on_step",
       "community": 41,
@@ -3528,7 +3598,7 @@
       "label": "SaveNormalizerOnBest",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L81",
+      "source_location": "L88",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "community": 41,
@@ -3538,10 +3608,10 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L84",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_init",
-      "community": 48,
+      "community": 41,
       "norm_label": ".__init__()"
     },
     {
@@ -3551,14 +3621,14 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_py_path",
-      "community": 48,
+      "community": 41,
       "norm_label": "path"
     },
     {
       "label": "._on_step()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L88",
+      "source_location": "L95",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_on_step",
       "community": 41,
@@ -3568,7 +3638,7 @@
       "label": "parse_args()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L93",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_parse_args",
       "community": 41,
@@ -3588,11 +3658,21 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L120",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "src_manip_rubiks_training_train_grasp_main",
       "community": 41,
       "norm_label": "main()"
+    },
+    {
+      "label": "_train()",
+      "file_type": "code",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L150",
+      "_origin": "ast",
+      "id": "src_manip_rubiks_training_train_grasp_train",
+      "community": 41,
+      "norm_label": "_train()"
     },
     {
       "label": "Train a blindfolded grasp-stabilisation policy with PPO.  The actor sees proprio",
@@ -3608,9 +3688,9 @@
       "label": "Linear difficulty ramp, applied at the start of every rollout.",
       "file_type": "rationale",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L52",
+      "source_location": "L59",
       "_origin": "ast",
-      "id": "src_manip_rubiks_training_train_grasp_rationale_52",
+      "id": "src_manip_rubiks_training_train_grasp_rationale_59",
       "community": 48,
       "norm_label": "linear difficulty ramp, applied at the start of every rollout."
     },
@@ -3618,9 +3698,9 @@
       "label": "Log privileged end-of-episode metrics (evaluation only, never fed to the actor).",
       "file_type": "rationale",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L71",
+      "source_location": "L78",
       "_origin": "ast",
-      "id": "src_manip_rubiks_training_train_grasp_rationale_71",
+      "id": "src_manip_rubiks_training_train_grasp_rationale_78",
       "community": 41,
       "norm_label": "log privileged end-of-episode metrics (evaluation only, never fed to the actor)."
     },
@@ -3628,9 +3708,9 @@
       "label": "Store the VecNormalize statistics next to each new best model.",
       "file_type": "rationale",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L82",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "src_manip_rubiks_training_train_grasp_rationale_82",
+      "id": "src_manip_rubiks_training_train_grasp_rationale_89",
       "community": 41,
       "norm_label": "store the vecnormalize statistics next to each new best model."
     },
@@ -3661,7 +3741,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions",
-      "community": 39,
+      "community": 4,
       "norm_label": "collisions.py"
     },
     {
@@ -3671,7 +3751,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_geoms",
-      "community": 39,
+      "community": 4,
       "norm_label": "_geoms"
     },
     {
@@ -3691,7 +3771,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_geoms_body_pair_excluded",
-      "community": 39,
+      "community": 4,
       "norm_label": ".body_pair_excluded()"
     },
     {
@@ -3701,7 +3781,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_geoms_can_collide",
-      "community": 39,
+      "community": 4,
       "norm_label": ".can_collide()"
     },
     {
@@ -3711,7 +3791,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_geoms_self_pairs",
-      "community": 39,
+      "community": 4,
       "norm_label": ".self_pairs()"
     },
     {
@@ -3721,7 +3801,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_min_distance",
-      "community": 39,
+      "community": 4,
       "norm_label": "_min_distance()"
     },
     {
@@ -3731,7 +3811,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_py_mjmodel",
-      "community": 39,
+      "community": 4,
       "norm_label": "mjmodel"
     },
     {
@@ -3741,7 +3821,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_py_mjdata",
-      "community": 39,
+      "community": 4,
       "norm_label": "mjdata"
     },
     {
@@ -3751,7 +3831,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_max_pen",
-      "community": 39,
+      "community": 4,
       "norm_label": "_max_pen()"
     },
     {
@@ -3761,7 +3841,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_py_ndarray",
-      "community": 39,
+      "community": 4,
       "norm_label": "ndarray"
     },
     {
@@ -3771,7 +3851,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_audit_filters",
-      "community": 39,
+      "community": 4,
       "norm_label": "audit_filters()"
     },
     {
@@ -3781,7 +3861,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_reset_clearance",
-      "community": 39,
+      "community": 4,
       "norm_label": "reset_clearance()"
     },
     {
@@ -3791,7 +3871,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_settled_home",
-      "community": 39,
+      "community": 4,
       "norm_label": "settled_home()"
     },
     {
@@ -3801,7 +3881,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_pinch",
-      "community": 39,
+      "community": 4,
       "norm_label": "pinch()"
     },
     {
@@ -3811,7 +3891,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_press",
-      "community": 39,
+      "community": 4,
       "norm_label": "press()"
     },
     {
@@ -3821,7 +3901,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_check_collisions",
-      "community": 39,
+      "community": 4,
       "norm_label": "check_collisions()"
     },
     {
@@ -3831,7 +3911,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_rationale_1",
-      "community": 39,
+      "community": 4,
       "norm_label": "collision audit for the hand + cube scene.  checks, in order of increasing dynam"
     },
     {
@@ -3841,7 +3921,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_rationale_34",
-      "community": 39,
+      "community": 4,
       "norm_label": "collision geom groups of a compiled scene."
     },
     {
@@ -3851,7 +3931,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_rationale_59",
-      "community": 39,
+      "community": 4,
       "norm_label": "hand geom pairs that the collision filter allows to touch."
     },
     {
@@ -3861,7 +3941,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_collisions_rationale_69",
-      "community": 39,
+      "community": 4,
       "norm_label": "deepest current penetration [m] between a geom of ``group_a`` and one of ``group"
     },
     {
@@ -3871,7 +3951,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common",
-      "community": 39,
+      "community": 4,
       "norm_label": "common.py"
     },
     {
@@ -3891,7 +3971,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_warnings_count",
-      "community": 39,
+      "community": 4,
       "norm_label": "warnings_count()"
     },
     {
@@ -3901,7 +3981,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_py_mjdata",
-      "community": 39,
+      "community": 4,
       "norm_label": "mjdata"
     },
     {
@@ -3911,7 +3991,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_finite",
-      "community": 39,
+      "community": 4,
       "norm_label": "finite()"
     },
     {
@@ -3921,7 +4001,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_common_rationale_1",
-      "community": 39,
+      "community": 4,
       "norm_label": "shared helpers for the simulation validation checks."
     },
     {
@@ -3931,7 +4011,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes",
-      "community": 52,
+      "community": 30,
       "norm_label": "episodes.py"
     },
     {
@@ -3941,7 +4021,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_obs_equal",
-      "community": 52,
+      "community": 30,
       "norm_label": "_obs_equal()"
     },
     {
@@ -3951,7 +4031,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_max_obs_diff",
-      "community": 52,
+      "community": 30,
       "norm_label": "_max_obs_diff()"
     },
     {
@@ -3961,7 +4041,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_check_episode_logic",
-      "community": 52,
+      "community": 30,
       "norm_label": "check_episode_logic()"
     },
     {
@@ -3971,7 +4051,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_episodes_rationale_1",
-      "community": 52,
+      "community": 30,
       "norm_label": "episode logic of the gymnasium environment: seeding, resets, termination, leakag"
     },
     {
@@ -4231,7 +4311,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile",
-      "community": 59,
+      "community": 2,
       "norm_label": "tactile.py"
     },
     {
@@ -4241,7 +4321,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_sensors",
-      "community": 59,
+      "community": 2,
       "norm_label": "_sensors()"
     },
     {
@@ -4251,7 +4331,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_probe_fingertips",
-      "community": 59,
+      "community": 2,
       "norm_label": "probe_fingertips()"
     },
     {
@@ -4261,7 +4341,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_check_tactile_signals",
-      "community": 59,
+      "community": 2,
       "norm_label": "check_tactile_signals()"
     },
     {
@@ -4271,7 +4351,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_rationale_1",
-      "community": 59,
+      "community": 2,
       "norm_label": "tactile signal sanity checks (contact-derived sensors).  these establish that th"
     },
     {
@@ -4281,7 +4361,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_manip_rubiks_validation_tactile_rationale_27",
-      "community": 59,
+      "community": 2,
       "norm_label": "drop a small sphere onto each fingertip pad of the open hand.      returns the f"
     },
     {
@@ -4301,7 +4381,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_collisions",
-      "community": 53,
+      "community": 4,
       "norm_label": "test_collisions.py"
     },
     {
@@ -4311,7 +4391,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_test_collisions_test_collision_audit_passes",
-      "community": 53,
+      "community": 4,
       "norm_label": "test_collision_audit_passes()"
     },
     {
@@ -4321,7 +4401,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_collisions_rationale_1",
-      "community": 53,
+      "community": 4,
       "norm_label": "collision audit of the hand + cube scene."
     },
     {
@@ -4331,7 +4411,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_cube_kinematics.py"
     },
     {
@@ -4341,7 +4421,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_make_fixture",
-      "community": 51,
+      "community": 40,
       "norm_label": "make_fixture()"
     },
     {
@@ -4361,7 +4441,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_free_full_cube_falls_as_rigid_body",
-      "community": 0,
+      "community": 6,
       "norm_label": "test_free_full_cube_falls_as_rigid_body()"
     },
     {
@@ -4371,7 +4451,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_set_state_round_trip",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_set_state_round_trip()"
     },
     {
@@ -4381,7 +4461,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_read_is_invariant_to_whole_set_rotation",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_read_is_invariant_to_whole_set_rotation()"
     },
     {
@@ -4391,7 +4471,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_single_axis_set_state_rejects_unreachable_states",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_single_axis_set_state_rejects_unreachable_states()"
     },
     {
@@ -4401,7 +4481,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_full_cube_single_move_from_solved",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_full_cube_single_move_from_solved()"
     },
     {
@@ -4411,7 +4491,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_full_cube_random_sequence_matches_symbolic",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_full_cube_random_sequence_matches_symbolic()"
     },
     {
@@ -4421,7 +4501,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_single_axis_sequence",
-      "community": 51,
+      "community": 40,
       "norm_label": "test_single_axis_sequence()"
     },
     {
@@ -4431,7 +4511,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_test_rotation_helpers",
-      "community": 0,
+      "community": 44,
       "norm_label": "test_rotation_helpers()"
     },
     {
@@ -4441,7 +4521,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cube_kinematics_rationale_1",
-      "community": 51,
+      "community": 40,
       "norm_label": "physical cube models: structure, state i/o and externally driven legal moves."
     },
     {
@@ -4851,7 +4931,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_observation_leakage",
-      "community": 30,
+      "community": 40,
       "norm_label": "test_observation_leakage.py"
     },
     {
@@ -4871,7 +4951,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_observation_contains_only_robot_and_tactile_signals",
-      "community": 30,
+      "community": 40,
       "norm_label": "test_observation_contains_only_robot_and_tactile_signals()"
     },
     {
@@ -4881,7 +4961,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_observations_do_not_depend_on_the_scramble",
-      "community": 30,
+      "community": 40,
       "norm_label": "test_observations_do_not_depend_on_the_scramble()"
     },
     {
@@ -4891,7 +4971,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_test_privileged_state_layout",
-      "community": 30,
+      "community": 40,
       "norm_label": "test_privileged_state_layout()"
     },
     {
@@ -4901,7 +4981,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_rationale_1",
-      "community": 30,
+      "community": 40,
       "norm_label": "the actor observation must not carry privileged cube state (docs/project-draft.m"
     },
     {
@@ -4911,7 +4991,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_observation_leakage_rationale_34",
-      "community": 30,
+      "community": 40,
       "norm_label": "cubies are physically identical, so a scramble is invisible without vision."
     },
     {
@@ -5385,6 +5465,66 @@
       "norm_label": "hand-hand contacts cancel, so the net force on the hand is the cube's weight."
     },
     {
+      "label": "test_tracking.py",
+      "file_type": "code",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_test_tracking",
+      "community": 39,
+      "norm_label": "test_tracking.py"
+    },
+    {
+      "label": "file_store()",
+      "file_type": "code",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "tests_test_tracking_file_store",
+      "community": 39,
+      "norm_label": "file_store()"
+    },
+    {
+      "label": "test_logger_dumps_become_mlflow_metrics()",
+      "file_type": "code",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "tests_test_tracking_test_logger_dumps_become_mlflow_metrics",
+      "community": 39,
+      "norm_label": "test_logger_dumps_become_mlflow_metrics()"
+    },
+    {
+      "label": "test_flatten_params()",
+      "file_type": "code",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "tests_test_tracking_test_flatten_params",
+      "community": 39,
+      "norm_label": "test_flatten_params()"
+    },
+    {
+      "label": "test_unreachable_server_fails_fast()",
+      "file_type": "code",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "tests_test_tracking_test_unreachable_server_fails_fast",
+      "community": 39,
+      "norm_label": "test_unreachable_server_fails_fast()"
+    },
+    {
+      "label": "MLflow tracking: SB3 logger output, parameter flattening, server check.",
+      "file_type": "rationale",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_test_tracking_rationale_1",
+      "community": 39,
+      "norm_label": "mlflow tracking: sb3 logger output, parameter flattening, server check."
+    },
+    {
       "label": "test_training.py",
       "file_type": "code",
       "source_file": "tests/test_training.py",
@@ -5398,7 +5538,7 @@
       "label": "model()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "tests_test_training_model",
       "community": 43,
@@ -5408,7 +5548,7 @@
       "label": "obs_tensor()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L25",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "tests_test_training_obs_tensor",
       "community": 43,
@@ -5418,7 +5558,7 @@
       "label": "test_wrapper_exposes_privileged_state()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L30",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_training_test_wrapper_exposes_privileged_state",
       "community": 43,
@@ -5428,7 +5568,7 @@
       "label": "test_actor_ignores_privileged_state_but_critic_uses_it()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L39",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "tests_test_training_test_actor_ignores_privileged_state_but_critic_uses_it",
       "community": 43,
@@ -5438,7 +5578,7 @@
       "label": "test_actor_input_width_excludes_privileged_state()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L51",
+      "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_training_test_actor_input_width_excludes_privileged_state",
       "community": 43,
@@ -5448,7 +5588,7 @@
       "label": "test_actor_keys_may_not_include_privileged_state()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L58",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_training_test_actor_keys_may_not_include_privileged_state",
       "community": 47,
@@ -5458,7 +5598,7 @@
       "label": "test_saved_policy_deploys_without_privileged_state()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_training_test_saved_policy_deploys_without_privileged_state",
       "community": 5,
@@ -5468,7 +5608,7 @@
       "label": "test_training_cli_writes_a_loadable_run()",
       "file_type": "code",
       "source_file": "tests/test_training.py",
-      "source_location": "L83",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_training_test_training_cli_writes_a_loadable_run",
       "community": 5,
@@ -5491,7 +5631,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_validation_checks",
-      "community": 52,
+      "community": 2,
       "norm_label": "test_validation_checks.py"
     },
     {
@@ -5501,7 +5641,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_test_validation_checks_test_tactile_signals_check",
-      "community": 52,
+      "community": 2,
       "norm_label": "test_tactile_signals_check()"
     },
     {
@@ -5511,7 +5651,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_test_validation_checks_test_episode_logic_check",
-      "community": 52,
+      "community": 2,
       "norm_label": "test_episode_logic_check()"
     },
     {
@@ -5521,23 +5661,23 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_validation_checks_rationale_1",
-      "community": 52,
+      "community": 2,
       "norm_label": "tactile-signal and episode-logic validation checks."
     },
     {
-      "label": "AGENTS.md",
+      "label": "CLAUDE.md",
       "file_type": "document",
-      "source_file": "AGENTS.md",
+      "source_file": "CLAUDE.md",
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
       "community": 24,
-      "norm_label": "agents.md"
+      "norm_label": "claude.md"
     },
     {
       "label": "graphify",
       "file_type": "document",
-      "source_file": "AGENTS.md",
+      "source_file": "CLAUDE.md",
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_graphify",
@@ -5547,7 +5687,7 @@
     {
       "label": "Versioning",
       "file_type": "document",
-      "source_file": "AGENTS.md",
+      "source_file": "CLAUDE.md",
       "source_location": "L14",
       "_origin": "ast",
       "id": "claude_versioning",
@@ -5588,7 +5728,7 @@
       "label": "Layout",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L35",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "readme_layout",
       "community": 46,
@@ -5598,7 +5738,7 @@
       "label": "Simulation design (M0)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L60",
+      "source_location": "L67",
       "_origin": "ast",
       "id": "readme_simulation_design_m0",
       "community": 46,
@@ -5608,7 +5748,7 @@
       "label": "Grasp stabilisation",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L101",
+      "source_location": "L108",
       "_origin": "ast",
       "id": "readme_grasp_stabilisation",
       "community": 46,
@@ -5618,7 +5758,7 @@
       "label": "Known limitations / follow-ups",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L146",
+      "source_location": "L153",
       "_origin": "ast",
       "id": "readme_known_limitations_follow_ups",
       "community": 46,
@@ -7649,48 +7789,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": ".scratch/close.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "scratch_close",
-      "target": "scratch_close_grav",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": ".scratch/close.py",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scratch_close_grav",
-      "target": "src_manip_rubiks_simulation_rotations_axis_angle_matrix"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".scratch/grav.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scratch_grav",
-      "target": "scratch_grav_grav",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": ".scratch/grav.py",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scratch_grav_grav",
-      "target": "src_manip_rubiks_simulation_rotations_axis_angle_matrix"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "docker/up.sh",
       "source_location": "L1",
       "weight": 1.0,
@@ -7835,7 +7933,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L126",
+      "source_location": "L139",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_main",
       "target": "src_manip_rubiks_environments_grasp_env_graspconfig"
@@ -8297,7 +8395,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "tests_test_training_model",
       "target": "src_manip_rubiks_environments_grasp_env_graspenv"
@@ -8308,7 +8406,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0,
       "source": "tests_test_training_test_actor_ignores_privileged_state_but_critic_uses_it",
       "target": "src_manip_rubiks_environments_grasp_env_graspenv"
@@ -8319,7 +8417,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L70",
+      "source_location": "L71",
       "weight": 1.0,
       "source": "tests_test_training_test_saved_policy_deploys_without_privileged_state",
       "target": "src_manip_rubiks_environments_grasp_env_graspenv"
@@ -8330,7 +8428,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L101",
+      "source_location": "L106",
       "weight": 1.0,
       "source": "tests_test_training_test_training_cli_writes_a_loadable_run",
       "target": "src_manip_rubiks_environments_grasp_env_graspenv"
@@ -8341,7 +8439,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "tests_test_training_test_wrapper_exposes_privileged_state",
       "target": "src_manip_rubiks_environments_grasp_env_graspenv"
@@ -11519,7 +11617,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "tests_test_training_test_saved_policy_deploys_without_privileged_state",
       "target": "src_manip_rubiks_policies_learned_learnedpolicy"
@@ -11552,7 +11650,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_training.py",
-      "source_location": "L100",
+      "source_location": "L105",
       "weight": 1.0,
       "source": "tests_test_training_test_training_cli_writes_a_loadable_run",
       "target": "src_manip_rubiks_policies_learned_learnedpolicy_from_run"
@@ -15030,7 +15128,7 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation",
@@ -15040,7 +15138,7 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation",
@@ -15050,7 +15148,7 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation",
@@ -15062,7 +15160,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "tests_test_training_model",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation"
@@ -15073,7 +15171,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0,
       "source": "tests_test_training_test_actor_ignores_privileged_state_but_critic_uses_it",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation"
@@ -15084,7 +15182,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L70",
+      "source_location": "L71",
       "weight": 1.0,
       "source": "tests_test_training_test_saved_policy_deploys_without_privileged_state",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation"
@@ -15095,7 +15193,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "tests_test_training_test_wrapper_exposes_privileged_state",
       "target": "src_manip_rubiks_training_asymmetric_privilegedobservation"
@@ -15518,7 +15616,7 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy",
@@ -15528,28 +15626,17 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy",
       "confidence_score": 0.5
     },
     {
-      "relation": "indirect_call",
-      "context": "argument",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L141",
-      "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_main",
-      "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy"
-    },
-    {
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L32",
+      "source_location": "L38",
       "weight": 0.8,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy",
@@ -15560,8 +15647,19 @@
       "context": "argument",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L163",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy"
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "source": "tests_test_training_model",
       "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy"
@@ -15572,7 +15670,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_training.py",
-      "source_location": "L60",
+      "source_location": "L61",
       "weight": 1.0,
       "source": "tests_test_training_test_actor_keys_may_not_include_privileged_state",
       "target": "src_manip_rubiks_training_asymmetric_asymmetricactorcriticpolicy"
@@ -15591,8 +15689,247 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking",
+      "target": "src_manip_rubiks_training_tracking_check_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking",
+      "target": "src_manip_rubiks_training_tracking_flatten_params",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking",
+      "target": "src_manip_rubiks_training_tracking_tracking_uri",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_rationale_1",
+      "target": "src_manip_rubiks_training_tracking",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L51",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_main",
+      "target": "src_manip_rubiks_training_tracking_tracking_uri"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_rationale_32",
+      "target": "src_manip_rubiks_training_tracking_check_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_main",
+      "target": "src_manip_rubiks_training_tracking_check_server"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "tests_test_tracking_test_unreachable_server_fails_fast",
+      "target": "src_manip_rubiks_training_tracking_check_server"
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_flatten_params",
+      "target": "src_manip_rubiks_training_tracking_py_any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_rationale_48",
+      "target": "src_manip_rubiks_training_tracking_flatten_params",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_main",
+      "target": "src_manip_rubiks_training_tracking_flatten_params"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "tests_test_tracking_test_flatten_params",
+      "target": "src_manip_rubiks_training_tracking_flatten_params"
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_mlflowoutputformat_write",
+      "target": "src_manip_rubiks_training_tracking_py_any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "target": "kvwriter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/tracking.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_tracking_rationale_64",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "src_manip_rubiks_training_train_grasp_episodemetrics",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L179",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "tests_test_tracking_test_logger_dumps_become_mlflow_metrics",
+      "target": "src_manip_rubiks_training_tracking_mlflowoutputformat"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
@@ -15602,7 +15939,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L70",
+      "source_location": "L77",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_episodemetrics",
@@ -15612,7 +15949,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L120",
+      "source_location": "L129",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_main",
@@ -15622,7 +15959,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L37",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_make_env",
@@ -15632,7 +15969,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L45",
+      "source_location": "L52",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_make_vec_env",
@@ -15642,7 +15979,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L93",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_parse_args",
@@ -15652,10 +15989,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L81",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp",
       "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp",
+      "target": "src_manip_rubiks_training_train_grasp_train",
       "confidence_score": 1.0
     },
     {
@@ -15673,21 +16020,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L46",
+      "source_location": "L53",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_make_vec_env",
       "target": "src_manip_rubiks_training_train_grasp_make_env",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L129",
-      "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_main",
-      "target": "src_manip_rubiks_training_train_grasp_make_vec_env",
       "confidence_score": 1.0
     },
     {
@@ -15695,17 +16031,28 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L45",
+      "source_location": "L52",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_make_vec_env",
       "target": "vecmonitor",
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "src_manip_rubiks_training_train_grasp_make_vec_env",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L51",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "basecallback",
@@ -15715,7 +16062,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L58",
+      "source_location": "L65",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum_difficulty",
@@ -15725,7 +16072,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L54",
+      "source_location": "L61",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum_init",
@@ -15735,7 +16082,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L61",
+      "source_location": "L68",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum_on_rollout_start",
@@ -15745,10 +16092,20 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L66",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum_on_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_rationale_59",
+      "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "confidence_score": 1.0
     },
     {
@@ -15756,19 +16113,9 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L168",
+      "source_location": "L190",
       "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_main",
-      "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L52",
-      "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_rationale_52",
+      "source": "src_manip_rubiks_training_train_grasp_train",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum",
       "confidence_score": 1.0
     },
@@ -15776,7 +16123,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L70",
+      "source_location": "L77",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "target": "basecallback",
@@ -15786,7 +16133,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L81",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "target": "basecallback",
@@ -15797,7 +16144,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L55",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum_init",
       "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_init",
@@ -15808,7 +16155,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L62",
+      "source_location": "L69",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_difficultycurriculum_on_rollout_start",
       "target": "src_manip_rubiks_training_train_grasp_difficultycurriculum_difficulty",
@@ -15818,30 +16165,19 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L73",
+      "source_location": "L80",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "target": "src_manip_rubiks_training_train_grasp_episodemetrics_on_step",
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L169",
-      "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_main",
-      "target": "src_manip_rubiks_training_train_grasp_episodemetrics",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L71",
+      "source_location": "L78",
       "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_rationale_71",
+      "source": "src_manip_rubiks_training_train_grasp_rationale_78",
       "target": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "confidence_score": 1.0
     },
@@ -15850,19 +16186,19 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L163",
+      "source_location": "L191",
       "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_main",
-      "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "src_manip_rubiks_training_train_grasp_episodemetrics",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L82",
+      "source_location": "L89",
       "weight": 1.0,
-      "source": "src_manip_rubiks_training_train_grasp_rationale_82",
+      "source": "src_manip_rubiks_training_train_grasp_rationale_89",
       "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "confidence_score": 1.0
     },
@@ -15870,7 +16206,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L84",
+      "source_location": "L91",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_init",
@@ -15880,10 +16216,21 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L88",
+      "source_location": "L95",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_on_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L185",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "src_manip_rubiks_training_train_grasp_savenormalizeronbest",
       "confidence_score": 1.0
     },
     {
@@ -15891,7 +16238,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L84",
+      "source_location": "L91",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_savenormalizeronbest_init",
       "target": "src_manip_rubiks_training_train_grasp_py_path",
@@ -15902,9 +16249,20 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L96",
+      "source_location": "L103",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_parse_args",
+      "target": "src_manip_rubiks_training_train_grasp_py_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
       "target": "src_manip_rubiks_training_train_grasp_py_path",
       "confidence_score": 1.0
     },
@@ -15913,7 +16271,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L121",
+      "source_location": "L130",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_main",
       "target": "src_manip_rubiks_training_train_grasp_parse_args",
@@ -15924,10 +16282,32 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "src/manip_rubiks/training/train_grasp.py",
-      "source_location": "L93",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "src_manip_rubiks_training_train_grasp_parse_args",
       "target": "namespace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_train",
+      "target": "namespace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/manip_rubiks/training/train_grasp.py",
+      "source_location": "L145",
+      "weight": 1.0,
+      "source": "src_manip_rubiks_training_train_grasp_main",
+      "target": "src_manip_rubiks_training_train_grasp_train",
       "confidence_score": 1.0
     },
     {
@@ -18364,8 +18744,58 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "tests_test_tracking",
+      "target": "tests_test_tracking_file_store",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "tests_test_tracking",
+      "target": "tests_test_tracking_test_flatten_params",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "tests_test_tracking",
+      "target": "tests_test_tracking_test_logger_dumps_become_mlflow_metrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "tests_test_tracking",
+      "target": "tests_test_tracking_test_unreachable_server_fails_fast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_tracking.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "tests_test_tracking_rationale_1",
+      "target": "tests_test_tracking",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_model",
@@ -18375,7 +18805,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_obs_tensor",
@@ -18385,7 +18815,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_actor_ignores_privileged_state_but_critic_uses_it",
@@ -18395,7 +18825,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_actor_input_width_excludes_privileged_state",
@@ -18405,7 +18835,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_actor_keys_may_not_include_privileged_state",
@@ -18415,7 +18845,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_saved_policy_deploys_without_privileged_state",
@@ -18425,7 +18855,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L83",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_training_cli_writes_a_loadable_run",
@@ -18435,7 +18865,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "source": "tests_test_training",
       "target": "tests_test_training_test_wrapper_exposes_privileged_state",
@@ -18456,7 +18886,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_training.py",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "tests_test_training_test_actor_ignores_privileged_state_but_critic_uses_it",
       "target": "tests_test_training_obs_tensor",
@@ -18495,7 +18925,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "AGENTS.md",
+      "source_file": "CLAUDE.md",
       "source_location": "L1",
       "weight": 1.0,
       "source": "claude",
@@ -18505,7 +18935,7 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "AGENTS.md",
+      "source_file": "CLAUDE.md",
       "source_location": "L14",
       "weight": 1.0,
       "source": "claude",
@@ -18536,7 +18966,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L130",
+      "source_location": "L137",
       "weight": 1.0,
       "source": "readme",
       "target": "reports_grasp_grasp_report",
@@ -18546,7 +18976,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L101",
+      "source_location": "L108",
       "weight": 1.0,
       "source": "readme_manip_rubiks",
       "target": "readme_grasp_stabilisation",
@@ -18556,7 +18986,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L146",
+      "source_location": "L153",
       "weight": 1.0,
       "source": "readme_manip_rubiks",
       "target": "readme_known_limitations_follow_ups",
@@ -18566,7 +18996,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L35",
+      "source_location": "L40",
       "weight": 1.0,
       "source": "readme_manip_rubiks",
       "target": "readme_layout",
@@ -18586,7 +19016,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L60",
+      "source_location": "L67",
       "weight": 1.0,
       "source": "readme_manip_rubiks",
       "target": "readme_simulation_design_m0",
@@ -20564,5 +20994,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "68508ed2a1944d3ad4e58ee52ccff1398f081e38"
+  "built_at_commit": "294480f1c95bf447fc66e1ff6428f84b5aaff445"
 }

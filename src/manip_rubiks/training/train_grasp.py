@@ -9,7 +9,7 @@ difficulty.
 
 Example::
 
-    uv run manip-rubiks-train-grasp --timesteps 20_000_000 --n-envs 20 --name ppo_asym
+    uv run manip-rubiks-train-grasp --timesteps 12_000_000 --name ppo_asym
     uv run tensorboard --logdir runs/grasp
 """
 
@@ -94,8 +94,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--name", default=time.strftime("ppo_%Y%m%d_%H%M%S"))
     p.add_argument("--out", type=Path, default=Path("runs/grasp"))
-    p.add_argument("--timesteps", type=int, default=20_000_000)
-    p.add_argument("--n-envs", type=int, default=20)
+    p.add_argument("--timesteps", type=int, default=12_000_000)
+    p.add_argument("--n-envs", type=int, default=24)
     p.add_argument("--n-eval-envs", type=int, default=4)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--asymmetric", action=argparse.BooleanOptionalAction, default=True)

@@ -22,6 +22,7 @@ from manip_rubiks.simulation.rotations import axis_angle_matrix, mat_to_quat
 
 HAND_PREFIX = "hand/"
 CUBE_PREFIX = "cube/"
+MAX_RESET_ATTEMPTS = 100
 
 # A light cage: fingers flexed into a wall in front of the cube, thumb opposed.
 # Thumb and pinky are abducted slightly so the hand starts free of self-contact.
@@ -135,6 +136,8 @@ class HandCubeScene:
         self.home_q = np.array([self.cfg.home_pose[j] for j in JOINTS])
         self.r_mount = mount_rotation(self.cfg.tilt)
         self.wrist_pos = np.array([0.0, 0.0, self.cfg.wrist_height])
+        self._hand_geom = np.array([self.model.body(b).name.startswith(HAND_PREFIX) for b in self.model.geom_bodyid])
+        self.reset_attempts = 0
 
     def cube_rest_pose(self) -> tuple[np.ndarray, np.ndarray]:
         """Nominal cube pose above the palm, aligned with the hand."""
@@ -152,23 +155,46 @@ class HandCubeScene:
         joint_noise: float = 0.0,
         settle: bool = True,
     ) -> None:
-        """Deterministic reset: hand to home, cube onto the palm, then settle passively."""
+        """Deterministic reset: hand to home, cube onto the palm, then settle passively.
+
+        Noisy joint and cube poses are rejection-sampled until nothing touches
+        the hand, so no episode starts with a contact impulse. After
+        ``MAX_RESET_ATTEMPTS`` failures the nominal (collision-free) pose is
+        used. ``self.reset_attempts`` records how many samples were drawn.
+        """
         rng = np.random.default_rng(seed)
-        mujoco.mj_resetData(self.model, self.data)
-        q = self.home_q + joint_noise * rng.uniform(-1, 1, self.robot.n)
-        self.robot.reset(q)
-        if self.cube is None:
-            mujoco.mj_forward(self.model, self.data)
-            return
-        pos, r_cube = self.cube_rest_pose()
-        pos = pos + pose_noise * rng.uniform(-1, 1, 3) * np.array([1.0, 1.0, 0.0])
-        yaw = pose_noise * 10.0 * rng.uniform(-1, 1)  # ~0.1 rad per cm of position noise
-        r_cube = r_cube @ axis_angle_matrix(np.array([0.0, 0.0, 1.0]), yaw)
-        self.cube.set_pose(pos, mat_to_quat(r_cube))
-        self.cube.set_state(state or CubeState.solved())
-        mujoco.mj_forward(self.model, self.data)
-        if settle:
+        noisy = joint_noise > 0 or (pose_noise > 0 and self.cube is not None)
+        self.reset_attempts = 0
+        for _ in range(MAX_RESET_ATTEMPTS if noisy else 1):
+            self.reset_attempts += 1
+            self._place(rng, state, pose_noise, joint_noise)
+            if not noisy or not self._hand_in_contact():
+                break
+        else:
+            self._place(rng, state, 0.0, 0.0)
+        if self.cube is not None and settle:
             mujoco.mj_step(self.model, self.data, round(self.cfg.settle_time / self.model.opt.timestep))
+
+    def _place(self, rng: np.random.Generator, state: CubeState | None, pose_noise: float, joint_noise: float) -> None:
+        mujoco.mj_resetData(self.model, self.data)
+        self.robot.reset(self.home_q + joint_noise * rng.uniform(-1, 1, self.robot.n))
+        if self.cube is not None:
+            pos, r_cube = self.cube_rest_pose()
+            pos = pos + pose_noise * rng.uniform(-1, 1, 3) * np.array([1.0, 1.0, 0.0])
+            yaw = pose_noise * 10.0 * rng.uniform(-1, 1)  # ~0.1 rad per cm of position noise
+            r_cube = r_cube @ axis_angle_matrix(np.array([0.0, 0.0, 1.0]), yaw)
+            self.cube.set_pose(pos, mat_to_quat(r_cube))
+            self.cube.set_state(state or CubeState.solved())
+        mujoco.mj_forward(self.model, self.data)
+
+    def _hand_in_contact(self) -> bool:
+        """Any penetrating contact involving a hand geom (with itself or the cube)."""
+        n = self.data.ncon
+        if n == 0:
+            return False
+        geoms = self.data.contact.geom[:n]
+        involves_hand = self._hand_geom[geoms].any(axis=1)
+        return bool(np.any(involves_hand & (self.data.contact.dist[:n] < 0)))
 
     def step(self, n: int = 1) -> None:
         mujoco.mj_step(self.model, self.data, n)

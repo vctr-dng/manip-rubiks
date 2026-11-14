@@ -37,6 +37,16 @@ def test_reset_is_deterministic(scene):
     assert np.array_equal(scene.data.qvel, other.data.qvel)
 
 
+def test_noisy_resets_spawn_without_hand_contact(scene):
+    for seed in range(30):
+        scene.reset(seed=seed, pose_noise=0.004, joint_noise=0.05, settle=False)
+        assert not scene._hand_in_contact(), seed
+        assert scene.reset_attempts < 100  # never fell back to the nominal pose
+    q = scene.robot.q()
+    scene.reset(seed=29, pose_noise=0.004, joint_noise=0.05, settle=False)
+    np.testing.assert_array_equal(scene.robot.q(), q)  # rejection sampling stays deterministic
+
+
 def test_random_finger_rollout_is_stable(scene):
     stats = m0.rollout(scene, seed=0, duration=1.5)
     assert stats["finite"]

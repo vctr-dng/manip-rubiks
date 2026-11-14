@@ -226,3 +226,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# MuJoCo runtime warnings
+MUJOCO_LOG.TXT

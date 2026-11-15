@@ -246,20 +246,22 @@ class GraspEnv(HandCubeEnv):
         return info
 
     def compute_reward(self, action: np.ndarray, info: dict[str, Any]) -> float:
+        """Total reward; the signed per-term contributions are stored in ``info["reward_terms"]``."""
         w = self.grasp_cfg.reward
         effort = self.robot.effort() / self.robot.force_limit
-        r = (
-            w.alive
-            - w.displacement * info["displacement"] / 0.01
-            - w.rotation * info["rotation"] / 0.5
-            - w.alignment * info["misalignment"] / 0.1
-            - w.velocity * (info["linear_speed"] / 0.1 + info["angular_speed"] / 2.0)
-            - w.effort * float(np.mean(effort**2))
-            - w.action_rate * float(np.mean((action - self._last_action) ** 2))
-        )
-        if info["dropped"] or info["unstable"] or not info["state_preserved"]:
-            r -= w.failure
-        return r
+        failed = info["dropped"] or info["unstable"] or not info["state_preserved"]
+        terms = {
+            "alive": w.alive,
+            "displacement": -w.displacement * info["displacement"] / 0.01,
+            "rotation": -w.rotation * info["rotation"] / 0.5,
+            "alignment": -w.alignment * info["misalignment"] / 0.1,
+            "velocity": -w.velocity * (info["linear_speed"] / 0.1 + info["angular_speed"] / 2.0),
+            "effort": -w.effort * float(np.mean(effort**2)),
+            "action_rate": -w.action_rate * float(np.mean((action - self._last_action) ** 2)),
+            "failure": -w.failure if failed else 0.0,
+        }
+        info["reward_terms"] = {k: float(v) for k, v in terms.items()}
+        return float(sum(terms.values()))
 
     def task_terminated(self, info: dict[str, Any]) -> bool:
         return not info["state_preserved"]

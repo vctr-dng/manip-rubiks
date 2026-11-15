@@ -155,3 +155,25 @@ def test_unintended_layer_turn_terminates(env):
     _, reward, terminated, _, info = env.step(np.zeros(env.robot.n))
     assert terminated and not info["state_preserved"] and not info["is_success"]
     assert reward < -env.grasp_cfg.reward.failure / 2
+
+
+def test_reward_terms_sum_to_the_reward(env):
+    obs, _ = env.reset(seed=3)
+    rng = np.random.default_rng(0)
+    for _ in range(20):
+        obs, r, terminated, truncated, info = env.step(rng.uniform(-1, 1, 22))
+        terms = info["reward_terms"]
+        assert set(terms) == {
+            "alive",
+            "displacement",
+            "rotation",
+            "alignment",
+            "velocity",
+            "effort",
+            "action_rate",
+            "failure",
+        }
+        np.testing.assert_allclose(sum(terms.values()), r, rtol=1e-12, atol=1e-12)
+        assert terms["alive"] > 0 and all(v <= 0 for k, v in terms.items() if k != "alive")
+        if terminated or truncated:
+            break

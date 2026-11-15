@@ -26,7 +26,7 @@ worlds are reset automatically inside :meth:`step`.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import mujoco_warp as mjw
 import numpy as np
@@ -67,6 +67,7 @@ class StepInfo:
     is_success: torch.Tensor
     episode_return: torch.Tensor  # undiscounted return so far, including this step
     episode_length: torch.Tensor  # control steps so far, including this step
+    reward_terms: dict[str, torch.Tensor] = field(default_factory=dict)  # signed contribution of each reward term
 
 
 def _min_jerk(s: torch.Tensor) -> torch.Tensor:
@@ -403,19 +404,22 @@ class GraspEnvGPU:
         )
 
     def _reward(self, action: torch.Tensor, info: StepInfo) -> torch.Tensor:
+        """Total reward; the signed per-term contributions are stored in ``info.reward_terms``."""
         w = self.cfg.reward
         effort = self.actuator_force[:, self.act_ids] / self.force_limit
-        r = (
-            w.alive
-            - w.displacement * info.displacement / 0.01
-            - w.rotation * info.rotation / 0.5
-            - w.alignment * info.misalignment / 0.1
-            - w.velocity * (info.linear_speed / 0.1 + info.angular_speed / 2.0)
-            - w.effort * torch.nan_to_num(effort**2).mean(1)
-            - w.action_rate * ((action - self.last_action) ** 2).mean(1)
-        )
         failed = info.dropped | info.unstable | ~info.state_preserved
-        return torch.where(failed, r - w.failure, r)
+        terms = {
+            "alive": torch.full_like(info.displacement, w.alive),
+            "displacement": -w.displacement * info.displacement / 0.01,
+            "rotation": -w.rotation * info.rotation / 0.5,
+            "alignment": -w.alignment * info.misalignment / 0.1,
+            "velocity": -w.velocity * (info.linear_speed / 0.1 + info.angular_speed / 2.0),
+            "effort": -w.effort * torch.nan_to_num(effort**2).mean(1),
+            "action_rate": -w.action_rate * ((action - self.last_action) ** 2).mean(1),
+            "failure": -w.failure * failed.float(),
+        }
+        info.reward_terms = terms
+        return torch.stack(list(terms.values())).sum(0)
 
     # ----------------------------------------------------------- episode
     def _reset_worlds(self, ids: torch.Tensor, bank_idx: torch.Tensor) -> dict[str, torch.Tensor]:

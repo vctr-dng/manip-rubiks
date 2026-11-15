@@ -1,6 +1,7 @@
 [project]
 name = "manip-rubiks"
 version = "0.1.0"
+license = "Apache-2.0"
 description = "Blindfolded Rubik's cube solving through tactile robotic manipulation (MuJoCo)"
 readme = "README.md"
 authors = [

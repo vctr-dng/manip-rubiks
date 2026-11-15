@@ -448,7 +448,7 @@ The system must distinguish these cases.
 | Initial RL algorithm | SAC or PPO |
 | State estimator | GRU, transformer, or particle filter |
 | Symbolic solver | Existing 2×2×2 solver |
-| Experiment tracking | TensorBoard or Weights & Biases |
+| Experiment tracking | MLflow (self-hosted, `docker/up.sh`) |
 | Configuration management | YAML/Hydra |
 | Evaluation | Custom deterministic benchmark |
 | Visualization | MuJoCo viewer and recorded video |

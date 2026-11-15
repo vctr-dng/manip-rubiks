@@ -37,6 +37,22 @@ run `--name`). The tracking server is `$MLFLOW_TRACKING_URI` if set, otherwise t
 started by `docker/up.sh`; `--mlflow-uri` and `--experiment` override both. Training stops at once if
 the server is unreachable.
 
+During training, each run also uploads (both trainers, same layout):
+
+| MLflow artifact path | When | Content |
+|---|---|---|
+| `repro/` | at start | `repro.json` (git commit, branch, dirty flag, package versions, Menagerie commit), `git.diff` if the tree is dirty, `uv.lock`; the run is tagged `git.commit` / `git.dirty` |
+| `checkpoints/latest/` | every evaluation, overwritten | model, normalisers and optimizer state (GPU: plus RNG states and best score) |
+| `checkpoints/best/` | when the evaluation score improves | best checkpoint |
+| `checkpoints/milestones/<steps>/` | first evaluation past each 1/`--milestones` of the budget (default 10) | kept copies of the latest checkpoint |
+| `eval/<steps>/episodes.csv` | every evaluation | one row per episode: outcome (`success`, `dropped`, `layer_turned`, `unstable`, `misaligned`), return, length, end-of-episode metrics, summed contribution of each reward term (GPU: CPU seed of the initial state) |
+| `eval/<steps>/distributions.json` | every evaluation | observation-normaliser mean/std per key, policy std per action, action mean/std/saturation/histogram, tactile mean/std/active fraction per taxel |
+| `eval/<steps>/videos/*.gif` | every `--video-every` evaluations (default 4, 0 disables) | one successful and one failed full-difficulty episode (GPU: replayed from the recorded worlds) |
+| `run/` | at the end, also when interrupted | config, summary, final and best checkpoints |
+
+Wrist reorientation is emulated by rotating gravity, so in the videos the hand stays still while the
+cube is pulled in changing directions.
+
 Offscreen rendering (`render_mode="rgb_array"`) on a headless Linux machine needs `MUJOCO_GL=egl`.
 
 The Sharpa Wave model is fetched on first use from MuJoCo Menagerie at a pinned commit into
@@ -66,6 +82,7 @@ src/manip_rubiks/
   training/ppo_gpu.py            asymmetric PPO on GPU rollouts
   training/train_grasp_gpu.py    GPU PPO training with a difficulty curriculum
   training/tracking.py           MLflow tracking: SB3 logger output, server check
+  training/artifacts.py          periodic MLflow artifacts: checkpoints, eval tables, snapshots, videos
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
   validation/m0.py               validation suite entry point and report
   validation/collisions.py       collision filters, reset clearance, pinch and press audits

@@ -11,6 +11,7 @@ dependencies = [
     "gymnasium>=1.4.0",
     "mlflow-skinny>=3.18",
     "mujoco>=4.0.1",
+    "mujoco-warp>=4.0.1",
     "numpy>=2.5.4",
     "stable-baselines3>=2.4",
 ]

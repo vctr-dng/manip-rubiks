@@ -1,30 +1,30 @@
-# Graph Report - mlflow  (2026-11-14)
+# Graph Report - grasp  (2026-11-14)
 
 ## Corpus Check
-- 56 files · ~36,318 words
+- 75 files · ~44,771 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 775 nodes · 1268 edges · 56 communities (44 shown, 12 thin omitted)
-- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 199 edges (avg confidence: 0.72)
+- 951 nodes · 1629 edges · 62 communities (50 shown, 12 thin omitted)
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 258 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `294480f1`
+- Built from commit: `65fd9034`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- ._execute_full
+- Move
 - 3. Task specification
-- SceneConfig
+- test_observation_leakage.py
 - CubeState
-- HandCubeScene
+- m0.py
 - grasp_benchmark.py
-- CubeInterface
+- RobotInterface
 - 11. Hierarchical control architecture
 - 28. Evaluation metrics
-- CubeParams
+- SceneConfig
 - 23. Recovery strategies
 - 24. Recommended curriculum
 - 10. Sensor validation experiments
@@ -46,86 +46,83 @@
 - manip-rubiks
 - HandCubeEnv
 - TactileSensors
-- Move
+- test_tactile.py
 - 34. Major technical risks
 - project-draft.md
 - Part VI — Tactile State Estimation
 - GraspEnv
 - Executive Summary
 - Part XVI — Further Research Directions
-- MLflowOutputFormat
-- .solved
-- _train
+- _Geoms
+- Appendix A — Essential Resources
+- train_grasp.py
 - __init__.py
 - PrivilegedObservation
-- axis_angle_matrix
+- HandCubeScene
 - manip-rubiks
 - AsymmetricActorCriticPolicy
-- DifficultyCurriculum
-- .__init__
-- AsymmetricMlpExtractor
 - __init__.py
 - __init__.py
 - __init__.py
-- Part XVII — Final Recommendations
-- up.sh
+- g2.py
+- g3.py
 
 ## God Nodes (most connected - your core abstractions)
-1. `HandCubeScene` - 41 edges
-2. `CubeState` - 34 edges
-3. `GraspEnv` - 33 edges
+1. `GraspEnv` - 46 edges
+2. `HandCubeScene` - 41 edges
+3. `CubeState` - 38 edges
 4. `HandCubeEnv` - 33 edges
-5. `Move` - 23 edges
-6. `CubeInterface` - 22 edges
-7. `EnvConfig` - 21 edges
-8. `TactileSensors` - 18 edges
-9. `SceneConfig` - 17 edges
-10. `RobotInterface` - 16 edges
+5. `GraspEnvGPU` - 32 edges
+6. `Move` - 23 edges
+7. `CubeInterface` - 23 edges
+8. `EnvConfig` - 21 edges
+9. `GraspConfig` - 19 edges
+10. `TactileSensors` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `scene()` --calls--> `HandCubeScene`  [INFERRED]
-  tests/test_scene_stability.py → src/manip_rubiks/simulation/scene_builder.py
-- `test_reset_is_deterministic()` --calls--> `HandCubeScene`  [INFERRED]
-  tests/test_scene_stability.py → src/manip_rubiks/simulation/scene_builder.py
 - `settled()` --calls--> `HandCubeScene`  [INFERRED]
   tests/test_tactile.py → src/manip_rubiks/simulation/scene_builder.py
 - `test_episode_logic_check()` --calls--> `check_episode_logic()`  [INFERRED]
   tests/test_validation_checks.py → src/manip_rubiks/validation/episodes.py
-- `env()` --calls--> `GraspEnv`  [INFERRED]
+- `test_gravity_schedule_matches_cpu()` --calls--> `GraspConfig`  [INFERRED]
+  tests/test_gpu_grasp_env.py → src/manip_rubiks/environments/grasp_env.py
+- `test_pushes_hit_the_cube_and_can_be_disabled()` --calls--> `GraspConfig`  [INFERRED]
+  tests/test_grasp_env.py → src/manip_rubiks/environments/grasp_env.py
+- `test_zero_difficulty_keeps_the_palm_up_without_pushes()` --calls--> `GraspConfig`  [INFERRED]
   tests/test_grasp_env.py → src/manip_rubiks/environments/grasp_env.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (56 total, 12 thin omitted)
+## Communities (62 total, 12 thin omitted)
 
-### Community 0 - "._execute_full"
-Cohesion: 0.16
-Nodes (12): CubeReading, LayerDriver, LayerDriverConfig, MoveResult, Ground-truth access to the simulated cube.  Everything here reads privileged sim, Largest penetration depth [m] among active contacts involving the cube., Executes face turns by applying external torques to the cubies.      This stands, Snapped configuration of the physical cube. (+4 more)
+### Community 0 - "Move"
+Cohesion: 0.25
+Nodes (11): Random sequence avoiding consecutive moves on the same axis.          If all all, LayerDriver, Executes face turns by applying external torques to the cubies.      This stands, make_fixture(), Physical cube models: structure, state I/O and externally driven legal moves., test_full_cube_random_sequence_matches_symbolic(), test_full_cube_single_move_from_solved(), test_read_is_invariant_to_whole_set_rotation() (+3 more)
 
 ### Community 1 - "3. Task specification"
 Cohesion: 0.22
 Nodes (9): 3. Task specification, 4. Mathematical formulation, 5.1 Symbolic memory, 5.2 Physical-state memory, 5. Two different kinds of memory, Evaluation, Part II — Formal Problem Definition, Phase A — Visual inspection (+1 more)
 
-### Community 2 - "SceneConfig"
+### Community 2 - "test_observation_leakage.py"
 Cohesion: 0.06
 Nodes (26): MjData, MjModel, ndarray, Joint-level interface to the Sharpa Wave hand (docs/project-draft.md section 31), Read joint state and command position targets for the hand.      Actions follow, Actuator forces (the simulated analogue of joint-torque feedback)., Delta joint-target action from section 12 (``k_a`` in rad per control step)., RobotInterface (+18 more)
 
 ### Community 3 - "CubeState"
-Cohesion: 0.15
-Nodes (7): CubeState, Symbolic 2x2x2 state as per-cubie rotations (index ``i`` = cubie with home ``COR, Current position signs (8, 3) of every cubie., Rotate the whole cube (does not change the puzzle configuration)., Whole-cube rotation that brings cubie DBL to its home pose.          A 2x2x2 cub, Every cubie occupies a distinct slot and the total twist is 0 mod 3., Kociemba corner representation.          ``perm[slot]`` is the cubie in ``slot``
+Cohesion: 0.13
+Nodes (8): CubeState, Symbolic 2x2x2 state as per-cubie rotations (index ``i`` = cubie with home ``COR, Current position signs (8, 3) of every cubie., Indices of the cubies currently in ``face``., Rotate the whole cube (does not change the puzzle configuration)., Whole-cube rotation that brings cubie DBL to its home pose.          A 2x2x2 cub, Every cubie occupies a distinct slot and the total twist is 0 mod 3., Kociemba corner representation.          ``perm[slot]`` is the cubie in ``slot``
 
-### Community 4 - "HandCubeScene"
-Cohesion: 0.07
-Nodes (51): HandCubeScene, Compiled scene with robot and cube interfaces and deterministic resets., Deterministic reset: hand to home, cube onto the palm, then settle passively., Any penetrating contact involving a hand geom (with itself or the cube)., audit_filters(), check_collisions(), _Geoms, _max_pen() (+43 more)
+### Community 4 - "m0.py"
+Cohesion: 0.05
+Nodes (55): HandCubeScene, Compiled scene with robot and cube interfaces and deterministic resets., Deterministic reset: hand to home, cube onto the palm, then settle passively., Any penetrating contact involving a hand geom (with itself or the cube)., audit_filters(), check_collisions(), _Geoms, _max_pen() (+47 more)
 
 ### Community 5 - "grasp_benchmark.py"
-Cohesion: 0.11
-Nodes (26): build_policy(), condition_options(), EpisodeResult, main(), policy_label(), Any, Path, Grasp-stabilisation benchmark: sustained blindfolded holds under wrist reorienta (+18 more)
+Cohesion: 0.07
+Nodes (31): build_policy(), condition_options(), EpisodeResult, main(), policy_label(), Any, Path, Grasp-stabilisation benchmark: sustained blindfolded holds under wrist reorienta (+23 more)
 
-### Community 6 - "CubeInterface"
-Cohesion: 0.14
-Nodes (11): CubeInterface, MjData, MjModel, ndarray, Variant, Write a symbolic configuration into ``qpos`` (call ``mj_forward`` afterwards)., Activate the fixture weld holding cubie ``index`` at a rotation relative to the, (8, 3) world-frame angular velocity of each cubie relative to the core (full var (+3 more)
+### Community 6 - "RobotInterface"
+Cohesion: 0.06
+Nodes (37): CubeInterface, CubeReading, LayerDriverConfig, MoveResult, MjData, MjModel, ndarray, Variant (+29 more)
 
 ### Community 7 - "11. Hierarchical control architecture"
 Cohesion: 0.12
@@ -135,7 +132,7 @@ Nodes (17): 11. Hierarchical control architecture, 12. Action representation, 13
 Cohesion: 0.12
 Nodes (16): 27. Primary research questions, 28.1 Individual turn success rate, 28.2 Sequence success rate, 28.3 Complete solve success rate, 28.4 State-estimation error, 28.5 Error detection performance, 28.6 Recovery performance, 28.7 Training efficiency (+8 more)
 
-### Community 9 - "CubeParams"
+### Community 9 - "SceneConfig"
 Cohesion: 0.21
 Nodes (15): cube_spec(), cube_xml(), CubeParams, cubie_center(), _cubie_geoms(), fixture_cube_xml(), _fmt(), MjSpec (+7 more)
 
@@ -180,8 +177,8 @@ Cohesion: 0.44
 Nodes (8): cache_dir(), ensure_menagerie_model(), _git(), menagerie_dir(), Path, Third-party robot assets.  The Sharpa Wave meshes are too large to vendor into t, Return the directory of a Menagerie model, fetching it on first use., sharpa_wave_xml()
 
 ### Community 20 - "test_scene_stability.py"
-Cohesion: 0.18
-Nodes (4): Hand + cube scene: resets, reproducibility and short interaction rollouts., scene(), test_reset_is_deterministic(), test_reset_with_scrambled_state()
+Cohesion: 0.07
+Nodes (39): GraspConfig, GraspEnvGPU, _min_jerk(), observation_layout(), range, Tensor, Batched grasp-stabilisation environment on MuJoCo Warp.  :class:`GraspEnvGPU` re, Scale tilt range and pushes; takes effect at each world's next reset. (+31 more)
 
 ### Community 21 - "Part VII — World Model"
 Cohesion: 0.25
@@ -192,24 +189,24 @@ Cohesion: 0.25
 Nodes (8): 35. Initial project scope, 36. First three experiments, Experiment 1 — Observability, Experiment 2 — Closed-loop manipulation, Experiment 3 — Disturbance recovery, Part XIV — Recommended Minimum Viable Project, Proposed MVP, Why this is the correct starting point
 
 ### Community 30 - "HandCubeEnv"
-Cohesion: 0.08
-Nodes (30): GraspRewardWeights, Grasp stabilisation: keep hold of the cube while the wrist reorients (docs/proje, WristMove, EnvConfig, HandCubeEnv, Any, ndarray, Gymnasium environment for the fixed-wrist hand holding a 2x2x2 cube.  This is th (+22 more)
+Cohesion: 0.07
+Nodes (31): GraspRewardWeights, EnvConfig, HandCubeEnv, Any, ndarray, Gymnasium environment for the fixed-wrist hand holding a 2x2x2 cube.  This is th, Task reward; the base environment has no task., Task-specific success or failure termination. (+23 more)
 
 ### Community 31 - "TactileSensors"
 Cohesion: 0.09
 Nodes (22): MjData, MjModel, ndarray, Simulated tactile sensing derived from MuJoCo contacts (docs/project-draft.md se, (n_regions, 3) net contact force on each region, in world coordinates., Noiseless, undelayed reading for the current simulator state., Corrupted, delayed reading; call once per control step., Per-region contact or force readings for the Sharpa Wave hand.      Call :meth:` (+14 more)
 
-### Community 32 - "Move"
-Cohesion: 0.12
-Nodes (14): axis_rotation(), format_moves(), Move, ndarray, Symbolic 2x2x2 cube state.  State is stored the same way the physics model is pa, Return (index into ROTATIONS, angular distance in radians) of the closest group, Rotation angle about the outward face normal, in (-pi, pi]., Indices of the cubies currently in ``face``. (+6 more)
+### Community 32 - "test_tactile.py"
+Cohesion: 0.15
+Nodes (10): axis_rotation(), format_moves(), Move, ndarray, Symbolic 2x2x2 cube state.  State is stored the same way the physics model is pa, Rotation angle about the outward face normal, in (-pi, pi]., All 24 proper rotation matrices with integer entries (signed permutations)., Integer rotation matrix for ``quarter_turns`` * 90 degrees about a unit axis. (+2 more)
 
 ### Community 33 - "34. Major technical risks"
 Cohesion: 0.25
 Nodes (8): 34. Major technical risks, Part XIII — Risk Analysis, Risk 1 — Cube physics is unstable, Risk 2 — Tactile sensing is insufficient, Risk 3 — RL fails to discover stable turns, Risk 4 — GPU acceleration is incompatible with sensor features, Risk 5 — State estimation becomes unreliable, Risk 6 — End-to-end solving is too difficult
 
 ### Community 34 - "project-draft.md"
-Cohesion: 0.25
-Nodes (7): Additional research directions, Appendix A — Essential Resources, Appendix B — Immediate Action Plan, Conclusion, Core research papers, Part XV — Recommended Research Priorities, Simulation and robot models
+Cohesion: 0.17
+Nodes (11): 38. Active tactile perception, 39. Risk-aware symbolic planning, 40. Generalization beyond Rubik's Cubes, Additional research directions, Appendix A — Essential Resources, Appendix B — Immediate Action Plan, Conclusion, Core research papers (+3 more)
 
 ### Community 35 - "Part VI — Tactile State Estimation"
 Cohesion: 0.29
@@ -217,75 +214,63 @@ Nodes (7): 14. State-estimation objectives, 15. Baseline estimator: recurrent ne
 
 ### Community 36 - "GraspEnv"
 Cohesion: 0.06
-Nodes (28): GraspConfig, GraspEnv, Any, ndarray, Scale tilt range and pushes; takes effect at the next reset., Gravity direction after tilting the wrist by ``tilt`` towards in-palm direction, Whole-cube orientation, fitted to the cubies (the core may spin inside them)., Great-circle interpolation between unit vectors ``a`` and ``b``. (+20 more)
+Nodes (35): GraspEnv, Any, ndarray, Grasp stabilisation: keep hold of the cube while the wrist reorients (docs/proje, Scale tilt range and pushes; takes effect at the next reset., Gravity direction after tilting the wrist by ``tilt`` towards in-palm direction, Whole-cube orientation, fitted to the cubies (the core may spin inside them)., Great-circle interpolation between unit vectors ``a`` and ``b``. (+27 more)
 
 ### Community 37 - "Executive Summary"
 Cohesion: 0.33
 Nodes (6): Blindfolded Rubik's Cube Solving Through Tactile Robotic Manipulation, Executive Summary, Expected outcomes, Project objective, Recommended research strategy, Scope recommendation
 
 ### Community 38 - "Part XVI — Further Research Directions"
-Cohesion: 0.50
-Nodes (4): 38. Active tactile perception, 39. Risk-aware symbolic planning, 40. Generalization beyond Rubik's Cubes, Part XVI — Further Research Directions
+Cohesion: 0.10
+Nodes (23): Normal, Critic, GaussianActor, _mlp(), PPO, PPOConfig, device, Sequential (+15 more)
 
-### Community 39 - "MLflowOutputFormat"
-Cohesion: 0.12
-Nodes (14): KVWriter, check_server(), flatten_params(), MLflowOutputFormat, Any, Experiment tracking with MLflow.  The MLflow server runs in Docker (``docker/up., Fail fast with a useful message when an HTTP tracking server is down.      MLflo, Flatten nested mappings into dotted keys; sequences become strings. (+6 more)
+### Community 39 - "_Geoms"
+Cohesion: 0.07
+Nodes (30): BaseCallback, KVWriter, check_server(), flatten_params(), MLflowOutputFormat, Any, Experiment tracking with MLflow.  The MLflow server runs in Docker (``docker/up., Fail fast with a useful message when an HTTP tracking server is down.      MLflo (+22 more)
 
-### Community 40 - ".solved"
-Cohesion: 0.11
-Nodes (24): parse_moves(), Random sequence avoiding consecutive moves on the same axis.          If all all, make_fixture(), Physical cube models: structure, state I/O and externally driven legal moves., test_full_cube_random_sequence_matches_symbolic(), test_full_cube_single_move_from_solved(), test_read_is_invariant_to_whole_set_rotation(), test_set_state_round_trip() (+16 more)
+### Community 40 - "Appendix A — Essential Resources"
+Cohesion: 0.23
+Nodes (12): parse_moves(), test_initial_state_options(), test_inverse_and_parsing(), test_kociemba_orientation_convention(), test_layer_contains_four_cubies(), test_opposite_faces_are_equivalent_up_to_whole_cube_rotation(), test_quarter_turn_has_order_four(), test_random_sequences_stay_valid() (+4 more)
 
-### Community 41 - "_train"
-Cohesion: 0.16
-Nodes (14): BaseCallback, Namespace, EpisodeMetrics, main(), make_env(), make_vec_env(), parse_args(), Path (+6 more)
+### Community 41 - "train_grasp.py"
+Cohesion: 0.18
+Nodes (10): dtype, BatchedReading, CubeMath, device, Tensor, Group tables on a device, and the batched readout., Index of the closest group element for each rotation in ``r`` (..., 3, 3)., Rotation closest to each ``(N, 3, 3)`` matrix sum (Frobenius). (+2 more)
 
 ### Community 43 - "PrivilegedObservation"
-Cohesion: 0.18
-Nodes (9): Env, PrivilegedObservation, ndarray, Expose ``info["privileged"]`` as an observation entry, for the critic only., model(), obs_tensor(), Asymmetric PPO: the actor must never depend on privileged state; deployment must, test_actor_ignores_privileged_state_but_critic_uses_it() (+1 more)
-
-### Community 44 - "axis_angle_matrix"
-Cohesion: 0.18
-Nodes (16): axis_angle_matrix(), chordal_mean(), log_rotation(), mat_to_quat(), ndarray, Small rotation helpers (numpy only)., Rotation vector (axis * angle) of a rotation matrix, robust near pi., Signed twist of rotation ``r`` about unit ``axis`` (swing-twist decomposition), (+8 more)
+Cohesion: 0.16
+Nodes (15): _group_tables(), indices_to_state(), ndarray, Batched cube readout in PyTorch, mirroring :meth:`CubeInterface.read` and :meth:, state_to_indices(), Return (index into ROTATIONS, angular distance in radians) of the closest group, snap_rotation(), physical_cube() (+7 more)
 
 ### Community 46 - "manip-rubiks"
-Cohesion: 0.22
-Nodes (7): Grasp stabilisation, Known limitations / follow-ups, Layout, manip-rubiks, Setup, Simulation design (M0), Grasp stabilisation benchmark
+Cohesion: 0.20
+Nodes (8): GPU simulation, Grasp stabilisation, Known limitations / follow-ups, Layout, manip-rubiks, Setup, Simulation design (M0), Grasp stabilisation benchmark
 
 ### Community 47 - "AsymmetricActorCriticPolicy"
-Cohesion: 0.15
-Nodes (10): BaseFeaturesExtractor, MultiInputActorCriticPolicy, Space, AsymmetricActorCriticPolicy, KeyedFlattenExtractor, Any, Asymmetric actor-critic for Stable-Baselines3 PPO (docs/project-draft.md section, PPO policy whose actor reads ``actor_keys`` and whose critic also reads ``critic (+2 more)
+Cohesion: 0.05
+Nodes (33): BaseFeaturesExtractor, Env, Module, MultiInputActorCriticPolicy, Space, LearnedPolicy, ndarray, Path (+25 more)
 
-### Community 49 - ".__init__"
-Cohesion: 0.50
-Nodes (4): device, Module, Sequential, _mlp()
-
-### Community 50 - "AsymmetricMlpExtractor"
-Cohesion: 0.60
-Nodes (3): AsymmetricMlpExtractor, Policy MLP on the actor slice of the features, value MLP on all of them., Tensor
-
-### Community 60 - "Part XVII — Final Recommendations"
+### Community 60 - "g2.py"
 Cohesion: 0.50
 Nodes (4): 41. Recommended implementation decisions, 42. Recommended order of execution, 43. Final project definition, Part XVII — Final Recommendations
 
 ## Knowledge Gaps
-- **157 isolated node(s):** `up.sh script`, `manip-rubiks`, `graphify`, `Versioning`, `Setup` (+152 more)
+- **158 isolated node(s):** `up.sh script`, `manip-rubiks`, `graphify`, `Versioning`, `Setup` (+153 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GraspEnv` connect `GraspEnv` to `PrivilegedObservation`, `grasp_benchmark.py`, `HandCubeEnv`?**
-  _High betweenness centrality (0.174) - this node is a cross-community bridge._
-- **Why does `HandCubeScene` connect `HandCubeScene` to `SceneConfig`, `CubeState`, `CubeInterface`, `CubeParams`, `axis_angle_matrix`, `test_scene_stability.py`, `HandCubeEnv`, `TactileSensors`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
-- **Why does `HandCubeEnv` connect `HandCubeEnv` to `SceneConfig`, `CubeState`, `GraspEnv`, `HandCubeScene`, `TactileSensors`?**
-  _High betweenness centrality (0.127) - this node is a cross-community bridge._
+- **Why does `GraspEnv` connect `GraspEnv` to `test_scene_stability.py`, `grasp_benchmark.py`, `HandCubeEnv`, `AsymmetricActorCriticPolicy`?**
+  _High betweenness centrality (0.206) - this node is a cross-community bridge._
+- **Why does `HandCubeScene` connect `m0.py` to `test_observation_leakage.py`, `CubeState`, `RobotInterface`, `SceneConfig`, `HandCubeEnv`, `TactileSensors`?**
+  _High betweenness centrality (0.123) - this node is a cross-community bridge._
+- **Why does `HandCubeEnv` connect `HandCubeEnv` to `test_observation_leakage.py`, `CubeState`, `m0.py`, `GraspEnv`, `test_scene_stability.py`, `TactileSensors`?**
+  _High betweenness centrality (0.123) - this node is a cross-community bridge._
+- **Are the 26 inferred relationships involving `GraspEnv` (e.g. with `EnvConfig` and `HandCubeEnv`) actually correct?**
+  _`GraspEnv` has 26 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 14 inferred relationships involving `HandCubeScene` (e.g. with `EnvConfig` and `HandCubeEnv`) actually correct?**
   _`HandCubeScene` has 14 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 11 inferred relationships involving `CubeState` (e.g. with `EnvConfig` and `HandCubeEnv`) actually correct?**
-  _`CubeState` has 11 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 15 inferred relationships involving `GraspEnv` (e.g. with `EnvConfig` and `HandCubeEnv`) actually correct?**
-  _`GraspEnv` has 15 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 13 inferred relationships involving `CubeState` (e.g. with `EnvConfig` and `HandCubeEnv`) actually correct?**
+  _`CubeState` has 13 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 20 inferred relationships involving `HandCubeEnv` (e.g. with `GraspConfig` and `GraspEnv`) actually correct?**
   _`HandCubeEnv` has 20 INFERRED edges - model-reasoned connections that need verification._

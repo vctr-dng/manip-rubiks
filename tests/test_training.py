@@ -1,5 +1,8 @@
 """Asymmetric PPO: the actor must never depend on privileged state; deployment must stay blindfolded."""
 
+import csv
+import json
+
 import mlflow
 import numpy as np
 import pytest
@@ -9,6 +12,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from manip_rubiks.environments import GRASP_OBS_KEYS, GraspEnv
 from manip_rubiks.policies.learned import LearnedPolicy
+from manip_rubiks.training.artifacts import OUTCOMES
 from manip_rubiks.training.asymmetric import PRIVILEGED_KEY, AsymmetricActorCriticPolicy, PrivilegedObservation
 from manip_rubiks.training.train_grasp import main as train_main
 
@@ -97,6 +101,8 @@ def test_training_cli_writes_a_loadable_run(tmp_path, monkeypatch):
             "--batch-size=64",
             "--eval-every=128",
             "--eval-episodes=1",
+            "--video-episodes=1",
+            "--milestones=2",
         ]
     )
     run = tmp_path / "t"
@@ -113,4 +119,23 @@ def test_training_cli_writes_a_loadable_run(tmp_path, monkeypatch):
     assert "time/fps" in logged.data.metrics and "summary/timesteps" in logged.data.metrics
     artifacts = {a.path for a in mlflow.MlflowClient().list_artifacts(logged.info.run_id, "run")}
     assert {"run/model.zip", "run/vecnormalize.pkl", "run/config.json", "run/summary.json", "run/best"} <= artifacts
+    assert logged.data.tags["git.commit"] != "unknown"
+
+    def ls(path):
+        return {a.path for a in mlflow.MlflowClient().list_artifacts(logged.info.run_id, path)}
+
+    assert {"repro/repro.json", "repro/uv.lock"} <= ls("repro")
+    assert {"checkpoints/latest/model.zip", "checkpoints/latest/vecnormalize.pkl"} <= ls("checkpoints/latest")
+    assert ls("checkpoints/milestones") == {"checkpoints/milestones/000000128", "checkpoints/milestones/000000256"}
+    assert ls("eval") == {"eval/000000128", "eval/000000256"}
+    assert ls("eval/000000128") == {f"eval/000000128/{f}" for f in ("episodes.csv", "distributions.json", "videos")}
+    assert len(ls("eval/000000128/videos")) == 1  # one episode tried: a success or a failure
+
+    rows = list(csv.DictReader((run / "eval" / "000000128" / "episodes.csv").open()))
+    assert len(rows) == 1 and rows[0]["outcome"] in OUTCOMES
+    terms = [float(v) for k, v in rows[0].items() if k.startswith("reward/")]
+    assert len(terms) == 8 and np.isclose(sum(terms), float(rows[0]["return"]), rtol=1e-4)
+    snapshot = json.loads((run / "eval" / "000000128" / "distributions.json").read_text())
+    assert len(snapshot["policy_std"]) == 22 and snapshot["steps"] == int(rows[0]["length"])
+    assert set(GRASP_OBS_KEYS) <= set(snapshot["obs_normalizer"])
     mlflow.set_tracking_uri(None)

@@ -14,6 +14,9 @@ Example::
 
 Metrics, parameters and the trained model are logged to MLflow (experiment
 ``--experiment``, run ``--name``). Checkpoints are also kept in ``runs/grasp``.
+After every evaluation the latest checkpoint, a per-episode table, a
+distribution snapshot and, periodically, videos are uploaded as well (see
+:mod:`manip_rubiks.training.artifacts`).
 """
 
 from __future__ import annotations
@@ -35,10 +38,21 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor, VecNorma
 from torch import nn
 
 from manip_rubiks.environments import GRASP_OBS_KEYS, GraspConfig, GraspEnv
+from manip_rubiks.training.artifacts import (
+    ArtifactLogger,
+    DistributionStats,
+    normalizer_stats,
+    outcome,
+    pick_video_episodes,
+    render_gif,
+    write_csv,
+    write_json,
+)
 from manip_rubiks.training.asymmetric import PRIVILEGED_KEY, AsymmetricActorCriticPolicy, PrivilegedObservation
 from manip_rubiks.training.tracking import MLflowOutputFormat, check_server, flatten_params, tracking_uri
 
 EPISODE_METRICS = ("misalignment", "displacement", "rotation", "dropped", "state_preserved")
+VIDEO_SEED = 20_000  # video episodes use seeds VIDEO_SEED.., the same at every evaluation
 
 
 def make_env(difficulty: float, asymmetric: bool):
@@ -97,6 +111,122 @@ class SaveNormalizerOnBest(BaseCallback):
         return True
 
 
+class GraspEvalCallback(EvalCallback):
+    """:class:`EvalCallback` that also writes the periodic training artifacts.
+
+    While SB3 evaluates, every step's action and raw tactile reading and every
+    finished episode's metrics are collected. After each evaluation it writes
+    ``eval/<steps>/episodes.csv`` and ``distributions.json``, saves and uploads
+    the latest checkpoint, uploads ``best/`` when it improved, and every
+    ``video_every`` evaluations renders one successful and one failed episode.
+    """
+
+    def __init__(self, eval_env, *, run_dir: Path, artifacts: ArtifactLogger, video_episodes: int = 8, **kwargs):
+        super().__init__(eval_env, **kwargs)
+        self.run_dir, self.artifacts, self.video_episodes = run_dir, artifacts, video_episodes
+        self._video_env: GraspEnv | None = None
+        self._reset_buffers()
+
+    def _reset_buffers(self) -> None:
+        self.rows: list[dict] = []
+        self.dist: DistributionStats | None = None
+        self.terms: dict[int, dict[str, float]] = {}
+
+    def _on_step(self) -> bool:
+        due = self.eval_freq > 0 and self.n_calls % self.eval_freq == 0
+        if due:
+            self._reset_buffers()
+            best_before = self.best_mean_reward
+        keep_going = super()._on_step()
+        if due:
+            self._after_eval(improved=self.best_mean_reward > best_before)
+        return keep_going
+
+    def _log_success_callback(self, locals_: dict, globals_: dict) -> None:
+        super()._log_success_callback(locals_, globals_)
+        i, info = locals_["i"], locals_["info"]
+        tactile = self.eval_env.get_original_obs()["tactile"]
+        if self.dist is None:
+            self.dist = DistributionStats(locals_["actions"].shape[-1], int(np.prod(tactile.shape[1:])))
+        self.dist.add(locals_["actions"][i : i + 1], tactile[i : i + 1])
+        terms = self.terms.setdefault(i, {})
+        for k, v in info.get("reward_terms", {}).items():
+            terms[k] = terms.get(k, 0.0) + v
+        if not locals_["done"]:
+            return
+        ep = info.get("episode", {})
+        self.rows.append(
+            {
+                "env": i,
+                "episode": int(locals_["episode_counts"][i]),
+                "outcome": outcome(info["is_success"], info["dropped"], not info["state_preserved"], info["unstable"]),
+                "return": float(ep.get("r", locals_["current_rewards"][i])),
+                "length": int(ep.get("l", locals_["current_lengths"][i])),
+                **{k: info[k] for k in ("is_success", "dropped", "unstable", "state_preserved")},
+                **{k: info[k] for k in ("misalignment", "displacement", "rotation")},
+                **{f"reward/{k}": v for k, v in terms.items()},
+            }
+        )
+        self.terms.pop(i)
+
+    def _after_eval(self, improved: bool) -> None:
+        steps = int(self.num_timesteps)
+        _, videos = self.artifacts.next_eval()
+        out = self.artifacts.eval_dir(steps)
+        write_csv(out / "episodes.csv", self.rows)
+        snapshot = self.dist.summary() if self.dist is not None else {}
+        rms = self.eval_env.obs_rms  # synced from the training normaliser before each evaluation
+        snapshot["obs_normalizer"] = normalizer_stats({k: (r.mean, r.var) for k, r in rms.items()})
+        snapshot["policy_std"] = th.exp(self.model.policy.log_std.detach()).cpu().numpy()
+        snapshot["timesteps"] = steps
+        write_json(out / "distributions.json", snapshot)
+
+        latest = self.run_dir / "latest"
+        latest.mkdir(parents=True, exist_ok=True)
+        self.model.save(latest / "model.zip")  # includes the optimizer state
+        self.model.get_vec_normalize_env().save(str(latest / "vecnormalize.pkl"))
+        write_json(latest / "state.json", {"timesteps": steps, "best_mean_reward": float(self.best_mean_reward)})
+        self.artifacts.checkpoint(latest, steps, improved, self.run_dir / "best")
+        if videos:
+            self._record_videos(out / "videos")
+        self.artifacts.log_eval(steps)
+
+    def _record_videos(self, out: Path) -> None:
+        try:
+            if self._video_env is None:
+                self._video_env = GraspEnv(GraspConfig(difficulty=1.0), render_mode="rgb_array")
+            env = self._video_env
+            space = self.model.observation_space
+            privileged = space[PRIVILEGED_KEY].shape if PRIVILEGED_KEY in space.spaces else None
+            episodes: list[tuple[int, str, np.ndarray]] = []
+            for j in range(self.video_episodes):
+                obs, _ = env.reset(seed=VIDEO_SEED + j)
+                qpos, done = [env.data.qpos.copy()], False
+                while not done:
+                    x = {k: v[None] for k, v in obs.items()}
+                    if privileged is not None:  # the actor never reads it
+                        x[PRIVILEGED_KEY] = np.zeros((1, *privileged), np.float32)
+                    action, _ = self.model.predict(self.eval_env.normalize_obs(x), deterministic=True)
+                    obs, _, term, trunc, info = env.step(action[0])
+                    qpos.append(env.data.qpos.copy())
+                    done = term or trunc
+                label = outcome(info["is_success"], info["dropped"], not info["state_preserved"], info["unstable"])
+                episodes.append((VIDEO_SEED + j, label, np.array(qpos)))
+                if len(pick_video_episodes([e[1] for e in episodes])) == 2:
+                    break
+            for i in pick_video_episodes([e[1] for e in episodes]):
+                seed, label, qpos = episodes[i]
+                render_gif(env, qpos, out / f"{label}_seed{seed}.gif")
+        except Exception as e:  # noqa: BLE001 - e.g. no OpenGL context; training goes on without videos
+            print(f"video recording failed ({e}); set MUJOCO_GL=egl on a headless machine", file=sys.stderr)
+            self.artifacts.video_every = 0
+
+    def close_video_env(self) -> None:
+        if self._video_env is not None:
+            self._video_env.close()
+            self._video_env = None
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--name", default=time.strftime("ppo_%Y%m%d_%H%M%S"))
@@ -120,6 +250,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--log-std-init", type=float, default=-1.0)
     p.add_argument("--eval-every", type=int, default=500_000, help="timesteps between evaluations")
     p.add_argument("--eval-episodes", type=int, default=40)
+    p.add_argument("--video-every", type=int, default=4, help="evaluations between eval videos (0: no videos)")
+    p.add_argument("--video-episodes", type=int, default=8, help="episodes tried to find a success and a failure")
+    p.add_argument("--milestones", type=int, default=10, help="checkpoints kept over the run (0: none)")
     p.add_argument("--torch-threads", type=int, default=4)
     p.add_argument("--mlflow-uri", default=None, help="tracking URI (default: $MLFLOW_TRACKING_URI or local server)")
     p.add_argument("--experiment", default="grasp", help="MLflow experiment name")
@@ -138,16 +271,18 @@ def main(argv: list[str] | None = None) -> None:
     config = {"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     config["grasp_config"] = asdict(GraspConfig())
     (run_dir / "config.json").write_text(json.dumps(config, indent=2, default=float))
+    artifacts = ArtifactLogger(run_dir, args.timesteps, args.milestones, args.video_every)
     with mlflow.start_run(run_name=args.name):
         mlflow.log_params(flatten_params(config))
         mlflow.set_tags({"task": "grasp", "algorithm": "PPO", "run_dir": str(run_dir)})
+        artifacts.start()
         try:
-            _train(args, run_dir)
+            _train(args, run_dir, artifacts)
         finally:  # keep whatever was saved, also when training is interrupted
-            mlflow.log_artifacts(str(run_dir), artifact_path="run")
+            artifacts.finalize()
 
 
-def _train(args: argparse.Namespace, run_dir: Path) -> None:
+def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -> None:
     venv = VecNormalize(make_vec_env(args.n_envs, args.difficulty_start, args.asymmetric, args.seed), gamma=args.gamma)
     eval_venv = VecNormalize(
         make_vec_env(args.n_eval_envs, 1.0, args.asymmetric, args.seed + 10_000), training=False, norm_reward=False
@@ -177,8 +312,11 @@ def _train(args: argparse.Namespace, run_dir: Path) -> None:
         verbose=1,
     )
     model.set_logger(Logger(str(run_dir), [HumanOutputFormat(sys.stdout), MLflowOutputFormat()]))
-    eval_cb = EvalCallback(
+    eval_cb = GraspEvalCallback(
         eval_venv,
+        run_dir=run_dir,
+        artifacts=artifacts,
+        video_episodes=args.video_episodes,
         n_eval_episodes=args.eval_episodes,
         eval_freq=max(args.eval_every // args.n_envs, 1),
         best_model_save_path=str(run_dir / "best"),
@@ -211,6 +349,7 @@ def _train(args: argparse.Namespace, run_dir: Path) -> None:
         )
         venv.close()
         eval_venv.close()
+        eval_cb.close_video_env()
 
 
 if __name__ == "__main__":

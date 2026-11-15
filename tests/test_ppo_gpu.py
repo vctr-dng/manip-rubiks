@@ -1,5 +1,7 @@
 """GPU PPO: normalisation, advantages, truncation bootstrapping, blindfolded actor and deployment."""
 
+import csv
+
 import mlflow
 import numpy as np
 import pytest
@@ -112,6 +114,7 @@ def test_gpu_training_cli_deploys_on_the_cpu_benchmark(tmp_path, monkeypatch):
             "--eval-every=1024",
             "--eval-envs=8",
             "--bank-size=64",
+            "--video-episodes=4",
         ]
     )
     run = tmp_path / "t"
@@ -130,4 +133,18 @@ def test_gpu_training_cli_deploys_on_the_cpu_benchmark(tmp_path, monkeypatch):
     (logged,) = mlflow.search_runs(experiment_names=["test"], output_format="list")
     assert logged.info.status == "FINISHED" and logged.data.tags["backend"] == "mujoco_warp"
     assert "eval/success_rate" in logged.data.metrics and "time/fps" in logged.data.metrics
+    client = mlflow.MlflowClient()
+
+    def ls(path):
+        return {a.path for a in client.list_artifacts(logged.info.run_id, path)}
+
+    assert ls("checkpoints/latest") == {"checkpoints/latest/policy.pt"}
+    assert ls("eval") == {"eval/000001024", "eval/000002048"}
+    assert ls("eval/000001024/videos")  # the first evaluation records videos
+    rows = list(csv.DictReader((run / "eval" / "000002048" / "episodes.csv").open()))
+    assert len(rows) == 8 and [int(r["reset_seed"]) for r in rows] == list(range(10_000, 10_008))
+    terms = [[float(v) for k, v in r.items() if k.startswith("reward/")] for r in rows]
+    np.testing.assert_allclose([sum(t) for t in terms], [float(r["return"]) for r in rows], rtol=1e-3, atol=1e-2)
+    latest = torch.load(run / "latest" / "policy.pt", weights_only=False)
+    assert {"optimizer", "env_rng", "torch_rng", "best_score"} <= set(latest) and latest["timesteps"] == 2048
     mlflow.set_tracking_uri(None)

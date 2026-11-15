@@ -69,7 +69,11 @@ def condition_options(condition: str, seed: int) -> dict[str, Any]:
 
 
 def build_policy(spec: str):
-    """``passive``, ``scripted`` or ``<label>=<run dir or model.zip>``."""
+    """``passive``, ``scripted`` or ``<label>=<run dir, model.zip or policy.pt>``.
+
+    Run directories of GPU training (``policy.pt``) and of Stable-Baselines3
+    training (``model.zip``) are both recognised.
+    """
     from manip_rubiks.policies import PassivePolicy, ScriptedGraspPolicy
 
     if spec == "passive":
@@ -77,9 +81,13 @@ def build_policy(spec: str):
     if spec == "scripted":
         return ScriptedGraspPolicy()
     _, _, path = spec.partition("=")
+    p = Path(path)
+    if p.suffix == ".pt" or (p / "policy.pt").exists() or (p / "best" / "policy.pt").exists():
+        from manip_rubiks.policies.torch_policy import TorchGraspPolicy
+
+        return TorchGraspPolicy(p) if p.suffix == ".pt" else TorchGraspPolicy.from_run(p)
     from manip_rubiks.policies.learned import LearnedPolicy
 
-    p = Path(path)
     return LearnedPolicy(p) if p.suffix == ".zip" else LearnedPolicy.from_run(p)
 
 

@@ -20,6 +20,7 @@ dependencies = [
 manip-rubiks = "manip_rubiks:main"
 manip-rubiks-m0 = "manip_rubiks.validation.m0:main"
 manip-rubiks-train-grasp = "manip_rubiks.training.train_grasp:main"
+manip-rubiks-train-grasp-gpu = "manip_rubiks.training.train_grasp_gpu:main"
 manip-rubiks-eval-grasp = "manip_rubiks.evaluation.grasp_benchmark:main"
 
 [build-system]

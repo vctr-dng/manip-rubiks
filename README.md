@@ -12,10 +12,15 @@ uv run pytest -m slow     # gate M0 in quick mode (~1 min)
 uv run manip-rubiks-m0    # full gate M0 validation, writes reports/m0/
 
 docker/up.sh                                            # MLflow server on http://127.0.0.1:5000
-uv run manip-rubiks-train-grasp --name ppo_asym_s0      # PPO grasp policy, writes runs/grasp/ (~2.3 h)
+uv run manip-rubiks-train-grasp-gpu --name gpu_s0       # PPO grasp policy on the GPU, writes runs/grasp_gpu/
+uv run manip-rubiks-train-grasp --name ppo_asym_s0      # CPU reference (Stable-Baselines3), writes runs/grasp/
 uv run manip-rubiks-eval-grasp --policy passive --policy scripted \
-    --policy learned=runs/grasp/ppo_asym_s0             # writes reports/grasp/
+    --policy gpu=runs/grasp_gpu/gpu_s0 \
+    --policy learned=runs/grasp/ppo_asym_s0             # CPU benchmark, writes reports/grasp/
 ```
+
+GPU training needs an NVIDIA GPU with a CUDA 12 or newer driver. The first run compiles MuJoCo Warp
+kernels (~1 min, then cached by Warp) and builds the reset bank (~20 s, then cached).
 
 ```python
 import gymnasium as gym
@@ -52,8 +57,14 @@ src/manip_rubiks/
   environments/grasp_env.py      grasp stabilisation under wrist reorientation and pushes
   policies/grasp_policy.py       passive and scripted power-grasp baselines
   policies/learned.py            blindfolded deployment of a trained PPO actor
+  policies/torch_policy.py       blindfolded CPU deployment of a GPU-trained actor
+  gpu/grasp_env.py               batched grasp environment on MuJoCo Warp (thousands of worlds)
+  gpu/cube_math.py               batched cube-state readout in PyTorch
+  gpu/reset_bank.py              cached initial states produced by the CPU reset
   training/asymmetric.py         PPO actor-critic whose critic alone sees privileged cube state
-  training/train_grasp.py        PPO training with a difficulty curriculum
+  training/train_grasp.py        PPO training with a difficulty curriculum (CPU, Stable-Baselines3)
+  training/ppo_gpu.py            asymmetric PPO on GPU rollouts
+  training/train_grasp_gpu.py    GPU PPO training with a difficulty curriculum
   training/tracking.py           MLflow tracking: SB3 logger output, server check
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
   validation/m0.py               validation suite entry point and report
@@ -124,38 +135,73 @@ changes the snapped configuration and ends the episode.
 whole-cube rotation, layer misalignment, cube velocity, actuator effort and action rate, plus a large
 penalty on drops or unintended layer turns.
 
-**Training.** PPO (Stable-Baselines3) with an asymmetric actor-critic (draft section 25): the
-critic also reads the simulator's cube state, and the actor's MLP is fed only the non-privileged
-slice of the features, which a test enforces. Tilt range and push strength ramp linearly from 20 %
-to full difficulty over the first 40 % of training. PPO was chosen over SAC because many parallel
-environments are available. Throughput is physics-bound: a grasping control step costs ~4.5 ms of
-`mj_step`, and synchronous stepping waits for the slowest worker on the 8P+8E-core CPU, giving
-~1.2–1.5k steps/s with 24 workers. The reference run (`ppo_asym_s0`, 12M steps, 2.9 h) plateaued
-once full difficulty was reached at ~5M steps. The best checkpoint (7M steps, selected on
-in-training evaluation reward) is evaluated below.
+**Training.** PPO with an asymmetric actor-critic (draft section 25): the critic also reads the
+simulator's cube state, and the actor is fed only the non-privileged observation, which tests
+enforce. Tilt range and push strength ramp linearly from 20 % to full difficulty over the first
+40 % of training. PPO was chosen over SAC because many parallel environments are available.
 
-**Results** ([`reports/grasp/grasp_report.md`](reports/grasp/grasp_report.md), 100 held-out
-episodes per cell, 95 % Wilson intervals):
+- *GPU* (`manip-rubiks-train-grasp-gpu`, the default): 1024 worlds on MuJoCo Warp, PPO in PyTorch on
+  the same device, 32-step rollouts (32k samples per update). The reference run (`gpu_s0`, 24M steps,
+  87 min at ~4.6k steps/s including evaluations) reached 80 % evaluation success at full difficulty
+  after 7M steps (~25 min) and then plateaued at 80–89 %. The best checkpoint (19M steps, selected on
+  evaluation success over 256 held-out episodes) is evaluated below.
+- *CPU reference* (`manip-rubiks-train-grasp`, Stable-Baselines3): 24 worker processes. Throughput is
+  physics-bound: a grasping control step costs ~4.5 ms of `mj_step`, and synchronous stepping waits
+  for the slowest worker on the 8P+8E-core CPU, giving ~1.2–1.5k steps/s. The reference run
+  (`ppo_asym_s0`, 12M steps, 2.9 h) plateaued once full difficulty was reached at ~5M steps; its
+  best checkpoint (7M steps, selected on in-training evaluation reward) is evaluated below.
 
-| Condition | Passive cage | Scripted power grasp | PPO (blindfolded) |
-|---|---|---|---|
-| Palm-down hold | 0 % (100 % dropped) | 31 % | **98 %** (93–99 %) |
-| 90° tilt, random direction | 30 % | 35 % | **100 %** (96–100 %) |
-| Random reorientations | 3 % | 29 % | **100 %** (96–100 %) |
-| Random reorientations + pushes | 0 % | 13 % (67 % layer turned) | **77 %** (68–84 %) |
+**Results** on the CPU reference simulation ([`reports/grasp/grasp_report.md`](reports/grasp/grasp_report.md),
+100 held-out episodes per cell, 95 % Wilson intervals). The GPU-trained policy runs unchanged on the
+float64 CPU simulator here, so its row also checks that the two simulations agree:
+
+| Condition | Passive cage | Scripted power grasp | PPO, CPU (SB3) | PPO, GPU |
+|---|---|---|---|---|
+| Palm-down hold | 0 % (100 % dropped) | 31 % | 98 % (93–99 %) | **100 %** (96–100 %) |
+| 90° tilt, random direction | 30 % | 35 % | **100 %** (96–100 %) | **100 %** (96–100 %) |
+| Random reorientations | 3 % | 29 % | **100 %** (96–100 %) | **100 %** (96–100 %) |
+| Random reorientations + pushes | 0 % | 13 % (67 % layer turned) | 77 % (68–84 %) | **86 %** (78–91 %) |
 
 The scripted power grasp never drops the cube, but its squeeze shears the R and L layers by
-~13° (median) and pushes then turn a layer outright. The learned grasp keeps layers within 2.8°
-(median) using ~40 % of the scripted grasp's actuator effort. Under pushes it still fails in
-23 % of episodes: 18 % unintended layer turns and 5 % drops. The 95 % target is met for wrist
-reorientation but not yet for external pushes.
+~13° (median) and pushes then turn a layer outright. Both learned grasps keep layers within
+2.6–2.8° (median). The GPU policy uses about half the actuator effort of the CPU one (0.06 vs 0.11
+of the force limit) and has a tighter misalignment tail without pushes (p95 3.2–3.4° vs 3.9–6.1°).
+Under pushes it fails in 14 % of episodes (12 % unintended layer turns, 2 % drops) against 23 %
+for the CPU policy. The intervals overlap and each policy comes from a single seed trained for a
+different number of steps, so this is not evidence that one trainer is better. The 95 % target is
+met for wrist reorientation but not yet for external pushes.
+
+## GPU simulation
+
+`GraspEnvGPU` (`gpu/grasp_env.py`) runs thousands of grasp worlds in one MuJoCo Warp simulation.
+Tactile readings, the cube readout, rewards, the wrist schedule and pushes are computed with PyTorch
+tensors that share memory with Warp, and the 20 physics substeps of a control step replay as one
+captured CUDA graph. Wrist reorientation uses one gravity vector per world. The CPU `GraspEnv`
+remains the reference implementation (draft section 34, risk 4):
+
+- **Initial states** come from a reset bank (`gpu/reset_bank.py`): each entry is the simulator state
+  right after `GraspEnv.reset(seed=s)`, so they follow the CPU distribution exactly. Training uses
+  seeds 0–8191, evaluation 10000–11023, and the CPU benchmark 100000 onwards. Banks are cached in
+  `~/.cache/manip_rubiks/reset_banks/`.
+- **Agreement**, checked by `tests/test_gpu_grasp_env.py`: observations after a reset match the CPU to
+  2e-4, the gravity schedule to 1e-5, and the first control steps track the CPU rewards to 0.02.
+  Termination, truncation and automatic resets behave the same way.
+- **Known differences.** Physics runs in float32. MuJoCo Warp generates slightly different contact
+  sets than CPU MuJoCo (55 vs 53 contacts in a grasp, with identical fingertip contacts), which
+  shifts friction forces and tactile readings by up to ~3 %. Random numbers come from a seeded torch
+  generator, so episodes follow the same distributions but not the same sequences. Instability is
+  detected from non-finite or runaway velocities, since MuJoCo Warp has no per-world solver warnings.
+- **Throughput** on an RTX A4000 (grasp scene, ~45 contacts per world): 3.0k env-steps/s with
+  256 worlds, 5.8k with 1024 and 6.6k with 4096. Each world is expensive (Newton solver with elliptic
+  cones, up to 100 iterations), so throughput saturates around 2k worlds. 1024 worlds keep
+  the PPO batch small at almost full throughput.
 
 ## Known limitations / follow-ups
 
-- **Push robustness.** The grasp policy turns a layer in 18 % of pushed episodes. Possible next
-  steps: longer training at full difficulty, a recurrent actor, stronger alignment shaping, and
-  multiple seeds for the comparison. Trained weights (~6 MB) are not versioned: they exceed the
-  repository's large-file limit, so `runs/` must be regenerated with `manip-rubiks-train-grasp`.
+- **Push robustness.** The grasp policies turn a layer in 12–18 % of pushed episodes. Possible next
+  steps: a recurrent actor, stronger alignment shaping, and multiple seeds for the comparison. Trained
+  weights (~6 MB) are not versioned: they exceed the repository's large-file limit. They are logged
+  as MLflow artifacts, and `runs/` can be regenerated with `manip-rubiks-train-grasp-gpu`.
 
 - **Fingertip pad compliance.** Menagerie's elastomer pads (`solref 0.06`) are very soft: the pads
   sink up to ~5 mm into the cube and ~10 mm into other links under full actuator force. This is not

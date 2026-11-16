@@ -18,6 +18,8 @@ services:
       - 0.0.0.0
       - --port
       - ${MLFLOW_PORT}
+      - --allowed-hosts
+      - "${MLFLOW_BIND_ADDRESS}:${MLFLOW_PORT},127.0.0.1:${MLFLOW_PORT},localhost:${MLFLOW_PORT}"
       - --cors-allowed-origins
       - "http://${MLFLOW_BIND_ADDRESS}:${MLFLOW_PORT},http://127.0.0.1:${MLFLOW_PORT},http://localhost:${MLFLOW_PORT}"
     volumes:

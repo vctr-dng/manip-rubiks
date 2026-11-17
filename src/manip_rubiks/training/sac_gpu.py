@@ -125,6 +125,7 @@ class SACConfig:
     log_std_init: float = -1.0
     max_grad_norm: float = 0.0  # 0 disables clipping
     freeze_normalizer_after: int = 0  # transitions after which observation statistics stop updating (0: never)
+    reward_scale: float = 1.0  # rewards are multiplied by this before entering the replay buffer
 
 
 class ReplayBuffer:
@@ -249,7 +250,8 @@ class SAC:
         truncated: torch.Tensor,
         terminal_critic_obs: torch.Tensor,
     ) -> None:
-        self.buffer.add(critic_obs, action, reward, terminated, truncated, terminal_critic_obs)
+        scaled = reward * self.cfg.reward_scale
+        self.buffer.add(critic_obs, action, scaled, terminated, truncated, terminal_critic_obs)
         self.env_steps += 1
 
     @property

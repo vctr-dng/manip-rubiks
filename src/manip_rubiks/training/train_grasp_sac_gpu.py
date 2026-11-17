@@ -61,6 +61,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--log-std-init", type=float, default=d.log_std_init)
     p.add_argument("--layer-norm", action=argparse.BooleanOptionalAction, default=d.layer_norm)
     p.add_argument("--max-grad-norm", type=float, default=d.max_grad_norm)
+    p.add_argument("--reward-scale", type=float, default=d.reward_scale, help="multiplier on stored rewards")
     p.add_argument(
         "--freeze-normalizer-after",
         type=int,
@@ -97,6 +98,7 @@ def sac_config(args: argparse.Namespace) -> SACConfig:
         layer_norm=args.layer_norm,
         max_grad_norm=args.max_grad_norm,
         freeze_normalizer_after=args.freeze_normalizer_after,
+        reward_scale=args.reward_scale,
     )
 
 

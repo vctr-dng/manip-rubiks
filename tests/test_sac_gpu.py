@@ -159,3 +159,11 @@ def test_normalizer_freezes_after_the_configured_transitions():
         action = sac.act(obs[:, :5], obs)
         sac.record(obs, action, torch.zeros(4), flags, flags, obs)
         assert torch.equal(sac.actor.obs_rms.mean, mean_before) == (i >= 2)
+
+
+def test_rewards_are_scaled_before_storage():
+    sac = make_sac(reward_scale=0.1)
+    flags = torch.zeros(4, dtype=torch.bool)
+    obs = torch.randn(4, 7)
+    sac.record(obs, torch.zeros(4, 3), torch.full((4,), -50.0), flags, flags, obs)
+    torch.testing.assert_close(sac.buffer.rewards[0], torch.full((4,), -5.0))

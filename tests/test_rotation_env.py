@@ -105,7 +105,8 @@ def test_goal_timeout_terminates_with_failure_penalty():
         steps += 1
     assert terminated and steps == 10
     assert info["timed_out"] and not info["is_success"]
-    assert info["reward_terms"]["failure"] == -e.rot_cfg.reward.failure
+    assert info["reward_terms"]["timeout"] == -e.rot_cfg.reward.timeout
+    assert info["reward_terms"]["failure"] == 0.0
     e.close()
 
 

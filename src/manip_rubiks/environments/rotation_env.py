@@ -31,7 +31,11 @@ Reward (privileged ground truth is allowed here, draft sections 13 and 25):
         - w_align    * layer misalignment / 0.1 rad
         - w_effort   * mean((actuator force / force limit)^2)
         - w_rate     * mean((a_t - a_{t-1})^2)
-        - w_fail     on termination (dropped, unstable, layer turned, goal timeout)
+        - w_fail     on a drop, instability or an unintended layer turn
+        - w_timeout  when a goal is not reached in time
+
+A timeout costs less than a drop, so letting the cube fall is never a cheaper
+way to end a hopeless attempt.
 
 where ``theta`` is the angle between the cube and goal orientations.
 """
@@ -87,6 +91,7 @@ class RotationRewardWeights:
     effort: float = 0.1
     action_rate: float = 0.05
     failure: float = 50.0
+    timeout: float = 10.0
 
 
 @dataclass
@@ -94,7 +99,10 @@ class RotationConfig:
     env: EnvConfig = field(default_factory=_rotation_env_config)
     goal_axes: str = "xyz"  # hand axes the quarter-turn commands rotate about
     goal_tolerance: float = 0.4  # largest angle to the goal that counts as reached [rad]
-    easy_tolerance: float = 0.6  # tolerance at difficulty 0 (curriculum)
+    # Tolerance at difficulty 0 (curriculum). At 1.3 rad, ~0.27 rad of rotation reaches a goal:
+    # undirected finger motion only rotates the cube by 0.1-0.4 rad, so tighter starting
+    # tolerances are never reached by exploration.
+    easy_tolerance: float = 1.3
     hold_steps: int = 5  # consecutive steps within tolerance to reach a goal
     goal_timeout: int = 150  # steps allowed per goal (6 s at 25 Hz)
     difficulty: float = 1.0  # in [0, 1]; tightens the goal tolerance (curriculum)
@@ -226,7 +234,8 @@ class RotationEnv(HandCubeEnv):
         """
         w = self.rot_cfg.reward
         effort = self.robot.effort() / self.robot.force_limit
-        failed = info["dropped"] or info["unstable"] or not info["state_preserved"] or info["timed_out"]
+        broken = info["dropped"] or info["unstable"] or not info["state_preserved"]
+        failed = broken or info["timed_out"]
         reached = self.hold >= self.rot_cfg.hold_steps and not failed
         terms = {
             "progress": w.progress * (self._theta_prev - self.theta) / 0.1,
@@ -235,7 +244,8 @@ class RotationEnv(HandCubeEnv):
             "alignment": -w.alignment * info["misalignment"] / 0.1,
             "effort": -w.effort * float(np.mean(effort**2)),
             "action_rate": -w.action_rate * float(np.mean((action - self._last_action) ** 2)),
-            "failure": -w.failure if failed else 0.0,
+            "failure": -w.failure if broken else 0.0,
+            "timeout": -w.timeout if info["timed_out"] and not broken else 0.0,
         }
         self._theta_prev = self.theta
         if reached:

@@ -143,7 +143,8 @@ class RotationEnvGPU(HandCubeEnvGPU):
         """Total reward; also advances the goal chain of worlds that reached their goal."""
         w = self.cfg.reward
         effort = self.actuator_force[:, self.act_ids] / self.force_limit
-        failed = info.dropped | info.unstable | ~info.state_preserved | info.timed_out
+        broken = info.dropped | info.unstable | ~info.state_preserved
+        failed = broken | info.timed_out
         reached = (self.hold >= self.cfg.hold_steps) & ~failed
         terms = {
             "progress": w.progress * (self.theta_prev - info.theta) / 0.1,
@@ -152,7 +153,8 @@ class RotationEnvGPU(HandCubeEnvGPU):
             "alignment": -w.alignment * info.misalignment / 0.1,
             "effort": -w.effort * torch.nan_to_num(effort**2).mean(1),
             "action_rate": -w.action_rate * ((action - self.last_action) ** 2).mean(1),
-            "failure": -w.failure * failed.float(),
+            "failure": -w.failure * broken.float(),
+            "timeout": -w.timeout * (info.timed_out & ~broken).float(),
         }
         self.theta_prev = info.theta.clone()
         if bool(reached.any()):

@@ -130,6 +130,7 @@ def test_goal_timeout_terminates_and_resets():
     for _ in range(3):
         _, _, reward, term, trunc, info, _ = env.step(torch.zeros(2, 22, device=env.device))
     assert term.all() and info.timed_out.all() and not info.is_success.any()
-    assert (info.reward_terms["failure"] == -cfg.reward.failure).all()
+    assert (info.reward_terms["timeout"] == -cfg.reward.timeout).all()
+    assert (info.reward_terms["failure"] == 0).all()
     assert (env.steps == 0).all() and (env.goal_steps == 0).all()
     env.close()

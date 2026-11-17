@@ -88,7 +88,9 @@ TASK = gpu_loop.Task(
     eval_step=_eval_step,
     eval_summary=_eval_summary,
     add_args=_add_args,
-    defaults={"timesteps": 60_000_000, "difficulty_start": 0.0, "curriculum_fraction": 0.3},
+    # Exploration starts at std 1: at the grasp default (std 0.37) undirected finger motion barely
+    # rotates the cube, and no goal is ever reached.
+    defaults={"timesteps": 60_000_000, "difficulty_start": 0.0, "curriculum_fraction": 0.3, "log_std_init": 0.0},
     description=__doc__,
 )
 

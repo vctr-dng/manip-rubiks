@@ -18,6 +18,9 @@ uv run manip-rubiks-train-grasp --name ppo_asym_s0      # CPU reference (Stable-
 uv run manip-rubiks-eval-grasp --policy passive --policy scripted \
     --policy gpu=runs/grasp_gpu/gpu_s0 \
     --policy learned=runs/grasp/ppo_asym_s0             # CPU benchmark, writes reports/grasp/
+uv run manip-rubiks-train-rotate-gpu --name gpu_s0 --axes xy   # reorientation teacher, writes runs/rotation_gpu/
+uv run manip-rubiks-eval-rotate --policy passive \
+    --policy gpu=runs/rotation_gpu/gpu_s0 --axes xy     # CPU benchmark, writes reports/rotation/
 ```
 
 GPU training needs an NVIDIA GPU with a CUDA 12 or newer driver. The first run compiles MuJoCo Warp
@@ -74,21 +77,27 @@ src/manip_rubiks/
   simulation/assets.py           pinned Menagerie fetch
   environments/hand_cube_env.py  Gymnasium base environment (episode logic, observation/privileged split)
   environments/grasp_env.py      grasp stabilisation under wrist reorientation and pushes
+  environments/rotation_env.py   in-hand quarter-turn reorientation (privileged teacher observation)
   policies/grasp_policy.py       passive and scripted power-grasp baselines
   policies/learned.py            blindfolded deployment of a trained PPO actor
   policies/torch_policy.py       blindfolded CPU deployment of a GPU-trained actor
-  gpu/grasp_env.py               batched grasp environment on MuJoCo Warp (thousands of worlds)
+  gpu/hand_cube_env.py           batched hand-cube base environment on MuJoCo Warp (thousands of worlds)
+  gpu/grasp_env.py               batched grasp environment
+  gpu/rotation_env.py            batched reorientation environment
   gpu/cube_math.py               batched cube-state readout in PyTorch
   gpu/reset_bank.py              cached initial states produced by the CPU reset
   training/asymmetric.py         PPO actor-critic whose critic alone sees privileged cube state
   training/train_grasp.py        PPO training with a difficulty curriculum (CPU, Stable-Baselines3)
   training/ppo_gpu.py            asymmetric PPO on GPU rollouts
-  training/train_grasp_gpu.py    GPU PPO training with a difficulty curriculum
+  training/gpu_loop.py           task-agnostic GPU PPO loop: curriculum, evaluation, checkpoints, MLflow
+  training/train_grasp_gpu.py    GPU grasp training
+  training/train_rotation_gpu.py GPU reorientation training
   training/sac_gpu.py            asymmetric SAC with an n-step GPU replay buffer
   training/train_grasp_sac_gpu.py  GPU SAC training with the same curriculum and evaluation
   training/tracking.py           MLflow tracking: SB3 logger output, server check
   training/artifacts.py          periodic MLflow artifacts: checkpoints, eval tables, snapshots, videos
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
+  evaluation/rotation_benchmark.py  held-out reorientation benchmark and report
   validation/m0.py               validation suite entry point and report
   validation/collisions.py       collision filters, reset clearance, pinch and press audits
   validation/tactile.py          tactile signal sanity checks
@@ -232,6 +241,58 @@ across seeds. CPU benchmark, 100 episodes per cell, success rate:
 Reports: `reports/grasp_sac/` (passive, scripted, `sac_s1`, the normalizer-freeze run and the 12M run) and `reports/grasp_ppo/` (`sac_s2` and PPO).
 PPO remains the default trainer: it is faster per step and more consistent across seeds.
 
+## In-hand reorientation
+
+**Task.** `RotationEnv` (`ManipRubiks/Rotate-v0`): palm-up, fixed wrist, the hand turns the whole cube
+by chained quarter-turns. Each goal is the current goal orientation rotated by 90° about a hand axis
+(x: palm normal, y: across the palm, z: along the fingers). A goal is reached once the cube stays
+within 0.4 rad of it for 0.2 s (5 steps), and the next command follows at once. An attempt fails on
+a drop, a layer turn, instability, or after 6 s. Episodes last 16 s.
+
+**Locked layers.** `SceneConfig(lock_layers=True)` welds every cubie to the core, so the cube moves
+as one rigid body while keeping the articulated body tree and every state readout. With MuJoCo's
+default weld impedance a power grasp deflects the welds by ~4.5°; the locked welds use
+`solimp="0.999 0.9999 0.001"` and hold within ~0.1°. The welds hold the solved configuration, so
+locked cubes cannot be scrambled. Face turns will need the unlocked cube.
+
+**Teacher observation.** The actor sees the base observation, a one-hot of the active command, and
+`teacher`: privileged ground truth (the rotation to the goal, cube position and angular velocity, in
+the hand frame), as in draft section 25. A tactile student is meant to replace it once a state
+estimator exists. `RotationConfig(teacher=False)` removes it.
+
+**Reward.** Progress towards the goal (1 per 0.1 rad), +10 per goal, small penalties on cube
+displacement, layer misalignment, effort and action rate, −50 for a drop, instability or layer turn,
+and −10 for a timeout. A timeout costs less than a drop, so dropping is never a cheaper way to end a
+hopeless attempt.
+
+**Exploration.** The first version learned nothing in 8M steps per axis: no goal was ever reached.
+Undirected finger motion at the grasp exploration noise (std 0.37) rotates the cube by only
+0.1–0.37 rad, but the easiest goal needed ~1 rad. The goal tolerance now tightens from 1.3 rad
+(~0.27 rad of rotation reaches a goal) to 0.4 rad over the first 30 % of training, and exploration
+starts at std 1.
+
+**Training.** 1024 GPU worlds, asymmetric PPO via the shared loop (`training/gpu_loop.py`). After
+8M steps per axis, x and y reached 2.4 and 2.0 goals per episode and were still improving; z
+(rotation about the finger axis) reached none. The reference run (`gpu_s0`, axes x and y, 60M
+steps, 2.5 h at 6.8k steps/s while sharing the GPU) was still improving at the end (7.7 goals per
+evaluation episode).
+
+**Results** on the CPU reference simulation
+([`reports/rotation/rotation_report.md`](reports/rotation/rotation_report.md), 100 held-out episodes
+per condition, 95 % Wilson intervals):
+
+| Condition | Passive | PPO teacher (GPU) |
+|---|---|---|
+| Single turn +x / −x | 0 % / 0 % | **100 %** (96–100 %) / **97 %** (92–99 %) |
+| Single turn +y / −y | 0 % / 0 % | **98 %** (93–99 %) / **100 %** (96–100 %) |
+| Single turn +z / −z | 0 % / 0 % | 0 % / 0 % (not trained) |
+| 16 s chain (x, y), per goal | 0 % | **97 %** (96–98 %), 7.8 goals per episode |
+
+A quarter-turn takes 0.9–1.5 s (median). Single turns drop the cube in 0–3 % of episodes. In the
+chain, 12 % of episodes end in a drop and 8 % in a timeout over ~8 turns each, i.e. about 1.5 % drops
+per turn. The 90 % per-turn target is met for x and y. Rotations about the finger axis remain an
+open problem: they may need a different starting grasp or help from the arm.
+
 ## GPU simulation
 
 `GraspEnvGPU` (`gpu/grasp_env.py`) runs thousands of grasp worlds in one MuJoCo Warp simulation.
@@ -258,6 +319,9 @@ remains the reference implementation (draft section 34, risk 4):
   the PPO batch small at almost full throughput.
 
 ## Known limitations / follow-ups
+
+- **Reorientation.** The rotation policy is a privileged teacher, trained on a locked cube, palm-up,
+  without pushes, from a single seed. Rotations about the finger axis (z) are not learned.
 
 - **Push robustness.** The grasp policies turn a layer in 12–18 % of pushed episodes. Possible next
   steps: a recurrent actor, stronger alignment shaping, and multiple seeds for the comparison. Trained

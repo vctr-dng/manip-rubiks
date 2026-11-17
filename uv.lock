@@ -663,6 +663,7 @@ dependencies = [
     { name = "mujoco" },
     { name = "mujoco-warp" },
     { name = "numpy" },
+    { name = "python-dotenv" },
     { name = "stable-baselines3" },
 ]
 
@@ -679,6 +680,7 @@ requires-dist = [
     { name = "mujoco", specifier = ">=4.0.1" },
     { name = "mujoco-warp", specifier = ">=4.0.1" },
     { name = "numpy", specifier = ">=2.5.4" },
+    { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "stable-baselines3", specifier = ">=2.4" },
 ]
 

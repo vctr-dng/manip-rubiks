@@ -5,7 +5,14 @@ import numpy as np
 import pytest
 from stable_baselines3.common.logger import Logger
 
-from manip_rubiks.training.tracking import MLflowOutputFormat, check_server, flatten_params
+from manip_rubiks.training import tracking
+from manip_rubiks.training.tracking import (
+    MLflowOutputFormat,
+    check_server,
+    docker_env_file,
+    flatten_params,
+    uri_from_env_file,
+)
 
 
 @pytest.fixture
@@ -48,3 +55,40 @@ def test_unreachable_server_fails_fast():
     with pytest.raises(RuntimeError, match="docker/up.sh"):
         check_server("http://127.0.0.1:9", timeout=0.5)
     check_server("file:///tmp/anything")  # non-HTTP stores are not checked
+
+
+def _env(tmp_path, text):
+    path = tmp_path / "docker.env"
+    path.write_text(text)
+    return path
+
+
+def test_uri_from_docker_env_file(tmp_path):
+    bind = "MLFLOW_BIND_ADDRESS=10.1.2.3\nMLFLOW_PORT=5050\n"
+    assert uri_from_env_file(_env(tmp_path, bind)) == "http://10.1.2.3:5050"
+    assert uri_from_env_file(_env(tmp_path, "MLFLOW_BIND_ADDRESS=0.0.0.0\n")) == "http://127.0.0.1:5000"
+    explicit = "MLFLOW_TRACKING_URI=http://tracker:1\nMLFLOW_BIND_ADDRESS=10.1.2.3\n"
+    assert uri_from_env_file(_env(tmp_path, explicit)) == "http://tracker:1"
+    assert uri_from_env_file(_env(tmp_path, "MLFLOW_BIND_ADDRESS=\nMLFLOW_PORT=5000\n")) is None
+
+
+def test_docker_env_file_found_from_a_worktree(tmp_path):
+    main, wt = tmp_path / "main", tmp_path / "wt"
+    (main / "docker").mkdir(parents=True)
+    (main / ".git" / "worktrees" / "wt").mkdir(parents=True)
+    (main / "docker" / ".env").write_text("MLFLOW_BIND_ADDRESS=10.1.2.3\n")
+    wt.mkdir()
+    (wt / ".git").write_text(f"gitdir: {main / '.git' / 'worktrees' / 'wt'}\n")
+    assert docker_env_file(wt) == main / "docker" / ".env"
+    assert docker_env_file(main) == main / "docker" / ".env"
+    assert docker_env_file(tmp_path / "elsewhere") is None
+
+
+def test_env_file_takes_precedence_over_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://from-shell:1")
+    monkeypatch.setattr(tracking, "docker_env_file", lambda: _env(tmp_path, "MLFLOW_BIND_ADDRESS=10.1.2.3\n"))
+    assert tracking.tracking_uri() == "http://10.1.2.3:5000"
+    monkeypatch.setattr(tracking, "docker_env_file", lambda: None)
+    assert tracking.tracking_uri() == "http://from-shell:1"
+    monkeypatch.delenv("MLFLOW_TRACKING_URI")
+    assert tracking.tracking_uri() == tracking.DEFAULT_TRACKING_URI

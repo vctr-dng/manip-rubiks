@@ -75,7 +75,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--video-episodes", type=int, default=16, help="eval worlds recorded for the videos")
     p.add_argument("--milestones", type=int, default=10, help="checkpoints kept over the run (0: none)")
     p.add_argument("--bank-size", type=int, default=len(TRAIN_BANK_SEEDS), help="training reset states")
-    p.add_argument("--mlflow-uri", default=None, help="tracking URI (default: $MLFLOW_TRACKING_URI or local server)")
+    p.add_argument(
+        "--mlflow-uri",
+        default=None,
+        help="tracking URI (default: from docker/.env, else $MLFLOW_TRACKING_URI, else local server)",
+    )
     p.add_argument("--experiment", default="grasp", help="MLflow experiment name")
     return p.parse_args(argv)
 

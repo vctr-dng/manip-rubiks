@@ -33,9 +33,11 @@ obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
 ```
 
 Training logs metrics, parameters and the final and best checkpoints to MLflow (experiment `grasp`,
-run `--name`). The tracking server is `$MLFLOW_TRACKING_URI` if set, otherwise the local Docker server
-started by `docker/up.sh`; `--mlflow-uri` and `--experiment` override both. Training stops at once if
-the server is unreachable.
+run `--name`). The tracking server is read from `docker/.env` (`MLFLOW_TRACKING_URI` if set there,
+otherwise `http://$MLFLOW_BIND_ADDRESS:$MLFLOW_PORT`), the file that configures the Docker server
+started by `docker/up.sh`. From a git worktree the main checkout's `docker/.env` is used. Without that
+file, `$MLFLOW_TRACKING_URI` applies, then `http://127.0.0.1:5000`. `--mlflow-uri` and `--experiment`
+override everything. Training stops at once if the server is unreachable.
 
 During training, each run also uploads (both trainers, same layout):
 

@@ -4,8 +4,9 @@
 nothing touches the hand, then lets the cube settle for 0.3 s. That does not
 batch well, so the GPU environment instead draws its initial states from a
 bank produced by exactly that code: each entry is the simulator state right
-after ``GraspEnv.reset(seed=s)``. Banks are cached on disk, keyed by the
-environment configuration and the seed range.
+after ``env.reset(seed=s)`` of the CPU task environment (``GraspEnv`` unless
+another class is given). Banks are cached on disk, keyed by the environment
+class, its configuration and the seed range.
 """
 
 from __future__ import annotations
@@ -16,11 +17,12 @@ import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 import mujoco
 import numpy as np
 
-from manip_rubiks.environments.grasp_env import GraspConfig
+from manip_rubiks.environments.grasp_env import GraspEnv
 from manip_rubiks.gpu.cube_math import state_to_indices
 from manip_rubiks.simulation.assets import cache_dir
 
@@ -42,9 +44,10 @@ class ResetBank:
         return len(self.seeds)
 
 
-def _config_key(config: GraspConfig, seeds: range) -> str:
+def _config_key(config: Any, seeds: range, env_cls: type) -> str:
     payload = {
         "version": BANK_VERSION,
+        "env_cls": env_cls.__name__,
         "mujoco": mujoco.__version__,
         "env": asdict(config.env),
         "seeds": [seeds.start, seeds.stop],
@@ -52,11 +55,9 @@ def _config_key(config: GraspConfig, seeds: range) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
-def _generate(job: tuple[GraspConfig, list[int]]) -> dict[str, np.ndarray]:
-    from manip_rubiks.environments.grasp_env import GraspEnv
-
-    config, seeds = job
-    env = GraspEnv(config)
+def _generate(job: tuple[type, Any, list[int]]) -> dict[str, np.ndarray]:
+    env_cls, config, seeds = job
+    env = env_cls(config)
     out: dict[str, list] = {f: [] for f in (*FIELDS, "cube_state")}
     for s in seeds:
         env.reset(seed=s)
@@ -67,27 +68,29 @@ def _generate(job: tuple[GraspConfig, list[int]]) -> dict[str, np.ndarray]:
     return {k: np.array(v) for k, v in out.items()}
 
 
-def build_reset_bank(config: GraspConfig, seeds: range, workers: int | None = None) -> ResetBank:
+def build_reset_bank(config: Any, seeds: range, workers: int | None = None, env_cls: type = GraspEnv) -> ResetBank:
+    """Reset states of ``env_cls(config)`` for ``seeds``; the config's task fields do not matter."""
     seed_list = list(seeds)
     workers = workers or max(1, min(mp.cpu_count() - 2, len(seed_list) // 64 or 1))
     chunks = [seed_list[i::workers] for i in range(workers)]
     if workers == 1:
-        parts = [_generate((config, chunks[0]))]
+        parts = [_generate((env_cls, config, chunks[0]))]
     else:
         with ProcessPoolExecutor(workers, mp_context=mp.get_context("spawn")) as pool:
-            parts = list(pool.map(_generate, [(config, c) for c in chunks]))
+            parts = list(pool.map(_generate, [(env_cls, config, c) for c in chunks]))
     order = np.argsort(np.concatenate(chunks))
     merged = {k: np.concatenate([p[k] for p in parts])[order] for k in parts[0]}
     return ResetBank(seeds=np.array(seed_list), **merged)
 
 
-def load_reset_bank(config: GraspConfig, seeds: range, cache: bool = True) -> ResetBank:
-    """Load the bank for ``seeds`` from the cache, generating it if needed."""
-    path = cache_dir() / "reset_banks" / f"grasp_{_config_key(config, seeds)}.npz"
+def load_reset_bank(config: Any, seeds: range, env_cls: type = GraspEnv, cache: bool = True) -> ResetBank:
+    """Load the bank of ``env_cls(config)`` for ``seeds`` from the cache, generating it if needed."""
+    name = env_cls.__name__.removesuffix("Env").lower()
+    path = cache_dir() / "reset_banks" / f"{name}_{_config_key(config, seeds, env_cls)}.npz"
     if cache and path.exists():
         with np.load(path) as f:
             return ResetBank(**{k: f[k] for k in f.files})
-    bank = build_reset_bank(config, seeds)
+    bank = build_reset_bank(config, seeds, env_cls=env_cls)
     if cache:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".tmp.npz")

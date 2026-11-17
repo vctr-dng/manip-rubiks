@@ -93,6 +93,10 @@ class SceneConfig:
     # pinch to push two links ~15 mm into each other. ``None`` keeps
     # Menagerie's values. The compliant fingertip pads are never changed.
     link_solref: tuple[float, float] | None = (0.005, 1.0)
+    # Weld every cubie to the core so the cube moves as one rigid body (full
+    # variant only). The welds hold the solved configuration, so scrambles are
+    # not supported with locked layers.
+    lock_layers: bool = False
 
 
 def is_pad(geom_name: str) -> bool:
@@ -116,7 +120,7 @@ def build_spec(cfg: SceneConfig) -> mujoco.MjSpec:
     frame = parent.worldbody.add_frame(name="wrist_mount", pos=[0.0, 0.0, cfg.wrist_height], quat=mat_to_quat(r_mount))
     parent.attach(hand, frame=frame, prefix=HAND_PREFIX)
     if cfg.variant is not None:
-        cube = cube_spec(cfg.variant, cfg.cube_params, fixed=False)
+        cube = cube_spec(cfg.variant, cfg.cube_params, fixed=False, lock_layers=cfg.lock_layers)
         parent.attach(cube, frame=parent.worldbody.add_frame(name="cube_mount"), prefix=CUBE_PREFIX)
     return parent
 

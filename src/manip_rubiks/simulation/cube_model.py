@@ -114,6 +114,7 @@ def cube_xml(
     fixed: bool = False,
     pos: tuple[float, float, float] = (0.0, 0.0, 0.0),
     fixture_welds: bool = False,
+    lock_layers: bool = False,
 ) -> str:
     """Return a standalone MJCF document for the cube.
 
@@ -127,6 +128,11 @@ def cube_xml(
             (``hold_<name>``, cubie to core). The external layer driver in
             :mod:`cube_interface` activates them to hold the non-turning layer
             rigidly; they are not meant for hand scenes.
+        lock_layers: add the same welds, active from the start, so that the
+            cubies are held rigidly in the solved configuration (``full``
+            only). The cube then behaves as a rigid body for whole-cube
+            manipulation while keeping the articulated body tree, so every
+            state readout stays the same.
     """
     p = params or CubeParams()
     h = p.half_extent
@@ -180,10 +186,18 @@ def cube_xml(
         raise ValueError(f"unknown cube variant {variant!r}")
 
     equality = ""
-    if fixture_welds and variant == "full":
+    if lock_layers and variant != "full":
+        raise ValueError("lock_layers needs the full cube variant")
+    if (fixture_welds or lock_layers) and variant == "full":
+        # Locked welds need near-maximal impedance: with MuJoCo's default solimp
+        # a power grasp deflects them by ~4.5 degrees, with this one by ~0.1.
+        attrs = (
+            'active="true" solref="0.004 1" solimp="0.999 0.9999 0.001"'
+            if lock_layers
+            else ('active="false" solref="0.004 1"')
+        )
         welds = "".join(
-            f'\n    <weld name="hold_{n}" body1="cubie_{n}" body2="cube_core" active="false" solref="0.004 1"/>'
-            for n in CORNER_NAMES
+            f'\n    <weld name="hold_{n}" body1="cubie_{n}" body2="cube_core" {attrs}/>' for n in CORNER_NAMES
         )
         equality = f"<equality>{welds}\n  </equality>"
 
@@ -199,8 +213,10 @@ def cube_xml(
 """
 
 
-def cube_spec(variant: Variant = "full", params: CubeParams | None = None, fixed: bool = False) -> mujoco.MjSpec:
-    return mujoco.MjSpec.from_string(cube_xml(variant, params, fixed))
+def cube_spec(
+    variant: Variant = "full", params: CubeParams | None = None, fixed: bool = False, lock_layers: bool = False
+) -> mujoco.MjSpec:
+    return mujoco.MjSpec.from_string(cube_xml(variant, params, fixed, lock_layers=lock_layers))
 
 
 def fixture_cube_xml(variant: Variant = "full", params: CubeParams | None = None) -> str:

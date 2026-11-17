@@ -80,6 +80,8 @@ class HandCubeEnv(gym.Env):
         self.n_substeps = max(1, round(self.cfg.control_dt / self.model.opt.timestep))
         self.metadata = {**self.metadata, "render_fps": round(1.0 / (self.n_substeps * self.model.opt.timestep))}
         self.rest_pos, _ = self.scene.cube_rest_pose()
+        if self.cfg.scene.lock_layers and self.cfg.scramble_moves:
+            raise ValueError("locked layers hold the solved cube; use scramble_moves=0")
         self.scramble_faces = self.cfg.scramble_faces or (
             ("U", "D") if self.cfg.scene.variant == "single_axis" else FACES
         )
@@ -129,6 +131,8 @@ class HandCubeEnv(gym.Env):
         super().reset(seed=seed)
         options = options or {}
         self.initial_state = self._initial_cube_state(options)
+        if self.cfg.scene.lock_layers and not self.initial_state.same_configuration(CubeState.solved()):
+            raise ValueError("locked layers hold the solved cube; it cannot start scrambled")
         scene_seed, tactile_seed = (int(s) for s in self.np_random.integers(2**31, size=2))
         self.scene.reset(
             seed=scene_seed,

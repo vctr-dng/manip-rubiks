@@ -15,6 +15,7 @@ import torch
 
 from manip_rubiks.training.asymmetric import PRIVILEGED_KEY
 from manip_rubiks.training.ppo_gpu import GaussianActor
+from manip_rubiks.training.sac_gpu import SquashedGaussianActor
 
 
 class TorchGraspPolicy:
@@ -23,7 +24,8 @@ class TorchGraspPolicy:
     def __init__(self, checkpoint: str | Path, device: str = "cpu") -> None:
         ckpt = torch.load(checkpoint, map_location=device, weights_only=False)
         self.layout = [(k, tuple(s)) for k, s in ckpt["obs_layout"]]
-        self.actor = GaussianActor(ckpt["obs_dim"], ckpt["act_dim"], tuple(ckpt["actor_sizes"]), ckpt["log_std_init"])
+        actor_cls = SquashedGaussianActor if ckpt.get("algorithm") == "sac" else GaussianActor
+        self.actor = actor_cls(ckpt["obs_dim"], ckpt["act_dim"], tuple(ckpt["actor_sizes"]), ckpt["log_std_init"])
         self.actor.load_state_dict(ckpt["actor"])
         self.actor.eval().to(device)
         self.device = device

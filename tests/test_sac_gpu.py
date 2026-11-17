@@ -125,3 +125,26 @@ def test_update_runs_and_moves_targets_slowly():
     for b, p, c in zip(before, sac.critic_target.parameters(), sac.critic.parameters(), strict=True):
         torch.testing.assert_close(p, 0.9 * b + 0.1 * c)  # Polyak step towards the updated critic
     assert any(not torch.equal(b, p) for b, p in zip(before, sac.critic_target.parameters(), strict=True))
+
+
+def test_checkpoint_deploys_on_the_cpu_reference(tmp_path):
+    from types import SimpleNamespace
+
+    from manip_rubiks.environments.grasp_env import GraspEnv
+    from manip_rubiks.gpu.grasp_env import flatten_observation, observation_layout
+    from manip_rubiks.policies.torch_policy import TorchGraspPolicy
+    from manip_rubiks.training.train_grasp_sac_gpu import parse_args, save_checkpoint
+
+    env = GraspEnv()
+    obs, info = env.reset(seed=0)
+    layout = observation_layout(env)
+    obs_dim, priv_dim = flatten_observation(obs).size, info["privileged"].size
+    cfg = SACConfig(buffer_size=8, actor_sizes=(16,), critic_sizes=(16,))
+    sac = SAC(1, obs_dim, priv_dim, env.action_space.shape[0], cfg, CPU)
+    gpu_env = SimpleNamespace(layout=layout, obs_dim=obs_dim, privileged_dim=priv_dim, n_act=sac.act_dim)
+    save_checkpoint(tmp_path / "policy.pt", sac, gpu_env, parse_args([]), timesteps=7)
+    policy = TorchGraspPolicy(tmp_path / "policy.pt")
+    assert isinstance(policy.actor, SquashedGaussianActor) and policy.timesteps == 7
+    expected = sac.actor.act(torch.as_tensor(flatten_observation(obs))[None])[0].numpy()
+    np.testing.assert_allclose(policy(obs), expected, atol=1e-6)
+    env.close()

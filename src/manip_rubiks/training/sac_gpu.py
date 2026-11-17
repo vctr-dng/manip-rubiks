@@ -124,6 +124,7 @@ class SACConfig:
     layer_norm: bool = True
     log_std_init: float = -1.0
     max_grad_norm: float = 0.0  # 0 disables clipping
+    freeze_normalizer_after: int = 0  # transitions after which observation statistics stop updating (0: never)
 
 
 class ReplayBuffer:
@@ -216,6 +217,11 @@ class SAC:
         self.env_steps = 0
 
     @property
+    def normalizer_frozen(self) -> bool:
+        limit = self.cfg.freeze_normalizer_after
+        return limit > 0 and self.env_steps * self.num_envs >= limit
+
+    @property
     def alpha(self) -> torch.Tensor:
         return self.log_alpha.detach().exp()
 
@@ -226,9 +232,10 @@ class SAC:
     # ------------------------------------------------------------ rollout
     @torch.no_grad()
     def act(self, actor_obs: torch.Tensor, critic_obs: torch.Tensor) -> torch.Tensor:
-        """Stochastic exploration action; also updates the observation statistics."""
-        self.actor.obs_rms.update(actor_obs)
-        self.privileged_rms.update(critic_obs[:, self.obs_dim :])
+        """Stochastic exploration action; also updates the observation statistics until they freeze."""
+        if not self.normalizer_frozen:
+            self.actor.obs_rms.update(actor_obs)
+            self.privileged_rms.update(critic_obs[:, self.obs_dim :])
         action, _ = self.actor.sample(self.actor.normalize(actor_obs))
         return action
 

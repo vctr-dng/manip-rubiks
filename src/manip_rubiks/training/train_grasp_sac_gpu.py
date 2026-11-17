@@ -61,6 +61,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--log-std-init", type=float, default=d.log_std_init)
     p.add_argument("--layer-norm", action=argparse.BooleanOptionalAction, default=d.layer_norm)
     p.add_argument("--max-grad-norm", type=float, default=d.max_grad_norm)
+    p.add_argument(
+        "--freeze-normalizer-after",
+        type=int,
+        default=d.freeze_normalizer_after,
+        help="timesteps after which observation statistics stop updating (0: never)",
+    )
     p.add_argument("--log-every", type=int, default=10, help="batched env steps between metric logs")
     p.add_argument("--eval-every", type=int, default=500_000, help="timesteps between evaluations")
     p.add_argument("--eval-envs", type=int, default=256, help="worlds (= episodes) per evaluation")
@@ -90,6 +96,7 @@ def sac_config(args: argparse.Namespace) -> SACConfig:
         log_std_init=args.log_std_init,
         layer_norm=args.layer_norm,
         max_grad_norm=args.max_grad_norm,
+        freeze_normalizer_after=args.freeze_normalizer_after,
     )
 
 

@@ -148,3 +148,14 @@ def test_checkpoint_deploys_on_the_cpu_reference(tmp_path):
     expected = sac.actor.act(torch.as_tensor(flatten_observation(obs))[None])[0].numpy()
     np.testing.assert_allclose(policy(obs), expected, atol=1e-6)
     env.close()
+
+
+def test_normalizer_freezes_after_the_configured_transitions():
+    sac = make_sac(freeze_normalizer_after=8)  # 4 worlds: frozen after 2 batched steps
+    flags = torch.zeros(4, dtype=torch.bool)
+    for i in range(4):
+        obs = torch.randn(4, 7) + 10 * i
+        mean_before = sac.actor.obs_rms.mean.clone()
+        action = sac.act(obs[:, :5], obs)
+        sac.record(obs, action, torch.zeros(4), flags, flags, obs)
+        assert torch.equal(sac.actor.obs_rms.mean, mean_before) == (i >= 2)

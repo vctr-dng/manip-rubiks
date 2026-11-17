@@ -109,7 +109,7 @@ class TwinQ(nn.Module):
 class SACConfig:
     buffer_size: int = 1_000_000  # transitions, shared equally between worlds
     batch_size: int = 4096
-    updates_per_step: int = 4  # gradient steps per batched environment step
+    updates_per_step: int = 1  # gradient steps per batched environment step (4 made training unstable)
     learning_starts: int = 8  # batched environment steps collected before the first update
     gamma: float = 0.99
     n_step: int = 3
@@ -125,7 +125,7 @@ class SACConfig:
     log_std_init: float = -1.0
     max_grad_norm: float = 0.0  # 0 disables clipping
     freeze_normalizer_after: int = 0  # transitions after which observation statistics stop updating (0: never)
-    reward_scale: float = 1.0  # rewards are multiplied by this before entering the replay buffer
+    reward_scale: float = 0.1  # rewards are multiplied by this before entering the replay buffer
 
 
 class ReplayBuffer:

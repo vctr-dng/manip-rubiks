@@ -13,6 +13,7 @@ uv run manip-rubiks-m0    # full gate M0 validation, writes reports/m0/
 
 docker/up.sh                                            # MLflow server on http://127.0.0.1:5000
 uv run manip-rubiks-train-grasp-gpu --name gpu_s0       # PPO grasp policy on the GPU, writes runs/grasp_gpu/
+uv run manip-rubiks-train-grasp-sac --name sac_s0       # SAC alternative on the GPU, writes runs/grasp_sac/
 uv run manip-rubiks-train-grasp --name ppo_asym_s0      # CPU reference (Stable-Baselines3), writes runs/grasp/
 uv run manip-rubiks-eval-grasp --policy passive --policy scripted \
     --policy gpu=runs/grasp_gpu/gpu_s0 \
@@ -83,6 +84,8 @@ src/manip_rubiks/
   training/train_grasp.py        PPO training with a difficulty curriculum (CPU, Stable-Baselines3)
   training/ppo_gpu.py            asymmetric PPO on GPU rollouts
   training/train_grasp_gpu.py    GPU PPO training with a difficulty curriculum
+  training/sac_gpu.py            asymmetric SAC with an n-step GPU replay buffer
+  training/train_grasp_sac_gpu.py  GPU SAC training with the same curriculum and evaluation
   training/tracking.py           MLflow tracking: SB3 logger output, server check
   training/artifacts.py          periodic MLflow artifacts: checkpoints, eval tables, snapshots, videos
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
@@ -189,6 +192,38 @@ Under pushes it fails in 14 % of episodes (12 % unintended layer turns, 2 % drop
 for the CPU policy. The intervals overlap and each policy comes from a single seed trained for a
 different number of steps, so this is not evidence that one trainer is better. The 95 % target is
 met for wrist reorientation but not yet for external pushes.
+
+**SAC** (`manip-rubiks-train-grasp-sac`, `training/sac_gpu.py`) is the off-policy alternative on the
+same GPU worlds: tanh-squashed Gaussian actor on the non-privileged observation, twin LayerNorm
+critics that also read the privileged cube state, automatic temperature, and a per-world replay
+buffer with 3-step returns that bootstrap truncated episodes from their final state. Each batched
+environment step (1024 transitions) is followed by `--updates-per-step` gradient steps on batches
+of 4096. Two settings matter (6M-step runs, curriculum ramping over 9.6M steps as for `gpu_s0`):
+
+- *Sample reuse.* With 4 updates per step (16 reuses per transition) every run peaked at ~0.3M
+  steps, then degraded while Q-values first rose and then collapsed. One update per step (4 reuses)
+  trains stably and is the default.
+- *Reward scale.* Unscaled rewards (+1 per step, −50 on failure) give large TD errors; scaling by
+  0.1 alone did not stop the degradation but is kept with one update per step (the default).
+
+The trainer's default `--curriculum-fraction` is 0.4 of `--timesteps`, as for PPO; the runs below
+used `--timesteps 6000000 --curriculum-fraction 1.6` to match `gpu_s0`'s absolute schedule.
+
+Against PPO on the identical 6M-step schedule (`ppo_ref6m`), SAC (`sac_s3`) gave the same learning
+curve, not a more sample-efficient one: both stayed near 0 % full-difficulty evaluation success until
+the training difficulty reached ~0.5 (3.5–4M steps), then rose together (5M: 46 % SAC, 44 % PPO).
+PPO finished slightly ahead (6M: 50 % SAC, 64 % PPO). On the CPU benchmark (100 episodes per cell):
+
+| Condition | SAC, 6M steps | PPO, same 6M schedule |
+|---|---|---|
+| Palm-down hold | 97 % | 92 % |
+| 90° tilt, random direction | 73 % (15 % dropped) | 99 % |
+| Random reorientations | 83 % (8 % dropped) | 99 % |
+| Random reorientations + pushes | 51 % (37 % layer turned) | 62 % (30 % layer turned) |
+
+Each column is a single seed, so small differences are not significant; PPO is clearly better on
+tilts and reorientations, where SAC still drops the cube. SAC also takes more wall-clock time per
+step (gradient updates add ~7 % at one update per step). PPO remains the default trainer.
 
 ## GPU simulation
 

@@ -84,8 +84,16 @@ def test_docker_env_file_found_from_a_worktree(tmp_path):
     assert docker_env_file(tmp_path / "elsewhere") is None
 
 
+def test_root_env_wins_and_bare_host_is_normalized(tmp_path, monkeypatch):
+    monkeypatch.setattr(tracking, "root_env_file", lambda: _env(tmp_path, "MLFLOW_TRACKING_URI=10.0.0.5\n"))
+    monkeypatch.setattr(tracking, "docker_env_file", lambda: None)
+    assert tracking.tracking_uri() == "http://10.0.0.5:5000"
+    assert tracking.normalize_uri("http://h:1") == "http://h:1"
+
+
 def test_env_file_takes_precedence_over_environment(tmp_path, monkeypatch):
     monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://from-shell:1")
+    monkeypatch.setattr(tracking, "root_env_file", lambda: None)
     monkeypatch.setattr(tracking, "docker_env_file", lambda: _env(tmp_path, "MLFLOW_BIND_ADDRESS=10.1.2.3\n"))
     assert tracking.tracking_uri() == "http://10.1.2.3:5000"
     monkeypatch.setattr(tracking, "docker_env_file", lambda: None)

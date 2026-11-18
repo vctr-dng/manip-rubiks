@@ -1,7 +1,8 @@
 """Experiment tracking with MLflow.
 
 The MLflow server runs in Docker (``docker/up.sh``), configured by
-``docker/.env``. :func:`tracking_uri` reads that file with python-dotenv
+``docker/.env``. :func:`tracking_uri` first takes ``MLFLOW_TRACKING_URI`` from
+the repo-root ``.env`` (this computer's server), then reads ``docker/.env`` with python-dotenv
 (from the main checkout when running in a git worktree, since ``.env`` is not
 versioned) and takes ``MLFLOW_TRACKING_URI`` from it, or builds the URI from
 ``MLFLOW_BIND_ADDRESS`` and ``MLFLOW_PORT``. Without the file, the
@@ -71,8 +72,27 @@ def uri_from_env_file(path: Path) -> str | None:
     return f"http://{host}:{values.get('MLFLOW_PORT', '5000')}"
 
 
+def root_env_file(root: Path = REPO_ROOT) -> Path | None:
+    """Repo-root ``.env`` of this checkout, or of the main checkout when running from a worktree."""
+    main = _main_checkout(root)
+    for base in (root, main):
+        if base is not None and (base / ".env").is_file():
+            return base / ".env"
+    return None
+
+
+def normalize_uri(uri: str) -> str:
+    """Make ``host`` or ``host:port`` an HTTP URI (port 5000 by default); other URIs pass through."""
+    if "://" in uri:
+        return uri
+    return f"http://{uri}" if ":" in uri else f"http://{uri}:5000"
+
+
 def tracking_uri() -> str:
-    """``docker/.env`` (where the server is configured), then ``$MLFLOW_TRACKING_URI``, then the local default."""
+    """Repo-root ``.env``, then ``docker/.env``, then ``$MLFLOW_TRACKING_URI``, then the local default."""
+    root_env = root_env_file()
+    if root_env is not None and (uri := dotenv_values(root_env).get("MLFLOW_TRACKING_URI")):
+        return normalize_uri(uri)
     path = docker_env_file()
     uri = uri_from_env_file(path) if path is not None else None
     return uri or os.environ.get("MLFLOW_TRACKING_URI", DEFAULT_TRACKING_URI)

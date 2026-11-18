@@ -130,14 +130,15 @@ def test_update_runs_and_moves_targets_slowly():
 def test_checkpoint_deploys_on_the_cpu_reference(tmp_path):
     from types import SimpleNamespace
 
-    from manip_rubiks.environments.grasp_env import GraspEnv
-    from manip_rubiks.gpu.grasp_env import flatten_observation, observation_layout
+    from manip_rubiks.environments.grasp_env import GRASP_OBS_KEYS, GraspEnv
+    from manip_rubiks.gpu.grasp_env import flatten_observation
+    from manip_rubiks.gpu.hand_cube_env import observation_layout
     from manip_rubiks.policies.torch_policy import TorchGraspPolicy
     from manip_rubiks.training.train_grasp_sac_gpu import parse_args, save_checkpoint
 
     env = GraspEnv()
     obs, info = env.reset(seed=0)
-    layout = observation_layout(env)
+    layout = observation_layout(env, GRASP_OBS_KEYS)
     obs_dim, priv_dim = flatten_observation(obs).size, info["privileged"].size
     cfg = SACConfig(buffer_size=8, actor_sizes=(16,), critic_sizes=(16,))
     sac = SAC(1, obs_dim, priv_dim, env.action_space.shape[0], cfg, CPU)

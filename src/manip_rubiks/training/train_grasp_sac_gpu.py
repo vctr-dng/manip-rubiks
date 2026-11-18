@@ -30,9 +30,12 @@ from manip_rubiks.environments.grasp_env import GraspConfig, GraspEnv
 from manip_rubiks.gpu.grasp_env import EVAL_BANK_SEEDS, TRAIN_BANK_SEEDS, GraspEnvGPU
 from manip_rubiks.gpu.reset_bank import load_reset_bank
 from manip_rubiks.training.artifacts import ArtifactLogger, normalizer_stats, write_csv, write_json
+from manip_rubiks.training.gpu_loop import EvalResult, evaluate, obs_slice, record_videos
 from manip_rubiks.training.sac_gpu import SAC, SACConfig
 from manip_rubiks.training.tracking import check_server, flatten_params, tracking_uri
-from manip_rubiks.training.train_grasp_gpu import EPISODE_METRICS, EvalResult, _obs_slice, evaluate, record_videos
+from manip_rubiks.training.train_grasp_gpu import TASK
+
+EPISODE_METRICS = TASK.episode_metrics
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -108,7 +111,7 @@ def sac_config(args: argparse.Namespace) -> SACConfig:
 
 def distribution_snapshot(ev: EvalResult, sac: SAC, env: GraspEnvGPU, timesteps: int) -> dict:
     mean, var = sac.actor.obs_rms.mean.cpu().numpy(), sac.actor.obs_rms.var.cpu().numpy()
-    stats = {k: (mean[_obs_slice(env, k)], var[_obs_slice(env, k)]) for k, _ in env.layout}
+    stats = {k: (mean[obs_slice(env, k)], var[obs_slice(env, k)]) for k, _ in env.layout}
     stats["privileged"] = (sac.privileged_rms.mean.cpu().numpy(), sac.privileged_rms.var.cpu().numpy())
     return {
         **ev.distributions,
@@ -239,7 +242,7 @@ def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -
         if evaluate_now:
             next_eval += args.eval_every
             _, videos = artifacts.next_eval()
-            ev = evaluate(eval_env, sac.actor, record=args.video_episodes if videos else 0)
+            ev = evaluate(TASK, eval_env, sac.actor, record=args.video_episodes if videos else 0)
             metrics.update(ev.metrics)
             score = (ev.metrics["eval/success_rate"], ev.metrics["eval/mean_return"])
             improved = score > best

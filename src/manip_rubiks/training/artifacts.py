@@ -238,7 +238,7 @@ class ArtifactLogger:
 
     PERIODIC_DIRS = ("repro", "latest", "eval")  # uploaded during training, skipped by :meth:`finalize`
 
-    def __init__(self, run_dir: Path, total_timesteps: int, milestones: int = 10, video_every: int = 4) -> None:
+    def __init__(self, run_dir: Path, total_timesteps: int, milestones: int = 10, video_every: int = 1) -> None:
         self.run_dir = Path(run_dir)
         self.milestone_steps = (
             [round(total_timesteps * (i + 1) / milestones) for i in range(milestones)] if milestones > 0 else []

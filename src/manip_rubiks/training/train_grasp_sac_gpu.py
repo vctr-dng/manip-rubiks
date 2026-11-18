@@ -71,7 +71,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--log-every", type=int, default=10, help="batched env steps between metric logs")
     p.add_argument("--eval-every", type=int, default=500_000, help="timesteps between evaluations")
     p.add_argument("--eval-envs", type=int, default=256, help="worlds (= episodes) per evaluation")
-    p.add_argument("--video-every", type=int, default=4, help="evaluations between eval videos (0: no videos)")
+    p.add_argument("--video-every", type=int, default=1, help="evaluations between eval videos (0: no videos)")
     p.add_argument("--video-episodes", type=int, default=16, help="eval worlds recorded for the videos")
     p.add_argument("--milestones", type=int, default=10, help="checkpoints kept over the run (0: none)")
     p.add_argument("--bank-size", type=int, default=len(TRAIN_BANK_SEEDS), help="training reset states")

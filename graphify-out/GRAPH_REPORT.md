@@ -1,24 +1,24 @@
-# Graph Report - sac  (2026-11-18)
+# Graph Report - manip-rubiks  (2026-11-18)
 
 ## Corpus Check
-- 76 files · ~56,720 words
+- 88 files · ~65,993 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 7 file(s) not represented in the graph (top: (none) 5, .example 1, .lock 1)
+- Unclassified: 6 file(s) not represented in the graph (top: (none) 4, .example 1, .lock 1)
 
 ## Summary
-- 1209 nodes · 2808 edges · 73 communities (54 shown, 19 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 330 edges (avg confidence: 0.9)
+- 1385 nodes · 3295 edges · 83 communities (61 shown, 22 thin omitted)
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 369 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f5293f5c`
+- Built from commit: `7a8a322b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - m0.py
-- 3. Task specification
-- RobotInterface
+- project-draft.md
+- TactileSensors
 - CubeState
 - sac_gpu.py
 - grasp_benchmark.py
@@ -35,71 +35,81 @@
 - 37. Priority order
 - 1. Relevant existing research
 - 31. Critical software interfaces
-- assets.py
+- reset_bank.py
 - GraspEnvGPU
 - Part VII — World Model
 - 36. First three experiments
-- HandCubeScene
+- mujoco
 - CLAUDE.md
 - SAC
-- .reset
+- HandCubeScene
 - manip-rubiks
 - test_environment.py
-- TactileSensors
+- environments/grasp_env.py
 - numpy
 - 34. Major technical risks
 - mlflow
 - Part VI — Tactile State Estimation
 - GraspEnv
-- project-draft.md
+- Part XVII — Final Recommendations
 - PPO
-- train_grasp_gpu.py
+- train_grasp_sac_gpu.py
 - test_grasp_env.py
-- torch
+- CubeMath
 - test_training.py
 - cube_model.py
-- cube_state.py
-- manip-rubiks
+- Move
+- RotationEnv
 - asymmetric.py
-- .__init__
+- HandCubeEnvGPU
 - artifacts.py
 - HandCubeEnv
 - ndarray
 - test_tactile.py
 - train_grasp.py
-- json
-- pytest
-- _train
+- LearnedPolicy
+- test_observation_leakage.py
+- gpu_loop.py
 - CubeInterface
 - cube_interface.py
 - up.sh
 - ArtifactLogger
-- DifficultyCurriculum
-- DistributionStats
+- train_rotation_gpu.py
+- evaluate
 - episodes.py
-- test_cube_kinematics.py
-- Appendix A — Essential Resources
+- torch
+- environments/rotation_env.py
 - repos
 - Executive Summary
+- scene_builder.py
 - grasp_ppo/grasp_report.md
 - grasp_sac/grasp_report.md
+- GraspEvalCallback
+- SquashedGaussianActor
+- cube_state.py
+- .__init__
+- AsymmetricActorCriticPolicy
+- flatten_params
+- pytest
+- KeyedFlattenExtractor
+- AsymmetricMlpExtractor
 
 ## God Nodes (most connected - your core abstractions)
 1. `CubeState` - 63 edges
-2. `GraspEnv` - 59 edges
+2. `GraspEnv` - 56 edges
 3. `HandCubeScene` - 43 edges
-4. `GraspEnvGPU` - 40 edges
-5. `HandCubeEnv` - 31 edges
-6. `_train()` - 28 edges
-7. `_train()` - 28 edges
-8. `GraspConfig` - 27 edges
-9. `Move` - 24 edges
-10. `CubeInterface` - 24 edges
+4. `HandCubeEnvGPU` - 41 edges
+5. `HandCubeEnv` - 38 edges
+6. `RotationEnv` - 38 edges
+7. `GraspEnvGPU` - 27 edges
+8. `Move` - 24 edges
+9. `CubeInterface` - 24 edges
+10. `ArtifactLogger` - 24 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `In-hand reorientation` --references--> `RotationEnv`  [INFERRED]
+  README.md → src/manip_rubiks/environments/rotation_env.py
 - `Grasp stabilisation` --references--> `GraspEnv`  [INFERRED]
-  README.md → src/manip_rubiks/environments/grasp_env.py
-- `GPU simulation` --references--> `GraspEnv`  [INFERRED]
   README.md → src/manip_rubiks/environments/grasp_env.py
 - `Simulation design (M0)` --references--> `HandCubeEnv`  [INFERRED]
   README.md → src/manip_rubiks/environments/hand_cube_env.py
@@ -111,31 +121,35 @@
 ## Import Cycles
 - None detected.
 
-## Communities (73 total, 19 thin omitted)
+## Communities (83 total, 22 thin omitted)
 
 ### Community 0 - "m0.py"
-Cohesion: 0.11
-Nodes (16): CheckResult, finite(), warnings_count(), actuator_speed_bounds(), benchmark_throughput(), check_actuators(), check_cube_geometry(), check_reproducibility() (+8 more)
+Cohesion: 0.14
+Nodes (14): CheckResult, finite(), warnings_count(), benchmark_throughput(), check_actuators(), check_cube_geometry(), check_reproducibility(), check_robot_loads() (+6 more)
 
-### Community 1 - "3. Task specification"
-Cohesion: 0.22
-Nodes (9): 3. Task specification, 4. Mathematical formulation, 5.1 Symbolic memory, 5.2 Physical-state memory, 5. Two different kinds of memory, Evaluation, Part II — Formal Problem Definition, Phase A — Visual inspection (+1 more)
+### Community 1 - "project-draft.md"
+Cohesion: 0.10
+Nodes (19): 38. Active tactile perception, 39. Risk-aware symbolic planning, 3. Task specification, 40. Generalization beyond Rubik's Cubes, 4. Mathematical formulation, 5.1 Symbolic memory, 5.2 Physical-state memory, 5. Two different kinds of memory (+11 more)
+
+### Community 2 - "TactileSensors"
+Cohesion: 0.08
+Nodes (4): RobotInterface, Region, TactileSensors, probe_fingertips()
 
 ### Community 3 - "CubeState"
-Cohesion: 0.14
+Cohesion: 0.10
 Nodes (18): CubeState, parse_moves(), test_initial_state_options(), test_observations_do_not_depend_on_the_scramble(), test_unintended_layer_turn_terminates(), test_observations_do_not_depend_on_the_scramble(), test_reset_with_scrambled_state(), test_inverse_and_parsing() (+10 more)
 
 ### Community 4 - "sac_gpu.py"
-Cohesion: 0.09
-Nodes (5): _mlp(), ReplayBuffer, SquashedGaussianActor, TwinQ, test_squashed_log_prob_matches_torch_distribution()
+Cohesion: 0.12
+Nodes (3): _mlp(), ReplayBuffer, TwinQ
 
 ### Community 5 - "grasp_benchmark.py"
 Cohesion: 0.06
-Nodes (18): build_policy(), condition_options(), EpisodeResult, main(), policy_label(), run_benchmark(), run_episode(), summarise() (+10 more)
+Nodes (28): RotationConfig, build_policy(), condition_options(), EpisodeResult, main(), policy_label(), run_benchmark(), run_episode() (+20 more)
 
 ### Community 6 - "tracking.py"
-Cohesion: 0.08
-Nodes (16): docker_env_file(), _main_checkout(), MLflowOutputFormat, normalize_uri(), root_env_file(), tracking_uri(), uri_from_env_file(), _env() (+8 more)
+Cohesion: 0.11
+Nodes (13): docker_env_file(), _main_checkout(), normalize_uri(), root_env_file(), tracking_uri(), uri_from_env_file(), _env(), file_store() (+5 more)
 
 ### Community 7 - "11. Hierarchical control architecture"
 Cohesion: 0.12
@@ -181,13 +195,13 @@ Nodes (9): 1.1 OpenAI Dactyl — Solving Rubik's Cube (2019), 1.2 Learning Purel
 Cohesion: 0.22
 Nodes (9): 30. Proposed repository structure, 31. Critical software interfaces, Cube interface, Part XI — Software Architecture, Planner interface, Policy interface, Robot interface, State-estimator interface (+1 more)
 
-### Community 19 - "assets.py"
-Cohesion: 0.40
-Nodes (5): cache_dir(), ensure_menagerie_model(), _git(), menagerie_dir(), sharpa_wave_xml()
+### Community 19 - "reset_bank.py"
+Cohesion: 0.07
+Nodes (14): flatten_keys(), build_reset_bank(), _config_key(), _generate(), load_reset_bank(), ResetBank, RotationEnvGPU, RotationStepInfo (+6 more)
 
 ### Community 20 - "GraspEnvGPU"
-Cohesion: 0.14
-Nodes (4): GraspEnvGPU, _min_jerk(), _rotate_towards(), StepInfo
+Cohesion: 0.15
+Nodes (4): GraspEnvGPU, GraspStepInfo, _min_jerk(), _rotate_towards()
 
 ### Community 21 - "Part VII — World Model"
 Cohesion: 0.25
@@ -197,21 +211,25 @@ Nodes (8): 17. Purpose of the world model, 18. World-model architecture, 19. Usi
 Cohesion: 0.25
 Nodes (8): 35. Initial project scope, 36. First three experiments, Experiment 1 — Observability, Experiment 2 — Closed-loop manipulation, Experiment 3 — Disturbance recovery, Part XIV — Recommended Minimum Viable Project, Proposed MVP, Why this is the correct starting point
 
-### Community 23 - "HandCubeScene"
-Cohesion: 0.10
-Nodes (15): _rotation_group(), HandCubeScene, is_pad(), audit_filters(), check_collisions(), _Geoms, _max_pen(), _min_distance() (+7 more)
-
-### Community 28 - ".reset"
+### Community 23 - "mujoco"
 Cohesion: 0.13
-Nodes (5): scene(), test_actuator_speed_bounds(), test_gate_m0_quick(), test_noisy_resets_spawn_without_hand_contact(), test_reset_places_cube_in_hand()
+Nodes (10): audit_filters(), check_collisions(), _Geoms, _max_pen(), _min_distance(), pinch(), press(), reset_clearance() (+2 more)
+
+### Community 28 - "HandCubeScene"
+Cohesion: 0.12
+Nodes (10): HandCubeScene, check_tactile_signals(), _sensors(), scene(), test_actuator_speed_bounds(), test_gate_m0_quick(), test_noisy_resets_spawn_without_hand_contact(), test_reset_is_deterministic() (+2 more)
 
 ### Community 30 - "test_environment.py"
-Cohesion: 0.16
-Nodes (12): EnvConfig, assert_obs_equal(), env(), test_drop_terminates(), test_passes_gymnasium_checker(), test_random_scramble_is_seeded_and_valid(), test_reset_after_rollout_matches_fresh_env(), test_same_seed_same_episode_start() (+4 more)
+Cohesion: 0.17
+Nodes (10): assert_obs_equal(), test_drop_terminates(), test_passes_gymnasium_checker(), test_random_scramble_is_seeded_and_valid(), test_registered(), test_reset_after_rollout_matches_fresh_env(), test_same_seed_same_episode_start(), test_passes_gymnasium_checker() (+2 more)
+
+### Community 31 - "environments/grasp_env.py"
+Cohesion: 0.14
+Nodes (7): GraspConfig, GraspRewardWeights, WristMove, _config(), main(), test_pushes_hit_the_cube_and_can_be_disabled(), test_zero_difficulty_keeps_the_palm_up_without_pushes()
 
 ### Community 32 - "numpy"
-Cohesion: 0.12
-Nodes (13): build_spec(), mount_rotation(), SceneConfig, TactileConfig, check_tactile_signals(), probe_fingertips(), _sensors(), test_free_full_cube_falls_as_rigid_body() (+5 more)
+Cohesion: 0.13
+Nodes (8): _rotation_group(), actuator_speed_bounds(), _contact_penetrations(), test_free_full_cube_falls_as_rigid_body(), hand_scene(), test_delta_action(), test_fingertips_above_palm_and_forward(), test_position_actuator_tracks_step()
 
 ### Community 33 - "34. Major technical risks"
 Cohesion: 0.25
@@ -227,51 +245,51 @@ Nodes (7): 14. State-estimation objectives, 15. Baseline estimator: recurrent ne
 
 ### Community 36 - "GraspEnv"
 Cohesion: 0.06
-Nodes (24): GraspConfig, GraspEnv, slerp_direction(), WristMove, flatten_observation(), observation_layout(), build_reset_bank(), _config_key() (+16 more)
+Nodes (22): GPU simulation, Grasp stabilisation, In-hand reorientation, Known limitations / follow-ups, Layout, manip-rubiks, Setup, Grasp stabilisation benchmark (+14 more)
 
-### Community 37 - "project-draft.md"
-Cohesion: 0.14
-Nodes (11): 38. Active tactile perception, 39. Risk-aware symbolic planning, 40. Generalization beyond Rubik's Cubes, 41. Recommended implementation decisions, 42. Recommended order of execution, 43. Final project definition, Appendix B — Immediate Action Plan, Conclusion (+3 more)
+### Community 37 - "Part XVII — Final Recommendations"
+Cohesion: 0.50
+Nodes (4): 41. Recommended implementation decisions, 42. Recommended order of execution, 43. Final project definition, Part XVII — Final Recommendations
 
 ### Community 38 - "PPO"
 Cohesion: 0.11
-Nodes (6): Critic, GaussianActor, _mlp(), PPO, PPOConfig, RunningMeanStd
+Nodes (7): Critic, GaussianActor, _mlp(), PPO, PPOConfig, RunningMeanStd, test_running_mean_std_matches_numpy()
 
-### Community 39 - "train_grasp_gpu.py"
-Cohesion: 0.13
-Nodes (14): normalizer_stats(), SACConfig, check_server(), flatten_params(), distribution_snapshot(), EvalResult, evaluate(), _obs_slice() (+6 more)
+### Community 39 - "train_grasp_sac_gpu.py"
+Cohesion: 0.29
+Nodes (7): SACConfig, distribution_snapshot(), main(), parse_args(), sac_config(), save_checkpoint(), _train()
 
 ### Community 40 - "test_grasp_env.py"
-Cohesion: 0.16
-Nodes (8): test_registered(), env(), run(), test_passive_hand_drops_the_cube_palm_down(), test_registered(), test_reset_after_a_palm_down_episode_matches_a_fresh_env(), test_schedule_is_smooth_and_seeded(), test_scripted_power_grasp_holds_palm_down()
+Cohesion: 0.22
+Nodes (6): run(), test_passive_hand_drops_the_cube_palm_down(), test_reset_after_a_palm_down_episode_matches_a_fresh_env(), test_schedule_is_smooth_and_seeded(), test_scripted_power_grasp_holds_palm_down(), test_tilt_directions_follow_the_hand_frame()
 
-### Community 41 - "torch"
-Cohesion: 0.06
-Nodes (28): BatchedReading, CubeMath, _group_tables(), indices_to_state(), state_to_indices(), snap_rotation(), physical_cube(), random_rotation() (+20 more)
+### Community 41 - "CubeMath"
+Cohesion: 0.12
+Nodes (7): BatchedReading, CubeMath, physical_cube(), random_rotation(), test_readout_matches_cube_interface(), test_same_configuration_matches_cube_state(), test_snap_matches_cpu()
 
 ### Community 42 - "test_training.py"
-Cohesion: 0.15
-Nodes (5): GraspRewardWeights, model(), obs_tensor(), test_actor_ignores_privileged_state_but_critic_uses_it(), test_actor_input_width_excludes_privileged_state()
+Cohesion: 0.20
+Nodes (5): obs_tensor(), test_actor_ignores_privileged_state_but_critic_uses_it(), test_actor_input_width_excludes_privileged_state(), test_actor_keys_may_not_include_privileged_state(), test_saved_policy_deploys_without_privileged_state()
 
 ### Community 43 - "cube_model.py"
 Cohesion: 0.24
 Nodes (8): cube_spec(), cube_xml(), CubeParams, cubie_center(), _cubie_geoms(), fixture_cube_xml(), _fmt(), _stickers()
 
-### Community 45 - "cube_state.py"
-Cohesion: 0.18
-Nodes (5): format_moves(), Move, LayerDriver, MoveResult, min_jerk()
+### Community 45 - "Move"
+Cohesion: 0.14
+Nodes (12): Move, LayerDriver, MoveResult, min_jerk(), make_fixture(), test_free_cube_structure(), test_full_cube_random_sequence_matches_symbolic(), test_full_cube_single_move_from_solved() (+4 more)
 
-### Community 46 - "manip-rubiks"
-Cohesion: 0.33
-Nodes (6): GPU simulation, Grasp stabilisation, Known limitations / follow-ups, Layout, manip-rubiks, Setup
-
-### Community 47 - "asymmetric.py"
-Cohesion: 0.09
-Nodes (4): AsymmetricActorCriticPolicy, AsymmetricMlpExtractor, KeyedFlattenExtractor, _mlp()
+### Community 46 - "RotationEnv"
+Cohesion: 0.07
+Nodes (21): allowed_commands(), command_rotation(), RotationEnv, flatten_rotation_observation(), copy_state(), match_goal(), setup(), sync() (+13 more)
 
 ### Community 49 - "artifacts.py"
-Cohesion: 0.24
-Nodes (6): _csv_value(), _jsonable(), _run(), write_csv(), write_json(), write_repro()
+Cohesion: 0.14
+Nodes (12): _csv_value(), _jsonable(), render_gif(), _run(), write_csv(), write_json(), write_repro(), file_store() (+4 more)
+
+### Community 50 - "HandCubeEnv"
+Cohesion: 0.19
+Nodes (3): HandCubeEnv, env(), test_truncation_without_termination()
 
 ### Community 52 - "test_tactile.py"
 Cohesion: 0.29
@@ -279,47 +297,47 @@ Nodes (9): sensors(), test_contact_appears_when_cube_is_pressed_onto_a_fingertip
 
 ### Community 53 - "train_grasp.py"
 Cohesion: 0.10
-Nodes (8): pick_video_episodes(), EpisodeMetrics, GraspEvalCallback, make_vec_env(), parse_args(), SaveNormalizerOnBest, _train(), test_pick_video_episodes()
+Nodes (11): check_server(), DifficultyCurriculum, EpisodeMetrics, main(), make_env(), _init(), make_vec_env(), parse_args() (+3 more)
 
-### Community 55 - "json"
-Cohesion: 0.22
-Nodes (6): file_store(), test_json_and_csv_files(), test_normalizer_stats(), test_repro_snapshot_outside_git(), test_repro_snapshot_records_the_commit(), test_training_cli_writes_a_loadable_run()
+### Community 56 - "test_observation_leakage.py"
+Cohesion: 0.33
+Nodes (3): pair(), test_observation_contains_only_robot_and_tactile_signals(), test_privileged_state_layout()
 
-### Community 56 - "pytest"
-Cohesion: 0.15
-Nodes (9): test_control_rate(), test_rgb_array_render(), test_tilt_directions_follow_the_hand_frame(), pair(), test_observation_contains_only_robot_and_tactile_signals(), test_privileged_state_layout(), test_snap_rotation_reports_angle(), test_actor_keys_may_not_include_privileged_state() (+1 more)
-
-### Community 58 - "_train"
-Cohesion: 0.21
-Nodes (4): parse_args(), record_videos(), save_checkpoint(), _train()
+### Community 58 - "gpu_loop.py"
+Cohesion: 0.14
+Nodes (9): normalizer_stats(), pick_video_episodes(), distribution_snapshot(), EvalResult, obs_slice(), record_videos(), save_checkpoint(), test_normalizer_stats() (+1 more)
 
 ### Community 59 - "CubeInterface"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (4): Simulation design (M0), CubeInterface, CubeReading, LayerDriverConfig
 
 ### Community 60 - "cube_interface.py"
-Cohesion: 0.22
+Cohesion: 0.19
 Nodes (9): axis_angle_matrix(), chordal_mean(), log_rotation(), mat_to_quat(), rotation_angle(), skew(), twist_angle(), wrap_angle() (+1 more)
 
 ### Community 62 - "ArtifactLogger"
-Cohesion: 0.18
-Nodes (5): ArtifactLogger, main(), main(), test_logger_uploads_periodic_and_final_files(), test_schedule()
+Cohesion: 0.17
+Nodes (7): ArtifactLogger, main(), parse_args(), Task, _train(), test_logger_uploads_periodic_and_final_files(), test_schedule()
 
-### Community 64 - "DistributionStats"
-Cohesion: 0.15
-Nodes (6): DistributionStats, outcome(), render_gif(), test_distribution_stats(), test_outcome_labels(), test_render_gif()
+### Community 63 - "train_rotation_gpu.py"
+Cohesion: 0.12
+Nodes (7): StepInfo, grasp_like_flags(), _add_args(), _config(), _eval_step(), _flags(), main()
+
+### Community 64 - "evaluate"
+Cohesion: 0.21
+Nodes (3): DistributionStats, evaluate(), test_distribution_stats()
 
 ### Community 65 - "episodes.py"
 Cohesion: 0.27
 Nodes (5): check_episode_logic(), _max_obs_diff(), _obs_equal(), test_episode_logic_check(), test_tactile_signals_check()
 
-### Community 66 - "test_cube_kinematics.py"
-Cohesion: 0.29
-Nodes (8): make_fixture(), test_free_cube_structure(), test_full_cube_random_sequence_matches_symbolic(), test_full_cube_single_move_from_solved(), test_read_is_invariant_to_whole_set_rotation(), test_set_state_round_trip(), test_single_axis_sequence(), test_single_axis_set_state_rejects_unreachable_states()
+### Community 66 - "torch"
+Cohesion: 0.20
+Nodes (15): make_ppo(), test_actor_never_sees_privileged_state(), test_gae_matches_reference_loop(), test_truncated_episodes_are_bootstrapped(), test_update_runs_and_reports_losses(), fill_buffer(), make_sac(), reference_nstep() (+7 more)
 
-### Community 67 - "Appendix A — Essential Resources"
-Cohesion: 0.50
-Nodes (4): Additional research directions, Appendix A — Essential Resources, Core research papers, Simulation and robot models
+### Community 67 - "environments/rotation_env.py"
+Cohesion: 0.18
+Nodes (10): EnvConfig, _rotation_env_config(), RotationRewardWeights, SceneConfig, TactileConfig, test_single_axis_variant_scrambles_u_and_d_only(), test_tactile_configurations(), squeeze() (+2 more)
 
 ### Community 68 - "repos"
 Cohesion: 0.25
@@ -329,25 +347,45 @@ Nodes (7): exclude, args, id, repos, hooks, repo, rev
 Cohesion: 0.33
 Nodes (6): Blindfolded Rubik's Cube Solving Through Tactile Robotic Manipulation, Executive Summary, Expected outcomes, Project objective, Recommended research strategy, Scope recommendation
 
+### Community 70 - "scene_builder.py"
+Cohesion: 0.15
+Nodes (4): build_spec(), is_pad(), mount_rotation(), test_mount_is_palm_up()
+
+### Community 73 - "GraspEvalCallback"
+Cohesion: 0.23
+Nodes (3): outcome(), GraspEvalCallback, test_outcome_labels()
+
+### Community 75 - "cube_state.py"
+Cohesion: 0.24
+Nodes (6): _group_tables(), indices_to_state(), state_to_indices(), format_moves(), snap_rotation(), test_snap_rotation_reports_angle()
+
+### Community 78 - "flatten_params"
+Cohesion: 0.22
+Nodes (3): flatten_params(), MLflowOutputFormat, test_flatten_params()
+
+### Community 79 - "pytest"
+Cohesion: 0.28
+Nodes (4): test_control_rate(), test_rgb_array_render(), test_condition_options_are_seeded(), test_wilson_interval()
+
 ## Knowledge Gaps
 - **1 isolated node(s):** `manip-rubiks`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 494 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 555 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `manip-rubiks` connect `manip-rubiks` to `CubeInterface`, `project-draft.md`?**
-  _High betweenness centrality (0.227) - this node is a cross-community bridge._
+- **Why does `manip-rubiks` connect `GraspEnv` to `CubeInterface`?**
+  _High betweenness centrality (0.246) - this node is a cross-community bridge._
 - **Are the 31 inferred relationships involving `CubeState` (e.g. with `HandCubeEnv` and `state_to_indices()`) actually correct?**
   _`CubeState` has 31 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `manip-rubiks` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `m0.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.11428571428571428 - nodes in this community are weakly interconnected._
-- **Why does `GraspEnv` connect `GraspEnv` to `DistributionStats`, `CubeState`, `grasp_benchmark.py`, `train_grasp_gpu.py`, `test_grasp_env.py`, `torch`, `test_training.py`, `PrivilegedObservation`, `manip-rubiks`, `HandCubeEnv`, `GraspEnvGPU`, `train_grasp.py`, `json`, `pytest`, `_train`, `test_environment.py`?**
-  _High betweenness centrality (0.180) - this node is a cross-community bridge._
+  _Cohesion score 0.13793103448275862 - nodes in this community are weakly interconnected._
+- **Why does `GraspEnv` connect `GraspEnv` to `torch`, `environments/rotation_env.py`, `CubeState`, `grasp_benchmark.py`, `train_grasp_sac_gpu.py`, `test_grasp_env.py`, `GraspEvalCallback`, `test_training.py`, `PrivilegedObservation`, `AsymmetricActorCriticPolicy`, `artifacts.py`, `HandCubeEnv`, `reset_bank.py`, `GraspEnvGPU`, `train_grasp.py`, `LearnedPolicy`, `test_environment.py`, `environments/grasp_env.py`?**
+  _High betweenness centrality (0.149) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `GraspEnv` (e.g. with `GPU simulation` and `Grasp stabilisation`) actually correct?**
   _`GraspEnv` has 25 INFERRED edges - model-reasoned connections that need verification._
-- **Should `CubeState` be split into smaller, more focused modules?**
-  _Cohesion score 0.13548387096774195 - nodes in this community are weakly interconnected._
+- **Should `project-draft.md` be split into smaller, more focused modules?**
+  _Cohesion score 0.1 - nodes in this community are weakly interconnected._

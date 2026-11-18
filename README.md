@@ -322,6 +322,9 @@ remains the reference implementation (draft section 34, risk 4):
 
 - **Reorientation.** The rotation policy is a privileged teacher, trained on a locked cube, palm-up,
   without pushes, from a single seed. Rotations about the finger axis (z) are not learned.
+  Next for z: a different starting grasp (e.g. a thumb-index pinch, which frees the palm for a spin
+  about the finger axis), help from the arm, a longer high-noise exploration phase for that axis
+  alone, and seeding from the x/y behaviour.
 
 - **Push robustness.** The grasp policies turn a layer in 12–18 % of pushed episodes. Possible next
   steps: a recurrent actor, stronger alignment shaping, and multiple seeds for the comparison. Trained

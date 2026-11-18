@@ -50,7 +50,7 @@ During training, each run also uploads (both trainers, same layout):
 | `checkpoints/milestones/<steps>/` | first evaluation past each 1/`--milestones` of the budget (default 10) | kept copies of the latest checkpoint |
 | `eval/<steps>/episodes.csv` | every evaluation | one row per episode: outcome (`success`, `dropped`, `layer_turned`, `unstable`, `misaligned`), return, length, end-of-episode metrics, summed contribution of each reward term (GPU: CPU seed of the initial state) |
 | `eval/<steps>/distributions.json` | every evaluation | observation-normaliser mean/std per key, policy std per action, action mean/std/saturation/histogram, tactile mean/std/active fraction per taxel |
-| `eval/<steps>/videos/*.gif` | every `--video-every` evaluations (default 4, 0 disables) | one successful and one failed full-difficulty episode (GPU: replayed from the recorded worlds) |
+| `eval/<steps>/videos/*.gif` | every `--video-every` evaluations (default 1, i.e. every evaluation; 0 disables) | one successful and one failed full-difficulty episode (GPU: replayed from the recorded worlds) |
 | `run/` | at the end, also when interrupted | config, summary, final and best checkpoints |
 
 Wrist reorientation is emulated by rotating gravity, so in the videos the hand stays still while the
@@ -209,21 +209,28 @@ of 4096. Two settings matter (6M-step runs, curriculum ramping over 9.6M steps a
 The trainer's default `--curriculum-fraction` is 0.4 of `--timesteps`, as for PPO; the runs below
 used `--timesteps 6000000 --curriculum-fraction 1.6` to match `gpu_s0`'s absolute schedule.
 
-Against PPO on the identical 6M-step schedule (`ppo_ref6m`), SAC (`sac_s3`) gave the same learning
-curve, not a more sample-efficient one: both stayed near 0 % full-difficulty evaluation success until
-the training difficulty reached ~0.5 (3.5–4M steps), then rose together (5M: 46 % SAC, 44 % PPO).
-PPO finished slightly ahead (6M: 50 % SAC, 64 % PPO). On the CPU benchmark (100 episodes per cell):
+Against PPO on the identical 6M-step schedule (`ppo_ref6m_s0`, `ppo_ref6m_s1`), SAC is less reliable
+across seeds. CPU benchmark, 100 episodes per cell, success rate:
 
-| Condition | SAC, 6M steps | PPO, same 6M schedule |
-|---|---|---|
-| Palm-down hold | 97 % | 92 % |
-| 90° tilt, random direction | 73 % (15 % dropped) | 99 % |
-| Random reorientations | 83 % (8 % dropped) | 99 % |
-| Random reorientations + pushes | 51 % (37 % layer turned) | 62 % (30 % layer turned) |
+| Condition | PPO s0 | PPO s1 | SAC s1 | SAC s2 | SAC s3 (earlier) | SAC 12M s0 |
+|---|---|---|---|---|---|---|
+| Palm-down hold | 99 % | 100 % | 94 % | 90 % | 97 % | 100 % |
+| 90° tilt, random direction | 99 % | 100 % | 99 % | 64 % | 73 % | 100 % |
+| Random reorientations | 100 % | 100 % | 98 % | 60 % | 83 % | 100 % |
+| Random reorientations + pushes | 76 % | 82 % | 74 % | 38 % | 51 % | 80 % |
 
-Each column is a single seed, so small differences are not significant; PPO is clearly better on
-tilts and reorientations, where SAC still drops the cube. SAC also takes more wall-clock time per
-step (gradient updates add ~7 % at one update per step). PPO remains the default trainer.
+- *Seed spread.* On pushes, three 6M SAC seeds span 38–74 % against 76–82 % for two PPO seeds. One
+  SAC seed (`sac_s1`) matches PPO; `sac_s2` drops the cube on tilts and reorientations (11–20 %).
+- *Longer run.* At 12M steps (`--timesteps 12000000 --curriculum-fraction 0.8`) a SAC seed reaches
+  100 % on the first three conditions and 80 % with pushes, on par with the best 6M PPO. PPO was not
+  run at 12M, and this is a single seed.
+- *Normalizer freeze.* `--freeze-normalizer-after 3000000` (6M steps) gave 52 % with pushes against
+  74 % for the default on a neighbouring seed; one seed each, so only suggestive.
+- *Training evaluation misleads.* In-training success (full-difficulty worlds) ended at 64 % for the
+  12M run while the benchmark scores 80–100 %; compare policies on the benchmark.
+
+Reports: `reports/grasp_sac/` (passive, scripted, `sac_s1`, the normalizer-freeze run and the 12M run) and `reports/grasp_ppo/` (`sac_s2` and PPO).
+PPO remains the default trainer: it is faster per step and more consistent across seeds.
 
 ## GPU simulation
 

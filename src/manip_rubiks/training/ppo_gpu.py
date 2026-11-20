@@ -244,6 +244,21 @@ class PPO:
         return out
 
     # ------------------------------------------------------- checkpoints
+    @property
+    def privileged_rms(self) -> RunningMeanStd:
+        return self.critic.privileged_rms
+
+    def snapshot_stats(self) -> dict:
+        """Algorithm-specific entries of the evaluation distribution snapshot."""
+        return {
+            "policy_std": self.actor.log_std.detach().exp().cpu().numpy(),
+            "return_normalizer_std": float(self.return_rms.var.sqrt()),
+        }
+
+    def checkpoint_extras(self) -> dict:
+        """Algorithm-specific entries of a checkpoint (beyond the shared ones)."""
+        return {}
+
     def state_dict(self) -> dict:
         return {
             "actor": self.actor.state_dict(),

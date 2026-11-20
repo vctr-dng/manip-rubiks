@@ -134,7 +134,8 @@ def test_checkpoint_deploys_on_the_cpu_reference(tmp_path):
     from manip_rubiks.gpu.grasp_env import flatten_observation
     from manip_rubiks.gpu.hand_cube_env import observation_layout
     from manip_rubiks.policies.torch_policy import TorchGraspPolicy
-    from manip_rubiks.training.train_grasp_sac_gpu import parse_args, save_checkpoint
+    from manip_rubiks.training.gpu_loop import save_checkpoint
+    from manip_rubiks.training.train_grasp_sac_gpu import parse_args
 
     env = GraspEnv()
     obs, info = env.reset(seed=0)
@@ -143,7 +144,7 @@ def test_checkpoint_deploys_on_the_cpu_reference(tmp_path):
     cfg = SACConfig(buffer_size=8, actor_sizes=(16,), critic_sizes=(16,))
     sac = SAC(1, obs_dim, priv_dim, env.action_space.shape[0], cfg, CPU)
     gpu_env = SimpleNamespace(layout=layout, obs_dim=obs_dim, privileged_dim=priv_dim, n_act=sac.act_dim)
-    save_checkpoint(tmp_path / "policy.pt", sac, gpu_env, parse_args([]), timesteps=7)
+    save_checkpoint(tmp_path / "policy.pt", sac, gpu_env, parse_args([]), timesteps=7, task="grasp")
     policy = TorchGraspPolicy(tmp_path / "policy.pt")
     assert isinstance(policy.actor, SquashedGaussianActor) and policy.timesteps == 7
     expected = sac.actor.act(torch.as_tensor(flatten_observation(obs))[None])[0].numpy()

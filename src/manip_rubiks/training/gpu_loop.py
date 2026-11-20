@@ -42,9 +42,11 @@ from manip_rubiks.training.artifacts import (
     write_json,
 )
 from manip_rubiks.training.ppo_gpu import PPO, GaussianActor, PPOConfig
+from manip_rubiks.training.sac_gpu import SAC
 from manip_rubiks.training.tracking import check_server, flatten_params, tracking_uri
 
 Flags = dict[str, torch.Tensor]
+Agent = PPO | SAC  # what the checkpoint and snapshot helpers accept
 
 
 def grasp_like_flags(term: torch.Tensor, trunc: torch.Tensor, info: StepInfo) -> Flags:
@@ -216,16 +218,16 @@ def obs_slice(env: HandCubeEnvGPU, key: str) -> slice:
     raise KeyError(key)
 
 
-def distribution_snapshot(ev: EvalResult, ppo: PPO, env: HandCubeEnvGPU, timesteps: int) -> dict:
-    mean, var = ppo.actor.obs_rms.mean.cpu().numpy(), ppo.actor.obs_rms.var.cpu().numpy()
+def distribution_snapshot(ev: EvalResult, agent: Agent, env: HandCubeEnvGPU, timesteps: int) -> dict:
+    """Evaluation distributions, the agent's observation normalisers and its own statistics."""
+    mean, var = agent.actor.obs_rms.mean.cpu().numpy(), agent.actor.obs_rms.var.cpu().numpy()
     stats = {k: (mean[obs_slice(env, k)], var[obs_slice(env, k)]) for k, _ in env.layout}
-    priv = ppo.critic.privileged_rms
+    priv = agent.privileged_rms
     stats["privileged"] = (priv.mean.cpu().numpy(), priv.var.cpu().numpy())
     return {
         **ev.distributions,
         "obs_normalizer": normalizer_stats(stats),
-        "policy_std": ppo.actor.log_std.detach().exp().cpu().numpy(),
-        "return_normalizer_std": float(ppo.return_rms.var.sqrt()),
+        **agent.snapshot_stats(),
         "timesteps": timesteps,
     }
 
@@ -238,21 +240,22 @@ def record_videos(ev: EvalResult, render_env, out: Path) -> None:
 
 
 def save_checkpoint(
-    path: Path, ppo: PPO, env: HandCubeEnvGPU, args: argparse.Namespace, timesteps: int, task: str = "", **extra
+    path: Path, agent: Agent, env: HandCubeEnvGPU, args: argparse.Namespace, timesteps: int, task: str = "", **extra
 ) -> None:
-    """Actor, critic, normalisers and optimizer, plus what is needed to rebuild or resume them."""
+    """Networks, normalisers and optimizers, plus what is needed to rebuild or resume them."""
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
-            **ppo.state_dict(),
+            **agent.state_dict(),
+            **agent.checkpoint_extras(),
             **extra,
             "task": task,
             "obs_layout": env.layout,
             "obs_dim": env.obs_dim,
             "privileged_dim": env.privileged_dim,
             "act_dim": env.n_act,
-            "actor_sizes": ppo.cfg.actor_sizes,
-            "log_std_init": ppo.cfg.log_std_init,
+            "actor_sizes": agent.cfg.actor_sizes,
+            "log_std_init": agent.cfg.log_std_init,
             "timesteps": timesteps,
             "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
         },

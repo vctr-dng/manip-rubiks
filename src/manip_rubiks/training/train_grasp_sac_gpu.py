@@ -26,11 +26,15 @@ import mlflow
 import numpy as np
 import torch
 
-from manip_rubiks.environments.grasp_env import GraspConfig, GraspEnv
-from manip_rubiks.gpu.grasp_env import EVAL_BANK_SEEDS, TRAIN_BANK_SEEDS, GraspEnvGPU
+from manip_rubiks.gpu.hand_cube_env import EVAL_BANK_SEEDS, TRAIN_BANK_SEEDS
 from manip_rubiks.gpu.reset_bank import load_reset_bank
-from manip_rubiks.training.artifacts import ArtifactLogger, normalizer_stats, write_csv, write_json
-from manip_rubiks.training.gpu_loop import EvalResult, evaluate, obs_slice, record_videos
+from manip_rubiks.training.artifacts import ArtifactLogger, write_csv, write_json
+from manip_rubiks.training.gpu_loop import (
+    distribution_snapshot,
+    evaluate,
+    record_videos,
+    save_checkpoint,
+)
 from manip_rubiks.training.sac_gpu import SAC, SACConfig
 from manip_rubiks.training.tracking import check_server, flatten_params, tracking_uri
 from manip_rubiks.training.train_grasp_gpu import TASK
@@ -109,40 +113,6 @@ def sac_config(args: argparse.Namespace) -> SACConfig:
     )
 
 
-def distribution_snapshot(ev: EvalResult, sac: SAC, env: GraspEnvGPU, timesteps: int) -> dict:
-    mean, var = sac.actor.obs_rms.mean.cpu().numpy(), sac.actor.obs_rms.var.cpu().numpy()
-    stats = {k: (mean[obs_slice(env, k)], var[obs_slice(env, k)]) for k, _ in env.layout}
-    stats["privileged"] = (sac.privileged_rms.mean.cpu().numpy(), sac.privileged_rms.var.cpu().numpy())
-    return {
-        **ev.distributions,
-        "obs_normalizer": normalizer_stats(stats),
-        "alpha": float(sac.alpha),
-        "timesteps": timesteps,
-    }
-
-
-def save_checkpoint(path: Path, sac: SAC, env: GraspEnvGPU, args: argparse.Namespace, timesteps: int, **extra) -> None:
-    """Networks, normalisers, temperature and optimizers (not the replay buffer)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(
-        {
-            **sac.state_dict(),
-            **extra,
-            "algorithm": "sac",
-            "obs_layout": env.layout,
-            "obs_dim": env.obs_dim,
-            "privileged_dim": env.privileged_dim,
-            "act_dim": env.n_act,
-            "actor_sizes": sac.cfg.actor_sizes,
-            "log_std_init": sac.cfg.log_std_init,
-            "sac_config": asdict(sac.cfg),
-            "timesteps": timesteps,
-            "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
-        },
-        path,
-    )
-
-
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     uri = args.mlflow_uri or tracking_uri()
@@ -152,12 +122,12 @@ def main(argv: list[str] | None = None) -> None:
     run_dir = args.out / args.name
     run_dir.mkdir(parents=True, exist_ok=True)
     config = {"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
-    config["grasp_config"] = asdict(GraspConfig())
+    config[f"{TASK.name}_config"] = asdict(TASK.make_config(args, 1.0))
     (run_dir / "config.json").write_text(json.dumps(config, indent=2, default=float))
     artifacts = ArtifactLogger(run_dir, args.timesteps, args.milestones, args.video_every)
     with mlflow.start_run(run_name=args.name):
         mlflow.log_params(flatten_params(config))
-        mlflow.set_tags({"task": "grasp", "algorithm": "SAC", "backend": "mujoco_warp", "run_dir": str(run_dir)})
+        mlflow.set_tags({"task": TASK.name, "algorithm": "SAC", "backend": "mujoco_warp", "run_dir": str(run_dir)})
         artifacts.start()
         try:
             _train(args, run_dir, artifacts)
@@ -168,22 +138,27 @@ def main(argv: list[str] | None = None) -> None:
 def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -> None:
     torch.manual_seed(args.seed)
     device = torch.device(args.device)
-    cfg = GraspConfig(difficulty=args.difficulty_start)
-    env = GraspEnvGPU(
-        args.num_envs, cfg, device=args.device, seed=args.seed, bank=load_reset_bank(cfg, range(args.bank_size))
+    cfg = TASK.make_config(args, args.difficulty_start)
+    full = TASK.make_config(args, 1.0)
+    env = TASK.env_cls(
+        args.num_envs,
+        cfg,
+        device=args.device,
+        seed=args.seed,
+        bank=load_reset_bank(cfg, range(args.bank_size), TASK.cpu_env_cls),
     )
-    eval_env = GraspEnvGPU(
+    eval_env = TASK.env_cls(
         args.eval_envs,
-        GraspConfig(),
+        full,
         device=args.device,
         seed=args.seed + 1,
-        bank=load_reset_bank(cfg, EVAL_BANK_SEEDS),
+        bank=load_reset_bank(cfg, EVAL_BANK_SEEDS, TASK.cpu_env_cls),
     )
     sac = SAC(args.num_envs, env.obs_dim, env.privileged_dim, env.n_act, sac_config(args), device)
     iterations = max(1, args.timesteps // args.num_envs)
     ramp = max(1, int(args.curriculum_fraction * args.timesteps))
     best = (-1.0, -np.inf)
-    render_env: GraspEnv | None = None
+    render_env = None
     next_eval, timesteps = args.eval_every, 0
     actor_obs, critic_obs = env.reset(seed=args.seed)
     episodes: dict[str, list[torch.Tensor]] = defaultdict(list)
@@ -203,7 +178,7 @@ def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -
         if bool(done.any()):
             episodes["return"].append(info.episode_return[done])
             episodes["length"].append(info.episode_length[done].float())
-            episodes["success"].append((trunc & info.is_success)[done].float())
+            episodes["success"].append(TASK.flags(term, trunc, info)["success"][done].float())
             for k in EPISODE_METRICS:
                 episodes[k].append(getattr(info, k)[done].float())
         t1 = time.time()
@@ -244,11 +219,11 @@ def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -
             _, videos = artifacts.next_eval()
             ev = evaluate(TASK, eval_env, sac.actor, record=args.video_episodes if videos else 0)
             metrics.update(ev.metrics)
-            score = (ev.metrics["eval/success_rate"], ev.metrics["eval/mean_return"])
+            score = TASK.score(ev.metrics)
             improved = score > best
             if improved:
                 best = score
-                save_checkpoint(run_dir / "best" / "policy.pt", sac, env, args, timesteps)
+                save_checkpoint(run_dir / "best" / "policy.pt", sac, env, args, timesteps, TASK.name)
                 metrics["eval/best_success_rate"] = score[0]
             out = artifacts.eval_dir(timesteps)
             write_csv(out / "episodes.csv", ev.episodes)
@@ -259,11 +234,11 @@ def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -
                 "cuda_rng": torch.cuda.get_rng_state(device) if device.type == "cuda" else None,
                 "env_rng": env.gen.get_state(),
             }
-            save_checkpoint(run_dir / "latest" / "policy.pt", sac, env, args, timesteps, **resume)
+            save_checkpoint(run_dir / "latest" / "policy.pt", sac, env, args, timesteps, TASK.name, **resume)
             artifacts.checkpoint(run_dir / "latest", timesteps, improved, run_dir / "best")
             if videos:
                 try:
-                    render_env = render_env or GraspEnv(GraspConfig(), render_mode="rgb_array")
+                    render_env = render_env or TASK.cpu_env_cls(full, render_mode="rgb_array")
                     record_videos(ev, render_env, out / "videos")
                 except Exception as e:  # noqa: BLE001 - e.g. no OpenGL context; training goes on without videos
                     print(f"video recording failed ({e}); set MUJOCO_GL=egl on a headless machine", flush=True)
@@ -277,7 +252,7 @@ def _train(args: argparse.Namespace, run_dir: Path, artifacts: ArtifactLogger) -
             )
         mlflow.log_metrics(metrics, step=timesteps)
         t_window = time.time()
-    save_checkpoint(run_dir / "policy.pt", sac, env, args, timesteps)
+    save_checkpoint(run_dir / "policy.pt", sac, env, args, timesteps, TASK.name)
     wall = time.time() - t_start
     summary = {
         "timesteps": timesteps,

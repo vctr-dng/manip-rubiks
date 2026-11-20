@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import copy
 import math
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 import numpy as np
 import torch
@@ -317,6 +317,14 @@ class SAC:
         return out
 
     # ------------------------------------------------------- checkpoints
+    def snapshot_stats(self) -> dict:
+        """Algorithm-specific entries of the evaluation distribution snapshot."""
+        return {"alpha": float(self.alpha)}
+
+    def checkpoint_extras(self) -> dict:
+        """Algorithm-specific entries of a checkpoint (beyond the shared ones)."""
+        return {"algorithm": "sac", "sac_config": asdict(self.cfg)}
+
     def state_dict(self) -> dict:
         return {
             "actor": self.actor.state_dict(),

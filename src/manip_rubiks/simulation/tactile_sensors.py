@@ -10,8 +10,13 @@ Two of the draft's sensor configurations are implemented here:
     region's local frame (fingertip site frame for fingertips, body frame
     otherwise), shape ``(n_regions, 3)``.
 
-Distributed taxels (configuration C) need MuJoCo's mesh-based tactile
-sensor and are not implemented yet.
+``taxel`` (configuration C)
+    MuJoCo's native mesh-based tactile sensor on every fingertip: an
+    ``ROWS x COLS`` grid with three channels per taxel (indentation depth and
+    two non-negative tangential slip speeds), shape ``(5, 8, 8, 3)``. The scene
+    must be built with ``SceneConfig(tactile_taxels=True)``; see
+    ``simulation/taxels.py`` for the geometry and channel definitions. Values
+    are divided by ``max_depth`` / ``max_speed`` and clipped to ``[0, 1]``.
 
 A *region* is a group of hand collision geoms. By default the five
 fingertip pads are the regions. ``coverage="hand"`` adds the palm and every
@@ -34,8 +39,9 @@ import mujoco
 import numpy as np
 
 from manip_rubiks.simulation.robot_interface import FINGERTIPS
+from manip_rubiks.simulation.taxels import COLS, ROWS, sensor_name
 
-Mode = Literal["contact", "force"]
+Mode = Literal["contact", "force", "taxel"]
 Coverage = Literal["fingertips", "hand"]
 
 
@@ -44,11 +50,15 @@ class TactileConfig:
     mode: Mode = "force"
     coverage: Coverage = "fingertips"
     contact_threshold: float = 0.05  # normal force for a binary contact [N]
-    noise_std: float = 0.0  # additive Gaussian noise on force readings [N]
+    noise_std: float = 0.0  # additive Gaussian noise: newtons (force) or normalised units (taxel)
     noise_rel: float = 0.0  # multiplicative noise (fraction of the reading)
-    dropout: float = 0.0  # probability that a region reads zero on a given step
+    dropout: float = 0.0  # probability that a region (fingertip) reads zero on a given step
     latency: int = 0  # delay in readings (number of ``read`` calls)
     max_force: float = 50.0  # saturation of each force component [N]
+    # Taxel normalisation. In scripted grasps the soft default pads indent 10-15 mm (99th percentile
+    # 14.8 mm) and slip speeds reach 0.14 m/s (99th percentile), so these map the usual range to [0, 1].
+    max_depth: float = 0.015  # taxel indentation that maps to 1.0 [m]
+    max_speed: float = 0.15  # taxel slip speed that maps to 1.0 [m/s]
 
 
 @dataclass(frozen=True)
@@ -76,7 +86,10 @@ class TactileSensors:
     ) -> None:
         self.model, self.data = model, data
         self.cfg = config or TactileConfig()
+        if self.cfg.mode == "taxel" and self.cfg.coverage != "fingertips":
+            raise ValueError("taxel mode is only defined for fingertip coverage")
         self.regions = self._build_regions(prefix, side)
+        self._taxel_adr = self._find_taxel_sensors(prefix, side) if self.cfg.mode == "taxel" else ()
         self._geom_region = np.full(model.ngeom, -1, dtype=int)
         for k, r in enumerate(self.regions):
             self._geom_region[r.geoms] = k
@@ -117,6 +130,16 @@ class TactileSensors:
                     regions.append(Region("palm" if label == "hand_C_MC" else label, geoms, b, -1))
         return tuple(regions)
 
+    def _find_taxel_sensors(self, prefix: str, side: str) -> tuple[int, ...]:
+        m = self.model
+        adr = []
+        for f in FINGERTIPS:
+            name = sensor_name(prefix, f)
+            if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SENSOR, name) < 0:
+                raise ValueError(f"taxel mode needs sensor '{name}': set SceneConfig(tactile_taxels=True)")
+            adr.append(int(m.sensor_adr[m.sensor(name).id]))
+        return tuple(adr)
+
     @property
     def names(self) -> tuple[str, ...]:
         return tuple(r.name for r in self.regions)
@@ -124,6 +147,8 @@ class TactileSensors:
     @property
     def shape(self) -> tuple[int, ...]:
         n = len(self.regions)
+        if self.cfg.mode == "taxel":
+            return (n, ROWS, COLS, 3)
         return (n,) if self.cfg.mode == "contact" else (n, 3)
 
     # ------------------------------------------------------------- readings
@@ -154,8 +179,17 @@ class TactileSensors:
             rots[k] = mat.reshape(3, 3)
         return rots
 
+    def taxels(self) -> np.ndarray:
+        """Normalised native tactile readings, shape ``(n_tips, ROWS, COLS, 3)`` (depth, along, across)."""
+        d = self.data
+        raw = np.stack([d.sensordata[a : a + 3 * ROWS * COLS].reshape(3, ROWS, COLS) for a in self._taxel_adr])
+        scale = np.array([self.cfg.max_depth, self.cfg.max_speed, self.cfg.max_speed])
+        return np.clip(raw.transpose(0, 2, 3, 1) / scale, 0.0, 1.0)
+
     def measure(self) -> np.ndarray:
         """Noiseless, undelayed reading for the current simulator state."""
+        if self.cfg.mode == "taxel":
+            return self.taxels()
         forces = self.region_forces()
         if self.cfg.mode == "contact":
             return (np.linalg.norm(forces, axis=1) > self.cfg.contact_threshold).astype(np.float64)
@@ -165,12 +199,13 @@ class TactileSensors:
     def _corrupt(self, x: np.ndarray) -> np.ndarray:
         cfg, rng = self.cfg, self._rng
         x = x.copy()
-        if cfg.mode == "force":
+        if cfg.mode != "contact":
             if cfg.noise_rel > 0:
                 x *= 1.0 + cfg.noise_rel * rng.standard_normal(x.shape)
             if cfg.noise_std > 0:
                 x += cfg.noise_std * rng.standard_normal(x.shape)
-            x = np.clip(x, -cfg.max_force, cfg.max_force)
+            lo, hi = (0.0, 1.0) if cfg.mode == "taxel" else (-cfg.max_force, cfg.max_force)
+            x = np.clip(x, lo, hi)
         if cfg.dropout > 0:
             x[rng.random(len(self.regions)) < cfg.dropout] = 0.0
         return x

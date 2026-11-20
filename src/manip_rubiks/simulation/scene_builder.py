@@ -19,6 +19,7 @@ from manip_rubiks.simulation.cube_interface import CubeInterface
 from manip_rubiks.simulation.cube_model import CubeParams, Variant, cube_spec
 from manip_rubiks.simulation.robot_interface import JOINTS, RobotInterface
 from manip_rubiks.simulation.rotations import axis_angle_matrix, mat_to_quat
+from manip_rubiks.simulation.taxels import add_taxel_sensors
 
 HAND_PREFIX = "hand/"
 CUBE_PREFIX = "cube/"
@@ -97,6 +98,13 @@ class SceneConfig:
     # variant only). The welds hold the solved configuration, so scrambles are
     # not supported with locked layers.
     lock_layers: bool = False
+    # Add a skin mesh and a native tactile sensor to every fingertip (configuration C,
+    # ``simulation/taxels.py``). The skin does not collide, so dynamics are unchanged.
+    tactile_taxels: bool = False
+    # Override the fingertip pads' contact softness. ``None`` keeps Menagerie's elastomer
+    # values (solref 0.06 0.9, MuJoCo's default solimp), which the trained policies assume.
+    pad_solref: tuple[float, float] | None = None
+    pad_solimp: tuple[float, float, float, float, float] | None = None
 
 
 def is_pad(geom_name: str) -> bool:
@@ -116,9 +124,17 @@ def build_spec(cfg: SceneConfig) -> mujoco.MjSpec:
         for g in hand.geoms:
             if (g.contype or g.conaffinity) and not is_pad(g.name):
                 g.solref = list(cfg.link_solref)
+    for g in hand.geoms:
+        if is_pad(g.name):
+            if cfg.pad_solref is not None:
+                g.solref = list(cfg.pad_solref)
+            if cfg.pad_solimp is not None:
+                g.solimp = list(cfg.pad_solimp)
     r_mount = mount_rotation(cfg.tilt)
     frame = parent.worldbody.add_frame(name="wrist_mount", pos=[0.0, 0.0, cfg.wrist_height], quat=mat_to_quat(r_mount))
     parent.attach(hand, frame=frame, prefix=HAND_PREFIX)
+    if cfg.tactile_taxels:
+        add_taxel_sensors(parent, HAND_PREFIX, cfg.side)
     if cfg.variant is not None:
         cube = cube_spec(cfg.variant, cfg.cube_params, fixed=False, lock_layers=cfg.lock_layers)
         parent.attach(cube, frame=parent.worldbody.add_frame(name="cube_mount"), prefix=CUBE_PREFIX)

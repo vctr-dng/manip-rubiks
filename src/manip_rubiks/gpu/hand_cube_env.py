@@ -45,6 +45,7 @@ import warp as wp
 from manip_rubiks.environments.hand_cube_env import HandCubeEnv
 from manip_rubiks.gpu.cube_math import CubeMath
 from manip_rubiks.gpu.reset_bank import ResetBank, load_reset_bank
+from manip_rubiks.simulation.taxels import COLS, ROWS
 
 MAX_QVEL = 1.0e3  # joint speed treated as a numerical blow-up [rad/s or m/s]
 TRAIN_BANK_SEEDS = range(0, 8192)
@@ -138,6 +139,7 @@ class HandCubeEnvGPU:
         self.xpos, self.xmat, self.xquat = t(d.xpos), t(d.xmat), t(d.xquat)
         self.xipos, self.cvel, self.subtree_com = t(d.xipos), t(d.cvel), t(d.subtree_com)
         self.site_xmat = t(d.site_xmat)
+        self.sensordata = t(d.sensordata)
         self.xfrc = t(d.xfrc_applied)
         self.gravity_world = t(self.m.opt.gravity)
         self.contact_geom, self.contact_world = t(d.contact.geom), t(d.contact.worldid)
@@ -173,6 +175,11 @@ class HandCubeEnvGPU:
         self.region_site = tensor([max(rg.site, 0) for rg in ts.regions], torch.long)
         self.region_body = tensor([rg.body for rg in ts.regions], torch.long)
         self.region_has_site = tensor([rg.site >= 0 for rg in ts.regions], torch.bool)
+        # Native tactile sensors (configuration C): flat index of every tip's (3, ROWS, COLS) block.
+        taxel_adr = np.array(ts._taxel_adr, dtype=int)[:, None] + np.arange(3 * ROWS * COLS)[None]
+        self.taxel_index = tensor(taxel_adr.reshape(-1), torch.long) if ts._taxel_adr else None
+        c = self.tactile_cfg
+        self.taxel_scale = tensor([c.max_depth, c.max_speed, c.max_speed]).view(1, 1, 1, 1, 3)
         self.math = CubeMath(dev)
         self.bank_t = {
             k: tensor(getattr(self.bank, k))
@@ -260,8 +267,15 @@ class HandCubeEnvGPU:
         out.index_add_(0, (world * self.n_regions + r1)[on1], -f[on1])
         return out.view(self.num_envs, self.n_regions, 3)
 
+    def _measure_taxels(self) -> torch.Tensor:
+        """(N, R, ROWS, COLS, 3) normalised native tactile readings (``TactileSensors.taxels``)."""
+        raw = self.sensordata[:, self.taxel_index].view(self.num_envs, self.n_regions, 3, ROWS, COLS)
+        return (raw.permute(0, 1, 3, 4, 2) / self.taxel_scale).clamp(0.0, 1.0)
+
     def _measure_tactile(self) -> torch.Tensor:
         cfg = self.tactile_cfg
+        if cfg.mode == "taxel":
+            return self._measure_taxels()
         forces = self._region_forces()
         if cfg.mode == "contact":
             return (forces.norm(dim=-1) > cfg.contact_threshold).float()
@@ -275,12 +289,13 @@ class HandCubeEnvGPU:
 
     def _corrupt(self, x: torch.Tensor) -> torch.Tensor:
         cfg = self.tactile_cfg
-        if cfg.mode == "force":
+        if cfg.mode != "contact":
             if cfg.noise_rel > 0:
                 x = x * (1.0 + cfg.noise_rel * torch.randn(x.shape, generator=self.gen, device=self.device))
             if cfg.noise_std > 0:
                 x = x + cfg.noise_std * torch.randn(x.shape, generator=self.gen, device=self.device)
-            x = x.clamp(-cfg.max_force, cfg.max_force)
+            lo, hi = (0.0, 1.0) if cfg.mode == "taxel" else (-cfg.max_force, cfg.max_force)
+            x = x.clamp(lo, hi)
         if cfg.dropout > 0:
             drop = torch.rand(self.num_envs, self.n_regions, generator=self.gen, device=self.device) < cfg.dropout
             x = x * (~drop).reshape(drop.shape + (1,) * (x.dim() - 2))

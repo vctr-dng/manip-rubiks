@@ -24,7 +24,7 @@ rewards, asymmetric critics and evaluation (draft sections 3 and 25).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 import gymnasium as gym
@@ -53,6 +53,11 @@ class EnvConfig:
     pose_noise: float = 0.0  # cube placement noise at reset [m]
     joint_noise: float = 0.0  # initial joint noise at reset [rad]
     drop_distance: float = 0.05  # cube centre this far from its rest position counts as dropped [m]
+
+    def __post_init__(self) -> None:
+        # Taxel readings need the skin meshes and tactile sensors in the model.
+        if self.tactile.mode == "taxel" and not self.scene.tactile_taxels:
+            self.scene = replace(self.scene, tactile_taxels=True)
 
 
 class HandCubeEnv(gym.Env):
@@ -92,7 +97,7 @@ class HandCubeEnv(gym.Env):
         def box(low, high) -> spaces.Box:
             return spaces.Box(np.asarray(low, np.float32), np.asarray(high, np.float32), dtype=np.float32)
 
-        if self.cfg.tactile.mode == "contact":
+        if self.cfg.tactile.mode in ("contact", "taxel"):
             tactile = spaces.Box(0.0, 1.0, self.tactile.shape, np.float32)
         else:
             f = self.cfg.tactile.max_force

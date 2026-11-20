@@ -11,7 +11,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Milestone | Goal | Stages | Status |
 |---|---|---|---|
 | M0 | Simulation foundation | 0 | ✅ |
-| M1 | Tactile foundation | 0 (sensors) | 🟡 |
+| M1 | Tactile foundation | 0 (sensors) | ✅ |
 | — | Manipulation prerequisites (grasp, rigid rotation) | 1, 2 | ✅ x/y axes · 🟡 z axis and pushes |
 | M2 | Single-turn policy | 3 | ⬜ |
 | M3 | Blindfolded estimator | 4, 5 | ⬜ |
@@ -46,20 +46,33 @@ actuators, cube_geometry, stability, collisions, tactile_signals, episode_logic,
   This matters when the hand has to do the turning (M2).
 - ⬜ Franka arm, which the draft defers until after single-turn success.
 
-## M1 — Tactile foundation 🟡
+## M1 — Tactile foundation ✅
 
 **Gate:** detect contacts and changes in contact location, capture sliding information, produce
 consistent observations, and document a sensor interface.
+[`reports/m1/m1_report.md`](../reports/m1/m1_report.md): PASSED, 7 checks (T1 static contact, T2 sliding,
+T3 contact location, T4 multiple contacts, T5 robustness, repeatability, pad calibration). Run with
+`uv run manip-rubiks-m1`. Interface: [`tactile_interface.md`](tactile_interface.md).
 
 - ✅ Configuration A (binary contact) and B (net force per region in the local frame), on five fingertips
   or on the whole hand (22 regions). Seeded noise, dropout and latency (`simulation/tactile_sensors.py`).
-- ✅ Signal sanity checks (`validation/tactile.py`) and `tests/test_tactile.py`.
-- ⬜ Configuration C (distributed 8×8×3 taxels).
-- ⬜ Sensor experiments T2 (sliding), T3 (contact location), T4 (multiple contacts) and T5 (robustness
-  sweep over noise, latency and dropout). The repo has no record of them.
-- ⬜ Pad calibration: Menagerie's `solref 0.06` pads sink ~5 mm into the cube. The README defers this
-  to M1.
-- ⬜ Written sensor-interface document.
+- ✅ Configuration C: native MuJoCo tactile sensors on a custom pad-following skin mesh, 8×8 taxels per
+  fingertip with depth and two unsigned slip speeds, shape `(5, 8, 8, 3)` (`simulation/taxels.py`). CPU and
+  GPU, matching to ~1e-5 in a loaded grasp.
+- ✅ T1–T5 on a probe rig (`validation/tactile_rig.py`, `validation/tactile_m1.py`):
+  - Contact is graded with indentation and silent on the other fingertips.
+  - Slip speed is read to within 1.5 % along and across the pad, but without its sign.
+  - Contact location is recovered to 0.17–0.40 mm mean error (taxel pitch 1.5–2.3 mm).
+  - Two contacts are separated from 6 mm apart. A and B cannot tell one contact from two.
+  - A 5-read median keeps F1 ≥ 0.98 up to noise 0.01 or dropout 0.1, and latency adds exactly its value.
+- ✅ Pad calibration: penetration under load for the default pad and stiffer candidates. The default pad
+  cannot carry 5 N against a light object. `SceneConfig.pad_solref` / `pad_solimp` exist, and the default is
+  unchanged so trained policies stay valid. The recommended `solref 0.01 1.0` rests on an assumed target of
+  2 mm at 10 N that has not been confirmed against Sharpa Wave data.
+- ✅ Written sensor-interface document.
+- 🟡 The rig is a flat, kinematically driven probe on the open hand. Configuration C has not been tested
+  on cube contacts during a turn, where the cube's edges and the layer gaps contact the skin.
+- 🟡 The skin covers only the palmar face of each pad. Contacts on the back or end of a fingertip read zero.
 
 ## Manipulation prerequisites (Stages 1–2) ✅ / 🟡
 
@@ -171,6 +184,6 @@ improvement on at least one predefined metric. A negative result is acceptable.
 
 ## How the status was derived
 
-From `git log` (70 commits), `README.md`, `reports/m0`, `reports/grasp*`, `reports/rotation`, the
+From `git log`, `README.md`, `reports/m0`, `reports/grasp*`, `reports/rotation`, the
 module list under `src/manip_rubiks/` (no `perception/`, `world_models/` or solver module), and the
 test names. The test suite and benchmarks were not re-run; the numbers are the ones the reports state.

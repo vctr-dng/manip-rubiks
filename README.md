@@ -11,6 +11,7 @@ uv sync
 uv run pytest             # fast tests (~15 s)
 uv run pytest -m slow     # gate M0 in quick mode (~1 min)
 uv run manip-rubiks-m0    # full gate M0 validation, writes reports/m0/
+uv run manip-rubiks-m1    # gate M1 tactile experiments T1-T5 and pad calibration, writes reports/m1/
 
 docker/up.sh                                            # MLflow server on http://127.0.0.1:5000
 uv run manip-rubiks-train-grasp-gpu --name gpu_s0       # PPO grasp policy on the GPU, writes runs/grasp_gpu/
@@ -74,7 +75,8 @@ src/manip_rubiks/
   simulation/cube_interface.py   ground-truth cube I/O, snapping, external layer driver
   simulation/robot_interface.py  joint state, position targets, delta actions (draft section 12)
   simulation/scene_builder.py    palm-up fixed-wrist hand + cube scene, contact-free deterministic resets
-  simulation/tactile_sensors.py  contact-derived tactile readings (binary contact / 3D force per region)
+  simulation/tactile_sensors.py  tactile readings: binary contact, 3D force per region, or fingertip taxels
+  simulation/taxels.py           fingertip skin meshes and native tactile sensors (configuration C)
   simulation/assets.py           pinned Menagerie fetch
   environments/hand_cube_env.py  Gymnasium base environment (episode logic, observation/privileged split)
   environments/grasp_env.py      grasp stabilisation under wrist reorientation and pushes
@@ -103,6 +105,8 @@ src/manip_rubiks/
   validation/m0.py               validation suite entry point and report
   validation/collisions.py       collision filters, reset clearance, pinch and press audits
   validation/tactile.py          tactile signal sanity checks
+  validation/tactile_rig.py      probe rig for controlled sensor experiments
+  validation/tactile_m1.py       gate M1: experiments T1-T5, repeatability, pad calibration
   validation/episodes.py         environment seeding, reset, termination and leakage checks
 tests/                           pytest suite
 docker/                          MLflow tracking server (Docker Compose, started by up.sh)
@@ -129,7 +133,8 @@ and tilted 10°. The 50 mm, 70 g cube rests on the palm, caged by the fingers in
 The cube spawns 20 mm off-centre, away from the thumb; at the centre it would start 15 mm inside the
 thumb metacarpal. Rigid hand links (palm, phalanges) use a 5 ms contact time constant instead of
 Menagerie's 10–20 ms, which let a strong pinch push two links ~15 mm into each other
-(`SceneConfig.link_solref`). The compliant fingertip pads are left unchanged.
+(`SceneConfig.link_solref`). The compliant fingertip pads are left unchanged unless `SceneConfig.pad_solref` or
+`pad_solimp` is set.
 
 **Resets.** `HandCubeScene.reset` is deterministic per seed. Noisy joint and cube poses are
 rejection-sampled until nothing touches the hand, so no episode starts with a contact impulse.
@@ -137,7 +142,10 @@ rejection-sampled until nothing touches the hand, so no episode starts with a co
 **Tactile sensing.** `TactileSensors` aggregates MuJoCo contact forces per region: the five fingertip
 pads, or the whole hand (`coverage="hand"`, 22 regions). Readings are a binary contact per region
 (draft configuration A) or the net force in the region's local frame (configuration B), with seeded
-noise, dropout and latency. Distributed taxels (configuration C) are not implemented yet.
+noise, dropout and latency. Configuration C (`mode="taxel"`) gives an 8 × 8 grid per fingertip from MuJoCo's
+native tactile sensor, with depth and two unsigned slip speeds per taxel, shape `(5, 8, 8, 3)`. It runs on
+the CPU and GPU environments. The full interface, its limits and the measured sensor behaviour are in
+[`docs/tactile_interface.md`](docs/tactile_interface.md).
 
 **Environment.** `HandCubeEnv` runs at 25 Hz (20 physics steps per action) with normalised joint-target
 deltas. It terminates when the cube leaves the hand (more than 50 mm from rest) or the simulation
@@ -334,8 +342,11 @@ remains the reference implementation (draft section 34, risk 4):
   as MLflow artifacts, and `runs/` can be regenerated with `manip-rubiks-train-grasp-gpu`.
 
 - **Fingertip pad compliance.** Menagerie's elastomer pads (`solref 0.06`) are very soft: the pads
-  sink up to ~5 mm into the cube and ~10 mm into other links under full actuator force. This is not
-  an instability, but it should be calibrated in M1 together with the tactile sensor.
+  sink up to ~5 mm into the cube and ~10 mm into other links under full actuator force, and taxel depth
+  reaches 10–17 mm in scripted grasps. The M1 calibration measured pad penetration under load: the default
+  pad cannot carry 5 N against a light object, while `solref 0.01 1.0` stays within 1.6 mm at 10 N
+  ([`docs/tactile_interface.md`](docs/tactile_interface.md)). The default is unchanged so existing policies
+  stay valid, and adopting a stiffer pad means retraining.
 - **Release snaps.** A distal phalanx pressed past its limit by another finger springs back at up to
   ~60 rad/s when released, then settles within ~30 ms. The actuators have no velocity limit. The
   stability check compares joint speeds with what each actuator could produce on its own, not with a

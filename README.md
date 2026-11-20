@@ -1,7 +1,8 @@
 # manip-rubiks
 
 Blindfolded Rubik's cube solving through tactile robotic manipulation, simulated in MuJoCo with a
-Sharpa Wave hand. See [`docs/project-draft.md`](docs/project-draft.md) for the research plan.
+Sharpa Wave hand. See [`docs/project-draft.md`](docs/project-draft.md) for the research plan and
+[`docs/milestones.md`](docs/milestones.md) for the milestones, their stages and what is done.
 
 ## Setup
 

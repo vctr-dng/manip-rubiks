@@ -1,0 +1,614 @@
+{
+  "gate": "M1 - tactile foundation",
+  "passed": true,
+  "quick": false,
+  "environment": {
+    "mujoco": "4.0.1",
+    "numpy": "2.5.4",
+    "python": "3.12.16",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+    "menagerie_commit": "370c43965323c0944b433b202aac5058b5f907a9"
+  },
+  "checks": [
+    {
+      "name": "T1_static_contact",
+      "passed": true,
+      "metrics": {
+        "commanded_depth_mm": [
+          0.5,
+          1.0,
+          2.0,
+          3.0
+        ],
+        "per_finger": {
+          "thumb": {
+            "pass": true,
+            "force_N": [
+              0.0108,
+              0.0343,
+              0.081,
+              0.1271
+            ],
+            "taxel_depth_sum_mm": [
+              1.149,
+              2.999,
+              8.223,
+              11.13
+            ],
+            "taxel_depth_max_mm": [
+              0.203,
+              0.66,
+              2.03,
+              3.342
+            ],
+            "monotonic": {
+              "force": true,
+              "taxel_depth": true
+            },
+            "crosstalk_on_other_fingers": 0.0,
+            "released_to_zero": true,
+            "binary_contact_at_deepest": 1.0
+          },
+          "index": {
+            "pass": true,
+            "force_N": [
+              0.0138,
+              0.0371,
+              0.0828,
+              0.1282
+            ],
+            "taxel_depth_sum_mm": [
+              1.8,
+              6.075,
+              11.503,
+              15.852
+            ],
+            "taxel_depth_max_mm": [
+              0.232,
+              0.814,
+              1.961,
+              3.141
+            ],
+            "monotonic": {
+              "force": true,
+              "taxel_depth": true
+            },
+            "crosstalk_on_other_fingers": 0.0,
+            "released_to_zero": true,
+            "binary_contact_at_deepest": 1.0
+          },
+          "middle": {
+            "pass": true,
+            "force_N": [
+              0.0138,
+              0.0371,
+              0.0828,
+              0.1282
+            ],
+            "taxel_depth_sum_mm": [
+              1.8,
+              6.075,
+              11.503,
+              15.852
+            ],
+            "taxel_depth_max_mm": [
+              0.232,
+              0.814,
+              1.961,
+              3.141
+            ],
+            "monotonic": {
+              "force": true,
+              "taxel_depth": true
+            },
+            "crosstalk_on_other_fingers": 0.0,
+            "released_to_zero": true,
+            "binary_contact_at_deepest": 1.0
+          },
+          "ring": {
+            "pass": true,
+            "force_N": [
+              0.0138,
+              0.0371,
+              0.0828,
+              0.1282
+            ],
+            "taxel_depth_sum_mm": [
+              1.8,
+              6.075,
+              11.503,
+              15.852
+            ],
+            "taxel_depth_max_mm": [
+              0.232,
+              0.814,
+              1.961,
+              3.141
+            ],
+            "monotonic": {
+              "force": true,
+              "taxel_depth": true
+            },
+            "crosstalk_on_other_fingers": 0.0,
+            "released_to_zero": true,
+            "binary_contact_at_deepest": 1.0
+          },
+          "pinky": {
+            "pass": true,
+            "force_N": [
+              0.0138,
+              0.0371,
+              0.0828,
+              0.1281
+            ],
+            "taxel_depth_sum_mm": [
+              1.8,
+              6.075,
+              11.502,
+              15.853
+            ],
+            "taxel_depth_max_mm": [
+              0.232,
+              0.814,
+              1.961,
+              3.141
+            ],
+            "monotonic": {
+              "force": true,
+              "taxel_depth": true
+            },
+            "crosstalk_on_other_fingers": 0.0,
+            "released_to_zero": true,
+            "binary_contact_at_deepest": 1.0
+          }
+        }
+      },
+      "thresholds": {
+        "monotonic": "non-decreasing in commanded depth",
+        "crosstalk": "< 1e-9",
+        "release": "all readings zero"
+      },
+      "notes": [
+        "Depth is the commanded penetration of a flat probe below the unloaded pad surface; the fingers are position controlled, so the realised indentation is smaller than the command.",
+        "The binary contact flag needs 0.05 N, so it stays off for the lightest touches while taxel depth already responds."
+      ]
+    },
+    {
+      "name": "T2_sliding",
+      "passed": true,
+      "metrics": {
+        "index_sweep": {
+          "along": {
+            "rows": [
+              {
+                "speed_m_s": 0.01,
+                "slip_measured_m_s": 0.01,
+                "rel_error": 0.0002,
+                "cross_channel_ratio": 0.00117,
+                "sign_blind_diff_ratio": 6e-05,
+                "B_tangential_force_N": 0.0359,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.03,
+                "slip_measured_m_s": 0.02999,
+                "rel_error": 0.0003,
+                "cross_channel_ratio": 0.00154,
+                "sign_blind_diff_ratio": 0.00013,
+                "B_tangential_force_N": 0.0719,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.06,
+                "slip_measured_m_s": 0.05996,
+                "rel_error": 0.0006,
+                "cross_channel_ratio": 0.00188,
+                "sign_blind_diff_ratio": 0.00044,
+                "B_tangential_force_N": 0.1217,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.1,
+                "slip_measured_m_s": 0.09988,
+                "rel_error": 0.0012,
+                "cross_channel_ratio": 0.00235,
+                "sign_blind_diff_ratio": 0.0013,
+                "B_tangential_force_N": 0.1847,
+                "B_sign_flips_with_direction": true
+              }
+            ],
+            "B_tangential_force_increases_with_speed": true
+          },
+          "across": {
+            "rows": [
+              {
+                "speed_m_s": 0.01,
+                "slip_measured_m_s": 0.01,
+                "rel_error": 0.0001,
+                "cross_channel_ratio": 0.00085,
+                "sign_blind_diff_ratio": 0.0,
+                "B_tangential_force_N": 0.0144,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.03,
+                "slip_measured_m_s": 0.02975,
+                "rel_error": 0.0082,
+                "cross_channel_ratio": 0.00142,
+                "sign_blind_diff_ratio": 0.0,
+                "B_tangential_force_N": 0.0426,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.06,
+                "slip_measured_m_s": 0.05923,
+                "rel_error": 0.0128,
+                "cross_channel_ratio": 0.00143,
+                "sign_blind_diff_ratio": 0.0,
+                "B_tangential_force_N": 0.0769,
+                "B_sign_flips_with_direction": true
+              },
+              {
+                "speed_m_s": 0.1,
+                "slip_measured_m_s": 0.09852,
+                "rel_error": 0.0148,
+                "cross_channel_ratio": 0.00089,
+                "sign_blind_diff_ratio": 0.0,
+                "B_tangential_force_N": 0.1163,
+                "B_sign_flips_with_direction": true
+              }
+            ],
+            "B_tangential_force_increases_with_speed": true
+          }
+        },
+        "static_slip_max_m_s": 2.8928565787122036e-05,
+        "all_fingertips_along_0.03_m_s": {
+          "thumb": {
+            "slip_along_m_s": 0.02995,
+            "rel_error": 0.0016,
+            "cross_ratio": 0.01392
+          },
+          "index": {
+            "slip_along_m_s": 0.02999,
+            "rel_error": 0.0003,
+            "cross_ratio": 0.00154
+          },
+          "middle": {
+            "slip_along_m_s": 0.02999,
+            "rel_error": 0.0003,
+            "cross_ratio": 0.00164
+          },
+          "ring": {
+            "slip_along_m_s": 0.02999,
+            "rel_error": 0.0003,
+            "cross_ratio": 0.00144
+          },
+          "pinky": {
+            "slip_along_m_s": 0.02999,
+            "rel_error": 0.0003,
+            "cross_ratio": 0.00164
+          }
+        },
+        "signed_slip_channels": false,
+        "binary_contact_static_vs_sliding": [
+          1.0,
+          1.0
+        ],
+        "binary_contact_sees_sliding": false
+      },
+      "thresholds": {
+        "slip_rel_error": "<= 0.1",
+        "cross_channel_ratio": "<= 0.05",
+        "static_slip_m_s": "< 2e-3"
+      },
+      "notes": [
+        "Configuration C reports slip speed magnitudes along (channel 1) and across (channel 2) the pad: both channels are non-negative, so the direction of slip is not observable from C alone (sign_blind_diff_ratio ~ 0). Configuration B's tangential force is signed.",
+        "Configuration A is a single bit per fingertip and does not change between a static press and a slide."
+      ]
+    },
+    {
+      "name": "T3_contact_location",
+      "passed": true,
+      "metrics": {
+        "grid_points": 25,
+        "positions_mm": [
+          -4.0,
+          -2.0,
+          0.0,
+          2.0,
+          4.0
+        ],
+        "taxel_pitch_mm_along_across": {
+          "thumb": [
+            1.94,
+            2.33
+          ],
+          "index": [
+            1.53,
+            2.0
+          ],
+          "middle": [
+            1.53,
+            2.0
+          ],
+          "ring": [
+            1.53,
+            2.0
+          ],
+          "pinky": [
+            1.53,
+            2.0
+          ]
+        },
+        "per_finger": {
+          "thumb": {
+            "pass": true,
+            "C_mean_error_mm": 0.395,
+            "C_max_error_mm": 0.82,
+            "C_corr_along_across": [
+              0.9998,
+              0.9885
+            ],
+            "B_linear_fit_R2_along_across": [
+              0.084,
+              0.996
+            ],
+            "A_distinct_values": 1
+          },
+          "index": {
+            "pass": true,
+            "C_mean_error_mm": 0.169,
+            "C_max_error_mm": 0.353,
+            "C_corr_along_across": [
+              0.9986,
+              0.9995
+            ],
+            "B_linear_fit_R2_along_across": [
+              0.623,
+              0.993
+            ],
+            "A_distinct_values": 1
+          },
+          "middle": {
+            "pass": true,
+            "C_mean_error_mm": 0.169,
+            "C_max_error_mm": 0.353,
+            "C_corr_along_across": [
+              0.9986,
+              0.9995
+            ],
+            "B_linear_fit_R2_along_across": [
+              0.623,
+              0.993
+            ],
+            "A_distinct_values": 1
+          },
+          "ring": {
+            "pass": true,
+            "C_mean_error_mm": 0.169,
+            "C_max_error_mm": 0.353,
+            "C_corr_along_across": [
+              0.9986,
+              0.9995
+            ],
+            "B_linear_fit_R2_along_across": [
+              0.623,
+              0.993
+            ],
+            "A_distinct_values": 1
+          },
+          "pinky": {
+            "pass": true,
+            "C_mean_error_mm": 0.169,
+            "C_max_error_mm": 0.353,
+            "C_corr_along_across": [
+              0.9986,
+              0.9995
+            ],
+            "B_linear_fit_R2_along_across": [
+              0.624,
+              0.993
+            ],
+            "A_distinct_values": 1
+          }
+        }
+      },
+      "thresholds": {
+        "C_mean_error": "<= 1.0 mm",
+        "C_corr": ">= 0.98"
+      },
+      "notes": [
+        "C localises the contact as the depth-weighted centroid of the taxel map. A is one bit per fingertip, so it carries no location. B is a net force vector, but in this noiseless set-up a linear map of it recovers the across-pad position almost perfectly and the along-pad position only partly (B_linear_fit_R2): the pad is a curved capsule, so the force direction depends on where it is pressed across it. That is not a reliable location sensor on a real contact patch or under noise, and B cannot separate two contacts (T4) while C can."
+      ]
+    },
+    {
+      "name": "T4_multiple_contacts",
+      "passed": true,
+      "metrics": {
+        "finger": "index",
+        "probe_width_mm": 3.0,
+        "blobs_single_probe": 1,
+        "blobs_by_centre_separation": {
+          "2mm": 1,
+          "3mm": 1,
+          "4mm": 1,
+          "6mm": 2,
+          "8mm": 2
+        },
+        "resolved_from_mm": 6.0,
+        "taxel_pitch_along_mm": 1.53
+      },
+      "thresholds": {
+        "single_probe_blobs": 1,
+        "two_blobs_from_separation": "6 mm"
+      },
+      "notes": [
+        "Two probes 3 mm wide on one pad. A blob is a 4-connected region of taxels above half the peak depth. A and B return a single value per fingertip and cannot tell one contact from two."
+      ]
+    },
+    {
+      "name": "T5_robustness",
+      "passed": true,
+      "metrics": {
+        "finger": "index",
+        "samples": 50,
+        "estimator": "median of 5 reads, detection threshold 0.02 of full scale (0.3 mm)",
+        "sweep": {
+          "noise=0.0,dropout=0.0,latency=0": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "localisation_error_mm": 0.485
+          },
+          "noise=0.002,dropout=0.0,latency=0": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "localisation_error_mm": 0.489
+          },
+          "noise=0.005,dropout=0.0,latency=0": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "localisation_error_mm": 0.491
+          },
+          "noise=0.01,dropout=0.0,latency=0": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "localisation_error_mm": 0.469
+          },
+          "noise=0.02,dropout=0.0,latency=0": {
+            "precision": 0.568,
+            "recall": 1.0,
+            "F1": 0.725,
+            "localisation_error_mm": 0.485
+          },
+          "noise=0.0,dropout=0.1,latency=0": {
+            "precision": 1.0,
+            "recall": 0.96,
+            "F1": 0.98,
+            "localisation_error_mm": 0.485
+          },
+          "noise=0.0,dropout=0.3,latency=0": {
+            "precision": 1.0,
+            "recall": 0.84,
+            "F1": 0.913,
+            "localisation_error_mm": 0.471
+          },
+          "noise=0.0,dropout=0.5,latency=0": {
+            "precision": 1.0,
+            "recall": 0.56,
+            "F1": 0.718,
+            "localisation_error_mm": 0.496
+          },
+          "noise=0.005,dropout=0.1,latency=2": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "localisation_error_mm": 0.496
+          }
+        },
+        "nominal_corruption": {
+          "noise_std": 0.005,
+          "dropout": 0.1,
+          "latency": 2
+        },
+        "detection_delay_in_reads_by_latency": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "4": 4
+        },
+        "latency_adds_exactly_its_value": true
+      },
+      "thresholds": {
+        "nominal_F1": ">= 0.9",
+        "nominal_localisation_error": "<= 2 mm",
+        "clean_F1": ">= 0.99"
+      },
+      "notes": [
+        "noise_std is in normalised taxel units (1.0 = max_depth 15 mm / max_speed 0.15 m/s), so 0.005 is 0.075 mm of depth noise. Dropout zeroes a whole fingertip for one read.",
+        "Detection delay is counted in control steps (one read per 20 physics steps) after the probe appears."
+      ]
+    },
+    {
+      "name": "repeatability",
+      "passed": true,
+      "metrics": {
+        "repeats": 5,
+        "max_deviation_between_repeats": 0.0
+      },
+      "thresholds": {
+        "max_deviation": "< 1e-9"
+      },
+      "notes": [
+        "Identical press, repeated after a full reset: the physical readings are deterministic."
+      ]
+    },
+    {
+      "name": "pad_calibration",
+      "passed": true,
+      "metrics": {
+        "penetration_mm_by_load": {
+          "default (solref 0.06 0.9)": {
+            "1 N": 0.846,
+            "2 N": 1.708,
+            "5 N": null,
+            "10 N": null,
+            "20 N": null
+          },
+          "solref 0.04 1.0": {
+            "1 N": 0.641,
+            "2 N": 1.033,
+            "5 N": 3.055,
+            "10 N": null,
+            "20 N": null
+          },
+          "solref 0.02 1.0": {
+            "1 N": 0.395,
+            "2 N": 0.605,
+            "5 N": 1.23,
+            "10 N": 3.11,
+            "20 N": null
+          },
+          "solref 0.01 1.0": {
+            "1 N": 0.251,
+            "2 N": 0.432,
+            "5 N": 0.757,
+            "10 N": 1.573,
+            "20 N": null
+          },
+          "solref 0.005 1.0": {
+            "1 N": 0.181,
+            "2 N": 0.332,
+            "5 N": 0.615,
+            "10 N": 1.049,
+            "20 N": null
+          },
+          "solref 0.01 1.0, solimp 0.95 0.99 0.001 0.5 2": {
+            "1 N": 0.191,
+            "2 N": 0.343,
+            "5 N": 0.601,
+            "10 N": 0.906,
+            "20 N": null
+          }
+        },
+        "default_pad_cannot_carry_load_from": "5 N",
+        "target": "<= 2 mm at 10 N",
+        "recommended_pad": "solref 0.01 1.0",
+        "default_pad_unchanged": true
+      },
+      "thresholds": {
+        "penetration_increases_with_load": true,
+        "a_candidate_meets_the_target": true
+      },
+      "notes": [
+        "None means the pad could not carry the load: the steady contact force stayed below 90% of the applied load because the probe sank through the pad. The load is a 70 g flat probe pressed on the index pad with the hand clamped, so the pad is rigidly backed.",
+        "MuJoCo's soft contacts scale with the effective mass of the pair, so these penetrations belong to a contact between the finger and a light object such as the cube; they are not a material property.",
+        "ASSUMPTION: the target of 2 mm at 10 N is a typical figure for a silicone fingertip pad. It is not taken from the Sharpa Wave datasheet and should be confirmed.",
+        "The recommendation is not applied: SceneConfig keeps Menagerie's pad so trained grasp and rotation policies stay valid. Set SceneConfig.pad_solref / pad_solimp to use a candidate."
+      ]
+    }
+  ]
+}

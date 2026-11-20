@@ -9,7 +9,6 @@ from manip_rubiks.evaluation.grasp_benchmark import (
     CONDITIONS,
     condition_options,
     run_benchmark,
-    wilson_interval,
     write_report,
 )
 
@@ -21,13 +20,6 @@ def test_condition_options_are_seeded():
     assert condition_options("reorient_push", 0) == {}
     with pytest.raises(ValueError):
         condition_options("nope", 0)
-
-
-def test_wilson_interval():
-    lo, hi = wilson_interval(95, 100)
-    assert lo < 0.95 < hi and lo > 0.88 and hi < 0.98
-    assert wilson_interval(0, 10)[0] == pytest.approx(0.0, abs=1e-12)
-    assert wilson_interval(10, 10)[1] == pytest.approx(1.0)
 
 
 def test_benchmark_scores_baselines_and_writes_report(tmp_path):

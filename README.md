@@ -97,6 +97,7 @@ src/manip_rubiks/
   training/train_grasp_sac_gpu.py  GPU SAC training with the same curriculum and evaluation
   training/tracking.py           MLflow tracking: SB3 logger output, server check
   training/artifacts.py          periodic MLflow artifacts: checkpoints, eval tables, snapshots, videos
+  evaluation/core.py             shared benchmark machinery: policy specs, seeds, workers, report layout
   evaluation/grasp_benchmark.py  held-out grasp benchmark and report
   evaluation/rotation_benchmark.py  held-out reorientation benchmark and report
   validation/m0.py               validation suite entry point and report

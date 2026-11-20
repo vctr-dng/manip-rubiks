@@ -22,19 +22,28 @@ Example::
 
 from __future__ import annotations
 
-import argparse
-import json
-import multiprocessing as mp
 import time
-from concurrent.futures import ProcessPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
+from manip_rubiks.evaluation.core import (
+    EpisodeTrace,
+    base_parser,
+    build_policy,
+    build_report,
+    cached,
+    make_jobs,
+    policy_label,
+    run_jobs,
+    summary_table,
+    wilson_interval,
+    write_json_report,
+)
+
 CONDITIONS: tuple[str, ...] = ("palm_down", "sideways", "reorient", "reorient_push")
-EVAL_SEED_OFFSET = 100_000  # disjoint from training (0..) and in-training evaluation (10_000..) seeds
 TARGET_SUCCESS = 0.95
 
 
@@ -68,45 +77,13 @@ def condition_options(condition: str, seed: int) -> dict[str, Any]:
     raise ValueError(f"unknown condition {condition!r}")
 
 
-def build_policy(spec: str):
-    """``passive``, ``scripted`` or ``<label>=<run dir, model.zip or policy.pt>``.
-
-    Run directories of GPU training (``policy.pt``) and of Stable-Baselines3
-    training (``model.zip``) are both recognised.
-    """
-    from manip_rubiks.policies import PassivePolicy, ScriptedGraspPolicy
-
-    if spec == "passive":
-        return PassivePolicy()
-    if spec == "scripted":
-        return ScriptedGraspPolicy()
-    _, _, path = spec.partition("=")
-    p = Path(path)
-    if p.suffix == ".pt" or (p / "policy.pt").exists() or (p / "best" / "policy.pt").exists():
-        from manip_rubiks.policies.torch_policy import TorchGraspPolicy
-
-        return TorchGraspPolicy(p) if p.suffix == ".pt" else TorchGraspPolicy.from_run(p)
-    from manip_rubiks.policies.learned import LearnedPolicy
-
-    return LearnedPolicy(p) if p.suffix == ".zip" else LearnedPolicy.from_run(p)
-
-
-def policy_label(spec: str) -> str:
-    return spec.partition("=")[0]
-
-
-_CACHE: dict[str, Any] = {}
-
-
 def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeResult:
     obs, info = env.reset(seed=seed, options=condition_options(condition, seed))
     policy.reset()
-    total, efforts, max_mis = 0.0, [], 0.0
+    trace = EpisodeTrace()
     while True:
         obs, reward, terminated, truncated, info = env.step(policy(obs))
-        total += reward
-        efforts.append(float(np.mean(np.abs(env.robot.effort()) / env.robot.force_limit)))
-        max_mis = max(max_mis, info["misalignment"])
+        trace.update(env, reward, info)
         if terminated or truncated:
             break
     return EpisodeResult(
@@ -119,10 +96,10 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
         unstable=bool(info["unstable"]),
         steps=int(info["steps"]),
         final_misalignment=float(info["misalignment"]),
-        max_misalignment=float(max_mis),
+        max_misalignment=float(trace.max_misalignment),
         final_displacement=float(info["displacement"]),
-        mean_effort=float(np.mean(efforts)),
-        episode_return=float(total),
+        mean_effort=trace.mean_effort,
+        episode_return=float(trace.total_reward),
     )
 
 
@@ -130,20 +107,9 @@ def _worker(job: tuple[str, str, list[int]]) -> list[EpisodeResult]:
     from manip_rubiks.environments import GraspEnv
 
     spec, condition, seeds = job
-    if "env" not in _CACHE:
-        _CACHE["env"] = GraspEnv()
-    if spec not in _CACHE:
-        _CACHE[spec] = build_policy(spec)
-    return [run_episode(_CACHE["env"], _CACHE[spec], policy_label(spec), condition, s) for s in seeds]
-
-
-def wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
-    if n == 0:
-        return (float("nan"), float("nan"))
-    p = k / n
-    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
-    half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
-    return (float(centre - half), float(centre + half))
+    env = cached("env", GraspEnv)
+    policy = cached(spec, lambda: build_policy(spec))
+    return [run_episode(env, policy, policy_label(spec), condition, s) for s in seeds]
 
 
 def summarise(results: list[EpisodeResult]) -> dict[str, Any]:
@@ -168,34 +134,16 @@ def summarise(results: list[EpisodeResult]) -> dict[str, Any]:
 def run_benchmark(
     specs: list[str], episodes: int, workers: int, conditions: tuple[str, ...] = CONDITIONS, chunk: int = 10
 ) -> list[EpisodeResult]:
-    seeds = [EVAL_SEED_OFFSET + i for i in range(episodes)]
-    jobs = [(s, c, seeds[i : i + chunk]) for s in specs for c in conditions for i in range(0, episodes, chunk)]
-    if workers <= 1:
-        return [r for job in jobs for r in _worker(job)]
-    with ProcessPoolExecutor(workers, mp_context=mp.get_context("spawn")) as pool:
-        return [r for batch in pool.map(_worker, jobs) for r in batch]
+    return run_jobs(_worker, make_jobs(specs, conditions, episodes, chunk), workers)
 
 
 def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elapsed: float) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     labels = [policy_label(s) for s in specs]
     conditions = [c for c in CONDITIONS if any(r.condition == c for r in results)]
-    table = {
-        lab: {c: summarise([r for r in results if r.policy == lab and r.condition == c]) for c in conditions}
-        for lab in labels
-    }
-    report = {
-        "policies": dict(zip(labels, specs, strict=True)),
-        "target_success_rate": TARGET_SUCCESS,
-        "seeds": f"{min(r.seed for r in results)}..{max(r.seed for r in results)}",
-        "wall_clock_s": elapsed,
-        "summary": table,
-        # One compact row per episode, floats rounded, so reports stay small enough to version.
-        "episodes": [{k: round(v, 5) if isinstance(v, float) else v for k, v in asdict(r).items()} for r in results],
-    }
-    text = json.dumps({k: v for k, v in report.items() if k != "episodes"}, indent=1)
-    rows = ",\n  ".join(json.dumps(e, separators=(",", ":")) for e in report["episodes"])
-    (out / "grasp_report.json").write_text(f'{text[:-2]},\n "episodes": [\n  {rows}\n ]\n}}\n')
+    table = summary_table(results, labels, conditions, summarise)
+    report = build_report(specs, results, elapsed, table, {"target_success_rate": TARGET_SUCCESS})
+    write_json_report(out / "grasp_report.json", report)
 
     lines = [
         "# Grasp stabilisation benchmark",
@@ -231,12 +179,7 @@ def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elap
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--policy", action="append", dest="policies", help="passive, scripted or label=run_dir")
-    p.add_argument("--episodes", type=int, default=100, help="episodes per policy and condition")
-    p.add_argument("--condition", action="append", dest="conditions", choices=CONDITIONS)
-    p.add_argument("--workers", type=int, default=max(1, mp.cpu_count() - 4))
-    p.add_argument("--out", type=Path, default=Path("reports/grasp"))
+    p = base_parser(__doc__, CONDITIONS, Path("reports/grasp"), "passive, scripted or label=run_dir")
     args = p.parse_args(argv)
     specs = args.policies or ["passive", "scripted"]
     conditions = tuple(args.conditions or CONDITIONS)

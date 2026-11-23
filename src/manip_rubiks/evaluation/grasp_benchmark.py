@@ -9,6 +9,16 @@ Every policy runs the same held-out seeds in each condition:
 ``reorient_push``  random reorientations plus random pushes (the training distribution)
 =================  ==========================================================
 
+Four diagnostic conditions share the ``reorient_push`` seeds and change only the pushes. They are
+not part of the default run; select them with ``--condition``:
+
+=============================  ======================================================
+``reorient_push_0.5x``         pushes at half the force and torque
+``reorient_push_1.5x``         pushes at one and a half times the force and torque
+``reorient_push_force``        force of each push only (no torque)
+``reorient_push_torque``       torque of each push only (no force)
+=============================  ======================================================
+
 An episode succeeds when it reaches the time limit with the cube in the hand,
 the puzzle configuration unchanged, and every cubie within the alignment
 tolerance (``GraspEnv`` ``is_success``). Policies receive only the
@@ -44,6 +54,13 @@ from manip_rubiks.evaluation.core import (
 )
 
 CONDITIONS: tuple[str, ...] = ("palm_down", "sideways", "reorient", "reorient_push")
+PUSH_DIAGNOSTICS: dict[str, dict[str, Any]] = {
+    "reorient_push_0.5x": {"push_scale": 0.5},
+    "reorient_push_1.5x": {"push_scale": 1.5},
+    "reorient_push_force": {"push_kind": "force"},
+    "reorient_push_torque": {"push_kind": "torque"},
+}
+ALL_CONDITIONS: tuple[str, ...] = (*CONDITIONS, *PUSH_DIAGNOSTICS)
 TARGET_SUCCESS = 0.95
 
 
@@ -62,6 +79,12 @@ class EpisodeResult:
     final_displacement: float  # [m]
     mean_effort: float  # mean |actuator force| / force limit
     episode_return: float
+    # What the episode looked like when it ended (for diagnosing failures):
+    steps_since_push: int  # control steps since a push was last active; 0 = pushing now, -1 = never pushed
+    last_push_force: float  # force magnitude of the last push [N]
+    last_push_torque: float  # torque magnitude of the last push [N m]
+    wrist_moving: bool  # the wrist was mid-reorientation in the last step
+    final_tilt: float  # wrist tilt away from palm-up in the last step [rad]
 
 
 def condition_options(condition: str, seed: int) -> dict[str, Any]:
@@ -74,6 +97,8 @@ def condition_options(condition: str, seed: int) -> dict[str, Any]:
         return {"pushes": False}
     if condition == "reorient_push":
         return {}
+    if condition in PUSH_DIAGNOSTICS:
+        return dict(PUSH_DIAGNOSTICS[condition])
     raise ValueError(f"unknown condition {condition!r}")
 
 
@@ -81,9 +106,14 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
     obs, info = env.reset(seed=seed, options=condition_options(condition, seed))
     policy.reset()
     trace = EpisodeTrace()
+    last_push_step, last_force, last_torque = -1, 0.0, 0.0
     while True:
         obs, reward, terminated, truncated, info = env.step(policy(obs))
         trace.update(env, reward, info)
+        if info["pushing"]:
+            wrench = env.data.xfrc_applied[env.cube.core_body]
+            last_push_step = int(info["steps"])
+            last_force, last_torque = float(np.linalg.norm(wrench[:3])), float(np.linalg.norm(wrench[3:]))
         if terminated or truncated:
             break
     return EpisodeResult(
@@ -100,6 +130,11 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
         final_displacement=float(info["displacement"]),
         mean_effort=trace.mean_effort,
         episode_return=float(trace.total_reward),
+        steps_since_push=int(info["steps"]) - last_push_step if last_push_step >= 0 else -1,
+        last_push_force=last_force,
+        last_push_torque=last_torque,
+        wrist_moving=bool(env.wrist_moving(float(info["steps"] - 1) * env.cfg.control_dt)),
+        final_tilt=float(info["tilt"]),
     )
 
 
@@ -140,7 +175,7 @@ def run_benchmark(
 def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elapsed: float) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     labels = [policy_label(s) for s in specs]
-    conditions = [c for c in CONDITIONS if any(r.condition == c for r in results)]
+    conditions = [c for c in ALL_CONDITIONS if any(r.condition == c for r in results)]
     table = summary_table(results, labels, conditions, summarise)
     report = build_report(specs, results, elapsed, table, {"target_success_rate": TARGET_SUCCESS})
     write_json_report(out / "grasp_report.json", report)
@@ -170,8 +205,9 @@ def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elap
         "",
         "Conditions: `palm_down` and `sideways` reorient once (to 180 and 90 degrees) and hold without",
         "pushes; `reorient` follows random reorientation sequences up to palm-down; `reorient_push` adds",
-        "random pushes on the cube (up to 1.5 N and 0.02 N m), as in training. Effort is the mean",
-        "actuator force as a fraction of its limit.",
+        "random pushes on the cube (up to 1.5 N and 0.02 N m), as in training. The `reorient_push_*`",
+        "diagnostic conditions replay the same seeds with the pushes scaled or reduced to force or torque.",
+        "Effort is the mean actuator force as a fraction of its limit.",
         "",
     ]
     (out / "grasp_report.md").write_text("\n".join(lines))
@@ -179,7 +215,7 @@ def write_report(results: list[EpisodeResult], specs: list[str], out: Path, elap
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = base_parser(__doc__, CONDITIONS, Path("reports/grasp"), "passive, scripted or label=run_dir")
+    p = base_parser(__doc__, ALL_CONDITIONS, Path("reports/grasp"), "passive, scripted or label=run_dir")
     args = p.parse_args(argv)
     specs = args.policies or ["passive", "scripted"]
     conditions = tuple(args.conditions or CONDITIONS)

@@ -119,6 +119,43 @@ def test_pushes_hit_the_cube_and_can_be_disabled():
         assert not info["pushing"]
 
 
+def _push_wrenches(options, steps=60):
+    e = GraspEnv(replace(GraspConfig(), push_rate=50.0))
+    e.reset(seed=0, options=options)
+    wrenches = []
+    for _ in range(steps):
+        e.step(np.zeros(e.robot.n))
+        wrenches.append(e.data.xfrc_applied[e.cube.core_body].copy())
+    e.close()
+    return np.array(wrenches)
+
+
+def test_push_scale_and_kind_change_only_the_wrench():
+    both = _push_wrenches({})
+    assert np.abs(both[:, :3]).max() > 0 and np.abs(both[:, 3:]).max() > 0
+    np.testing.assert_allclose(_push_wrenches({"push_scale": 0.5}), 0.5 * both)
+    force, torque = _push_wrenches({"push_kind": "force"}), _push_wrenches({"push_kind": "torque"})
+    np.testing.assert_allclose(force[:, :3], both[:, :3])
+    assert not force[:, 3:].any()
+    np.testing.assert_allclose(torque[:, 3:], both[:, 3:])
+    assert not torque[:, :3].any()
+    assert not _push_wrenches({"push_scale": 0.0}).any()
+
+
+def test_push_kind_is_validated(env):
+    with pytest.raises(ValueError):
+        env.reset(seed=0, options={"push_kind": "spin"})
+    env.reset(seed=0)  # leaves the shared env in a valid state
+
+
+def test_wrist_moving_follows_the_schedule(env):
+    env.reset(seed=1, options={"tilt": np.pi, "pushes": False})
+    move = env.schedule[0]
+    assert not env.wrist_moving(0.0)
+    assert env.wrist_moving(0.5 * (move.t_start + move.t_end))
+    assert not env.wrist_moving(move.t_end + 0.1)
+
+
 def test_reset_after_a_palm_down_episode_matches_a_fresh_env(env):
     env.reset(seed=2, options=PALM_DOWN)
     for _ in range(80):

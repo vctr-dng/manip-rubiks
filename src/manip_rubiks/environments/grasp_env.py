@@ -46,6 +46,7 @@ from manip_rubiks.simulation.rotations import axis_angle_matrix, min_jerk, rotat
 
 GRASP_OBS_KEYS: tuple[str, ...] = (*OBS_KEYS, "gravity")
 STANDARD_GRAVITY = 9.81
+PUSH_KINDS: tuple[str, ...] = ("both", "force", "torque")
 
 
 @dataclass
@@ -102,7 +103,10 @@ class GraspEnv(HandCubeEnv):
     with a single reorientation to tilt ``t`` in the in-palm direction ``p``
     (0 = towards the fingertips, pi/2 = towards the thumb side), held until
     the end of the episode. ``options={"pushes": False}`` disables pushes for
-    that episode. The base environment's cube-state options still apply.
+    that episode. ``options={"push_scale": s}`` multiplies the push force and torque by ``s``, and
+    ``options={"push_kind": "force" | "torque"}`` applies only that half of each push (default
+    ``"both"``); neither changes the random push times and directions. The base environment's
+    cube-state options still apply.
     """
 
     def __init__(self, config: GraspConfig | None = None, render_mode: str | None = None) -> None:
@@ -119,6 +123,8 @@ class GraspEnv(HandCubeEnv):
         self.gravity_dir = self.d_nominal.copy()
         self._push_until = -1.0
         self._pushes_enabled = True
+        self._push_scale = 1.0
+        self._push_kind = "both"
         self._last_action = np.zeros(self.robot.n)
         self._r_cube0 = np.eye(3)
 
@@ -185,7 +191,7 @@ class GraspEnv(HandCubeEnv):
         if t < self._push_until:
             return
         self.data.xfrc_applied[body] = 0.0
-        scale = cfg.push_force * self.difficulty
+        scale = cfg.push_force * self.difficulty * self._push_scale
         if not self._pushes_enabled or scale <= 0 or rng.random() >= cfg.push_rate * self.cfg.control_dt:
             return
 
@@ -193,9 +199,20 @@ class GraspEnv(HandCubeEnv):
             v = rng.standard_normal(3)
             return v / np.linalg.norm(v)
 
-        self.data.xfrc_applied[body, :3] = random_unit() * scale * rng.uniform(0.3, 1.0)
-        self.data.xfrc_applied[body, 3:] = random_unit() * cfg.push_torque * self.difficulty * rng.uniform(0.3, 1.0)
+        # Every random draw happens whatever ``push_kind`` is, so a seeded episode sees the same
+        # push times, directions and durations in all three kinds; the kind only masks the wrench.
+        force = random_unit() * scale * rng.uniform(0.3, 1.0)
+        torque = random_unit() * cfg.push_torque * self.difficulty * self._push_scale * rng.uniform(0.3, 1.0)
+        if self._push_kind != "torque":
+            self.data.xfrc_applied[body, :3] = force
+        if self._push_kind != "force":
+            self.data.xfrc_applied[body, 3:] = torque
         self._push_until = t + float(rng.uniform(*cfg.push_duration))
+
+    def wrist_moving(self, t: float | None = None) -> bool:
+        """Whether the wrist is mid-reorientation at time ``t`` (default: the current time)."""
+        t = self._steps * self.cfg.control_dt if t is None else t
+        return any(m.t_start <= t < m.t_end for m in self.schedule)
 
     # ----------------------------------------------------------- episode
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
@@ -204,6 +221,10 @@ class GraspEnv(HandCubeEnv):
         super().reset(seed=seed, options=options)
         self.schedule = self._sample_schedule(options)
         self._pushes_enabled = bool(options.get("pushes", True))
+        self._push_scale = float(options.get("push_scale", 1.0))
+        self._push_kind = str(options.get("push_kind", "both"))
+        if self._push_kind not in PUSH_KINDS:
+            raise ValueError(f"push_kind must be one of {PUSH_KINDS}, got {self._push_kind!r}")
         self._push_until = -1.0
         self._last_action = np.zeros(self.robot.n)
         self._r_cube0 = self._cube_rotation()

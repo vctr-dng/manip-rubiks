@@ -212,6 +212,15 @@ for the CPU policy. The intervals overlap and each policy comes from a single se
 different number of steps, so this is not evidence that one trainer is better. The 95 % target is
 met for wrist reorientation but not yet for external pushes.
 
+*Update (re-baseline).* The `gpu_s0` checkpoints behind the 86 % figure are no longer available locally, so
+it was not re-measured. Re-running two 6M PPO runs at 300 episodes gives 73 % and 80 % under pushes, and
+the cause is the push **torque**: force-only pushes give 94 % with no layer turns, torque-only pushes
+reproduce the failure ([`reports/grasp_push_baseline/diagnosis.md`](reports/grasp_push_baseline/diagnosis.md)).
+Four levers at 12M steps (longer training at full push strength, a critic that sees the push, an
+alignment penalty, a 4-frame actor history) all land at 77–80 % with pushes and 93–96 % force-only
+([`reports/grasp_push_levers`](reports/grasp_push_levers/)). The push gate is therefore set on force-only
+pushes, and the full-torque case waits for friction and detents in the cube layers (milestone M2).
+
 **SAC** (`manip-rubiks-train-grasp-sac`, `training/sac_gpu.py`) is the off-policy alternative on the
 same GPU worlds: tanh-squashed Gaussian actor on the non-privileged observation, twin LayerNorm
 critics that also read the privileged cube state, automatic temperature, and a per-world replay
@@ -295,13 +304,21 @@ per condition, 95 % Wilson intervals):
 |---|---|---|
 | Single turn +x / −x | 0 % / 0 % | **100 %** (96–100 %) / **97 %** (92–99 %) |
 | Single turn +y / −y | 0 % / 0 % | **98 %** (93–99 %) / **100 %** (96–100 %) |
-| Single turn +z / −z | 0 % / 0 % | 0 % / 0 % (not trained) |
+| Single turn +z / −z | 0 % / 0 % | 0 % / 0 % (trained on x and y only; see below) |
 | 16 s chain (x, y), per goal | 0 % | **97 %** (96–98 %), 7.8 goals per episode |
 
 A quarter-turn takes 0.9–1.5 s (median). Single turns drop the cube in 0–3 % of episodes. In the
 chain, 12 % of episodes end in a drop and 8 % in a timeout over ~8 turns each, i.e. about 1.5 % drops
 per turn. The 90 % per-turn target is met for x and y. Rotations about the finger axis remain an
-open problem: they may need a different starting grasp or help from the arm.
+open problem when trained directly (a z-only run scored 0.000 for 30M steps), but they can be composed.
+
+**Composed z.** A z quarter-turn equals three x/y quarter-turns, so `compose_command`
+(`environments/rotation_env.py`) turns a z command into three x/y sub-goals and the benchmark scores it per
+command (`--condition turn_+z_composed`, `turn_-z_composed`, `chain_composed`, `--z-variant` for the four
+routes). With three retrained x/y seeds (`xy60m_s{0,1,2}`, 60M steps; plain x/y turns 99–100 % per goal),
+composed ±z reaches 98–100 % per command and 12-command xyz chains 92–100 % per command
+([`reports/rotation_z/summary.md`](reports/rotation_z/summary.md), 100 episodes per cell). One seed fails
+−z (88 %) on one of the four routes, so the route matters; route 1 passes on all seeds.
 
 ## GPU simulation
 
@@ -331,13 +348,15 @@ remains the reference implementation (draft section 34, risk 4):
 ## Known limitations / follow-ups
 
 - **Reorientation.** The rotation policy is a privileged teacher, trained on a locked cube, palm-up,
-  without pushes, from a single seed. Rotations about the finger axis (z) are not learned.
-  Next for z: a different starting grasp (e.g. a thumb-index pinch, which frees the palm for a spin
-  about the finger axis), help from the arm, a longer high-noise exploration phase for that axis
-  alone, and seeding from the x/y behaviour.
+  without pushes. Rotations about the finger axis (z) are not learned directly; they are composed from
+  three x/y turns (see Composed z), which costs about three turn times per z command. A direct z policy
+  would need a different starting grasp (e.g. a thumb-index pinch), help from the arm, or a longer
+  exploration phase.
 
-- **Push robustness.** The grasp policies turn a layer in 12–18 % of pushed episodes. Possible next
-  steps: a recurrent actor, stronger alignment shaping, and multiple seeds for the comparison. Trained
+- **Push robustness.** Under force-and-torque pushes the grasp policies turn a layer in 16–20 % of
+  episodes (77–80 % success), whatever the training lever tried; force-only pushes are at 93–96 %. The
+  push torque shears layers that have almost no friction, so the next step is friction and detents in
+  the cube layers (M2), then re-checking, ideally on three seeds. Trained
   weights (~6 MB) are not versioned: they exceed the repository's large-file limit. They are logged
   as MLflow artifacts, and `runs/` can be regenerated with `manip-rubiks-train-grasp-gpu`.
 

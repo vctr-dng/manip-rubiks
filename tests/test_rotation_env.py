@@ -15,7 +15,13 @@ from manip_rubiks.environments import (
     RotationConfig,
     RotationEnv,
 )
-from manip_rubiks.environments.rotation_env import allowed_commands, command_rotation
+from manip_rubiks.environments.rotation_env import (
+    COMMAND_NAMES,
+    Z_COMPOSITIONS,
+    allowed_commands,
+    command_rotation,
+    compose_command,
+)
 from manip_rubiks.planning.cube_state import ROTATIONS
 from manip_rubiks.simulation.rotations import mat_to_quat, rotation_angle
 
@@ -115,3 +121,33 @@ def test_curriculum_tightens_the_tolerance(env):
     assert env.tolerance == pytest.approx(env.rot_cfg.easy_tolerance)
     env.set_difficulty(1.0)
     assert env.tolerance == pytest.approx(env.rot_cfg.goal_tolerance)
+
+
+@pytest.mark.parametrize("command", sorted(Z_COMPOSITIONS))
+def test_z_turns_are_three_x_and_y_turns(command):
+    assert len(Z_COMPOSITIONS[command]) == 4
+    for variant in range(4):
+        sequence = compose_command(command, variant)
+        assert len(sequence) == 3 and all(c < 4 for c in sequence), "x and y turns only"
+        goal = np.eye(3)
+        for c in sequence:  # the environment's order: goal = R_cmd @ goal
+            goal = command_rotation(c) @ goal
+        np.testing.assert_allclose(goal, command_rotation(command), err_msg=COMMAND_NAMES[command])
+
+
+def test_z_has_no_shorter_x_y_route():
+    import itertools
+
+    for command in Z_COMPOSITIONS:
+        for length in (1, 2):
+            for sequence in itertools.product(range(4), repeat=length):
+                goal = np.eye(3)
+                for c in sequence:
+                    goal = command_rotation(c) @ goal
+                assert not np.allclose(goal, command_rotation(command))
+
+
+def test_x_and_y_commands_compose_to_themselves_and_bad_variants_are_rejected():
+    assert [compose_command(c) for c in range(4)] == [[0], [1], [2], [3]]
+    with pytest.raises(ValueError):
+        compose_command(4, variant=4)

@@ -10,6 +10,15 @@ Every policy runs the same held-out seeds in each condition:
                 full 16 s episode
 ==============  =============================================================
 
+Three further conditions realise z commands with x and y turns only
+(``compose_command``): ``turn_+z_composed`` and ``turn_-z_composed`` are one z
+command as three sub-goals, and ``chain_composed`` is twelve random commands
+about all three axes with every z expanded. They are not in the default run;
+select them with ``--condition``. A composed command succeeds only when all
+its sub-goals are reached, so ``command_success_rate`` (per command) is the
+figure to compare with a direct z turn, while ``goal_success_rate`` counts
+sub-goals.
+
 A goal counts as reached once the cube stays within the goal tolerance
 (0.4 rad) for 5 control steps. An attempt fails if the cube is dropped, a
 layer turns, the simulation becomes unstable, or the goal is not reached
@@ -31,7 +40,7 @@ from typing import Any
 
 import numpy as np
 
-from manip_rubiks.environments.rotation_env import COMMAND_NAMES
+from manip_rubiks.environments.rotation_env import COMMAND_NAMES, N_COMMANDS, compose_command
 from manip_rubiks.evaluation.core import (
     EpisodeTrace,
     base_parser,
@@ -48,6 +57,9 @@ from manip_rubiks.evaluation.core import (
 
 TURN_CONDITIONS: tuple[str, ...] = tuple(f"turn_{c}" for c in COMMAND_NAMES)
 CONDITIONS: tuple[str, ...] = (*TURN_CONDITIONS, "chain")
+COMPOSED_CONDITIONS: tuple[str, ...] = ("turn_+z_composed", "turn_-z_composed", "chain_composed")
+ALL_CONDITIONS: tuple[str, ...] = (*CONDITIONS, *COMPOSED_CONDITIONS)
+CHAIN_COMMANDS = 12  # random commands drawn for ``chain_composed`` (an episode reaches far fewer)
 TARGET_GOAL_SUCCESS = 0.90
 TARGET_DROP_RATE = 0.05
 
@@ -59,6 +71,8 @@ class EpisodeResult:
     seed: int
     goals_reached: int
     goals_failed: int  # 0 or 1: the attempt that ended the episode
+    commands_reached: int  # commands completed (a composed z command is several goals)
+    commands_failed: int  # 0 or 1: the command in progress when the attempt ended
     outcome: str  # success, timed_out, dropped, layer_turned, unstable, pending (time limit mid-goal)
     steps: int
     first_goal_s: float  # time to reach the first goal [s], nan if never reached
@@ -80,9 +94,22 @@ def _outcome(info: dict[str, Any], terminated: bool) -> str:
     return "timed_out"
 
 
-def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeResult:
-    single = condition != "chain"
-    options = {"commands": [COMMAND_NAMES.index(condition.removeprefix("turn_"))]} if single else {}
+def command_plan(condition: str, seed: int) -> list[int] | None:
+    """The commands an episode issues first, or None when the environment draws its own chain."""
+    if condition == "chain":
+        return None
+    if condition == "chain_composed":
+        return [int(c) for c in np.random.default_rng(seed).integers(0, N_COMMANDS, size=CHAIN_COMMANDS)]
+    return [COMMAND_NAMES.index(condition.removeprefix("turn_").removesuffix("_composed"))]
+
+
+def run_episode(env, policy, label: str, condition: str, seed: int, variant: int = 0) -> EpisodeResult:
+    plan = command_plan(condition, seed)
+    single = condition.startswith("turn_")
+    composed = condition.endswith("_composed")
+    steps_of = [compose_command(c, variant) if composed else [c] for c in plan or []]
+    options = {"commands": [c for sub in steps_of for c in sub]} if plan is not None else {}
+    done_at = np.cumsum([len(sub) for sub in steps_of])  # goals_reached at which each command is complete
     obs, info = env.reset(seed=seed, options=options)
     policy.reset()
     trace = EpisodeTrace()
@@ -92,10 +119,15 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
         trace.update(env, reward, info)
         if info["goal_reached"] and np.isnan(first_goal):
             first_goal = info["steps"] * env.cfg.control_dt
-        if terminated or truncated or (single and info["goals_reached"] > 0):
+        if terminated or truncated or (single and info["goals_reached"] >= done_at[-1]):
             break
     reached = int(info["goals_reached"])
-    outcome = "success" if single and reached else _outcome(info, terminated)
+    if plan is None:
+        commands_reached, commands_failed = reached, int(terminated)
+    else:
+        commands_reached = int(np.searchsorted(done_at, reached, side="right"))
+        commands_failed = int(terminated and commands_reached < len(plan))
+    outcome = "success" if single and commands_reached == len(plan) else _outcome(info, terminated)
     if not single and outcome == "pending":
         outcome = "success"  # survived the whole chain
     return EpisodeResult(
@@ -104,6 +136,8 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
         seed=seed,
         goals_reached=reached,
         goals_failed=int(terminated),
+        commands_reached=commands_reached,
+        commands_failed=commands_failed,
         outcome=outcome,
         steps=int(info["steps"]),
         first_goal_s=first_goal,
@@ -114,18 +148,20 @@ def run_episode(env, policy, label: str, condition: str, seed: int) -> EpisodeRe
     )
 
 
-def _worker(job: tuple[str, str, str, list[int]]) -> list[EpisodeResult]:
+def _worker(job: tuple[str, str, int, str, list[int]]) -> list[EpisodeResult]:
     from manip_rubiks.environments import RotationConfig, RotationEnv
 
-    spec, axes, condition, seeds = job
+    spec, axes, variant, condition, seeds = job
     env = cached(f"env:{axes}", lambda: RotationEnv(RotationConfig(goal_axes=axes)))
     policy = cached(spec, lambda: build_policy(spec))
-    return [run_episode(env, policy, policy_label(spec), condition, s) for s in seeds]
+    return [run_episode(env, policy, policy_label(spec), condition, s, variant) for s in seeds]
 
 
 def summarise(results: list[EpisodeResult]) -> dict[str, Any]:
     reached = sum(r.goals_reached for r in results)
     attempts = reached + sum(r.goals_failed for r in results)
+    commands = sum(r.commands_reached for r in results)
+    command_attempts = commands + sum(r.commands_failed for r in results)
     first = [r.first_goal_s for r in results if not np.isnan(r.first_goal_s)]
     return {
         "episodes": len(results),
@@ -133,6 +169,10 @@ def summarise(results: list[EpisodeResult]) -> dict[str, Any]:
         "goal_success_rate": reached / attempts if attempts else float("nan"),
         "goal_success_ci95": wilson_interval(reached, attempts),
         "goals_per_episode": reached / len(results),
+        "command_attempts": command_attempts,
+        "command_success_rate": commands / command_attempts if command_attempts else float("nan"),
+        "command_success_ci95": wilson_interval(commands, command_attempts),
+        "commands_per_episode": commands / len(results),
         "drop_rate": float(np.mean([r.outcome == "dropped" for r in results])),
         "timeout_rate": float(np.mean([r.outcome == "timed_out" for r in results])),
         "layer_turn_rate": float(np.mean([r.outcome == "layer_turned" for r in results])),
@@ -144,9 +184,15 @@ def summarise(results: list[EpisodeResult]) -> dict[str, Any]:
 
 
 def run_benchmark(
-    specs: list[str], episodes: int, workers: int, conditions: tuple[str, ...], axes: str, chunk: int = 10
+    specs: list[str],
+    episodes: int,
+    workers: int,
+    conditions: tuple[str, ...],
+    axes: str,
+    chunk: int = 10,
+    variant: int = 0,
 ) -> list[EpisodeResult]:
-    return run_jobs(_worker, make_jobs(specs, conditions, episodes, chunk, extra=(axes,)), workers)
+    return run_jobs(_worker, make_jobs(specs, conditions, episodes, chunk, extra=(axes, variant)), workers)
 
 
 def _pct(x: float) -> str:
@@ -154,14 +200,15 @@ def _pct(x: float) -> str:
 
 
 def write_report(
-    results: list[EpisodeResult], specs: list[str], out: Path, elapsed: float, axes: str
+    results: list[EpisodeResult], specs: list[str], out: Path, elapsed: float, axes: str, variant: int = 0
 ) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     labels = [policy_label(s) for s in specs]
-    conditions = [c for c in CONDITIONS if any(r.condition == c for r in results)]
+    conditions = [c for c in ALL_CONDITIONS if any(r.condition == c for r in results)]
     table = summary_table(results, labels, conditions, summarise)
     header = {
         "chain_axes": axes,
+        "z_variant": variant,
         "target_goal_success_rate": TARGET_GOAL_SUCCESS,
         "target_drop_rate": TARGET_DROP_RATE,
     }
@@ -178,23 +225,28 @@ def write_report(
         f"{TARGET_GOAL_SUCCESS:.0%} goal success with under {TARGET_DROP_RATE:.0%} drops. Generated by",
         f"`manip-rubiks-eval-rotate` ({len(results)} episodes, {elapsed:.0f} s; chain axes `{axes}`).",
         "",
-        "| Policy | Condition | Goal success (95% CI) | Goals / episode | Dropped | Timed out | Time to goal |",
-        "|---|---|---|---|---|---|---|",
+        "| Policy | Condition | Goal success (95% CI) | Command success (95% CI) | Goals / episode | Dropped |"
+        " Timed out | Time to goal |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for lab in labels:
         for c in conditions:
             s = table[lab][c]
             lo, hi = s["goal_success_ci95"]
+            clo, chi = s["command_success_ci95"]
             t = s["first_goal_median_s"]
             lines.append(
                 f"| {lab} | {c} | {_pct(s['goal_success_rate'])} ({_pct(lo)}-{_pct(hi)}) | "
+                f"{_pct(s['command_success_rate'])} ({_pct(clo)}-{_pct(chi)}) | "
                 f"{s['goals_per_episode']:.2f} | {s['drop_rate']:.0%} | {s['timeout_rate']:.0%} | "
                 f"{'-' if np.isnan(t) else f'{t:.1f} s'} |"
             )
     lines += [
         "",
         "`turn_<c>` runs a single command per episode; `chain` runs random commands for 16 s, as in",
-        "training. Time to goal is the median time to reach the first goal.",
+        "training. Time to goal is the median time to reach the first goal. In the `*_composed` conditions",
+        f"a z command is three x/y sub-goals (variant {variant}); goal success counts sub-goals and command",
+        "success counts commands, so it is the figure comparable with a direct z turn.",
         "",
     ]
     (out / "rotation_report.md").write_text("\n".join(lines))
@@ -202,14 +254,15 @@ def write_report(
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = base_parser(__doc__, CONDITIONS, Path("reports/rotation"), "passive or label=run_dir")
+    p = base_parser(__doc__, ALL_CONDITIONS, Path("reports/rotation"), "passive or label=run_dir")
     p.add_argument("--axes", default="xyz", help="hand axes of the chain condition's commands")
+    p.add_argument("--z-variant", type=int, default=0, choices=range(4), help="which x/y route realises a z turn")
     args = p.parse_args(argv)
     specs = args.policies or ["passive"]
     conditions = tuple(args.conditions or CONDITIONS)
     t0 = time.time()
-    results = run_benchmark(specs, args.episodes, args.workers, conditions, args.axes)
-    report = write_report(results, specs, args.out, time.time() - t0, args.axes)
+    results = run_benchmark(specs, args.episodes, args.workers, conditions, args.axes, variant=args.z_variant)
+    report = write_report(results, specs, args.out, time.time() - t0, args.axes, args.z_variant)
     for lab, rows in report["summary"].items():
         for c, s in rows.items():
             print(

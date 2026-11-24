@@ -70,6 +70,27 @@ def command_rotation(command: int) -> np.ndarray:
     return np.rint(axis_angle_matrix(axis, np.pi / 2 if command % 2 == 0 else -np.pi / 2))
 
 
+# A z quarter-turn is three x/y quarter-turns: turn the cube so the z axis lies along y, turn about
+# y, and turn back. The sequences are indices into ``COMMAND_NAMES`` in the order they are issued
+# (``goal = R_cmd @ goal`` each time), found by exhaustive search and checked in the tests. There
+# is no two-turn sequence. The variants give the same final orientation by different routes, so
+# the one with the most reliable x/y turns can be chosen.
+Z_COMPOSITIONS: dict[int, tuple[tuple[int, ...], ...]] = {
+    4: ((0, 3, 1), (1, 2, 0), (2, 0, 3), (3, 1, 2)),  # +z: (+x -y -x), (-x +y +x), (+y +x -y), (-y -x +y)
+    5: ((0, 2, 1), (1, 3, 0), (2, 1, 3), (3, 0, 2)),  # -z: (+x +y -x), (-x -y +x), (+y -x -y), (-y +x +y)
+}
+
+
+def compose_command(command: int, variant: int = 0) -> list[int]:
+    """The commands that realise ``command`` with x and y turns only (itself for x and y)."""
+    if command not in Z_COMPOSITIONS:
+        return [int(command)]
+    options = Z_COMPOSITIONS[command]
+    if not 0 <= variant < len(options):
+        raise ValueError(f"variant must be in 0..{len(options) - 1}, got {variant}")
+    return list(options[variant])
+
+
 def allowed_commands(axes: str) -> np.ndarray:
     """Command indices about the hand axes named in ``axes`` (e.g. ``"xz"``)."""
     out = [2 * "xyz".index(a) + s for a in axes for s in (0, 1)]

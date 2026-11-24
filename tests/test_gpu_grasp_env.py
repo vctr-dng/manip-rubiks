@@ -184,3 +184,35 @@ def test_push_scale_critic_wrench_and_barrier_on_the_gpu():
     assert 0.3 * 2.0 <= peak <= 2.0 + 1e-5, "pushes are applied, at twice the nominal strength at most"
     assert (info.reward_terms["barrier"] <= 0).all()
     env.close()
+
+
+def test_history_wrapper_stacks_frames_newest_first_and_refills_on_reset(setup):
+    from manip_rubiks.gpu.history import HistoryEnvGPU
+
+    _, _, base = setup
+    k = 3
+    env = HistoryEnvGPU(base, k)
+    fd = base.obs_dim
+    assert env.obs_dim == k * fd and env.layout == base.layout and env.privileged_dim == base.privileged_dim
+    actor, critic = env.reset(seed=0)
+    assert actor.shape == (N, k * fd) and critic.shape == (N, k * fd + base.privileged_dim)
+    for i in range(1, k):
+        torch.testing.assert_close(actor[:, i * fd : (i + 1) * fd], actor[:, :fd])
+    action = torch.full((N, base.n_act), 0.5, device=base.device)
+    frames = [actor[:, :fd].clone()]
+    for _ in range(4):
+        actor, critic, _, term, trunc, _, terminal = env.step(action)
+        assert not (term | trunc).any()
+        frames.insert(0, actor[:, :fd].clone())
+        torch.testing.assert_close(critic[:, : k * fd], actor)
+    for i in range(k):  # newest first: frame i is the observation i steps ago
+        torch.testing.assert_close(actor[:, i * fd : (i + 1) * fd], frames[i])
+    assert not torch.allclose(frames[0], frames[1]), "the frames must differ"
+    for _ in range(base.max_steps):
+        actor, critic, _, term, trunc, _, terminal = env.step(action)
+        if bool((term | trunc).any()):
+            break
+    done = term | trunc
+    assert done.any()
+    for i in range(1, k):  # a world that ended restarts with its first frame repeated
+        torch.testing.assert_close(actor[done][:, i * fd : (i + 1) * fd], actor[done][:, :fd])

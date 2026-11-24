@@ -30,12 +30,14 @@ from dataclasses import replace
 
 from manip_rubiks.environments.grasp_env import GraspConfig, GraspEnv, GraspRewardWeights
 from manip_rubiks.gpu.grasp_env import GraspEnvGPU
+from manip_rubiks.gpu.history import HistoryEnvGPU
 from manip_rubiks.training import gpu_loop
 
 
 def _add_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--push-scale", type=float, default=1.0, help="train with pushes this many times as strong")
     p.add_argument("--critic-wrench", action="store_true", help="the critic also sees the active push wrench")
+    p.add_argument("--history", type=int, default=1, help="stack the actor's last k observation frames")
     p.add_argument("--align-barrier", type=float, default=0.0, help="weight of the layer-misalignment barrier")
 
 
@@ -53,12 +55,17 @@ def _eval_config(cfg: GraspConfig) -> GraspConfig:
     return replace(cfg, push_scale=1.0, reward=GraspRewardWeights())
 
 
+def _wrap_env(env, args: argparse.Namespace):
+    return HistoryEnvGPU(env, args.history) if args.history > 1 else env
+
+
 TASK = gpu_loop.Task(
     name="grasp",
     env_cls=GraspEnvGPU,
     cpu_env_cls=GraspEnv,
     make_config=_config,
     eval_config=_eval_config,
+    wrap_env=_wrap_env,
     add_args=_add_args,
     end_fields=("misalignment", "displacement", "rotation"),
     episode_metrics=("misalignment", "displacement", "rotation", "dropped", "state_preserved"),

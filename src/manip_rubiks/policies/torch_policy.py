@@ -29,6 +29,9 @@ class TorchGraspPolicy:
         self.actor.load_state_dict(ckpt["actor"])
         self.actor.eval().to(device)
         self.device = device
+        # Frames the actor sees, newest first (see manip_rubiks.gpu.history); 1: the current frame only.
+        self.history = int(ckpt.get("history", 1))
+        self._frames: list[np.ndarray] = []
         self.timesteps = int(ckpt.get("timesteps", 0))
 
     @classmethod
@@ -38,7 +41,7 @@ class TorchGraspPolicy:
         return cls(path if best and path.exists() else run_dir / "policy.pt")
 
     def reset(self) -> None:
-        pass
+        self._frames = []
 
     def __call__(self, obs: dict[str, np.ndarray]) -> np.ndarray:
         if PRIVILEGED_KEY in obs:
@@ -49,6 +52,11 @@ class TorchGraspPolicy:
             if x.shape != shape:
                 raise ValueError(f"observation {key!r} has shape {x.shape}, the policy expects {shape}")
             flat.append(x.reshape(-1))
-        x = torch.as_tensor(np.concatenate(flat), device=self.device)[None]
+        frame = np.concatenate(flat)
+        if not self._frames:  # first step of an episode: the history is filled with the first frame
+            self._frames = [frame] * self.history
+        else:
+            self._frames = [frame, *self._frames[: self.history - 1]]
+        x = torch.as_tensor(np.concatenate(self._frames), device=self.device)[None]
         action = self.actor.act(x)[0].cpu().numpy()
         return np.clip(action, -1.0, 1.0).astype(np.float32)

@@ -82,6 +82,8 @@ class Task:
     # Maps the training configuration to the one evaluation runs on (default: the same, at full
     # difficulty); lets a task train on harder or shaped variants while evaluating the nominal task.
     eval_config: Callable[[Any], Any] | None = None
+    # Wraps the training and evaluation environments (e.g. frame stacking); default: used as built.
+    wrap_env: Callable[[HandCubeEnvGPU, argparse.Namespace], Any] | None = None
     defaults: dict[str, Any] = field(default_factory=dict)  # CLI default overrides
     description: str = ""
 
@@ -255,6 +257,7 @@ def save_checkpoint(
             "task": task,
             "obs_layout": env.layout,
             "obs_dim": env.obs_dim,
+            "history": getattr(env, "history", 1),
             "privileged_dim": env.privileged_dim,
             "act_dim": env.n_act,
             "actor_sizes": agent.cfg.actor_sizes,
@@ -309,6 +312,8 @@ def _train(task: Task, args: argparse.Namespace, run_dir: Path, artifacts: Artif
         seed=args.seed + 1,
         bank=load_reset_bank(cfg, EVAL_BANK_SEEDS, task.cpu_env_cls),
     )
+    if task.wrap_env is not None:
+        env, eval_env = task.wrap_env(env, args), task.wrap_env(eval_env, args)
     ppo_cfg = PPOConfig(
         n_steps=args.n_steps,
         n_minibatches=args.n_minibatches,

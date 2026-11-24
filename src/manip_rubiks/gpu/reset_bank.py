@@ -14,7 +14,6 @@ from __future__ import annotations
 import hashlib
 import json
 import multiprocessing as mp
-from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -24,6 +23,7 @@ import numpy as np
 
 from manip_rubiks.environments.grasp_env import GraspEnv
 from manip_rubiks.gpu.cube_math import state_to_indices
+from manip_rubiks.parallel import map_resilient
 from manip_rubiks.simulation.assets import cache_dir
 
 BANK_VERSION = 1  # bump when the stored fields or the reset procedure change
@@ -76,8 +76,7 @@ def build_reset_bank(config: Any, seeds: range, workers: int | None = None, env_
     if workers == 1:
         parts = [_generate((env_cls, config, chunks[0]))]
     else:
-        with ProcessPoolExecutor(workers, mp_context=mp.get_context("spawn")) as pool:
-            parts = list(pool.map(_generate, [(env_cls, config, c) for c in chunks]))
+        parts = map_resilient(_generate, [(env_cls, config, c) for c in chunks], workers)
     order = np.argsort(np.concatenate(chunks))
     merged = {k: np.concatenate([p[k] for p in parts])[order] for k in parts[0]}
     return ResetBank(seeds=np.array(seed_list), **merged)

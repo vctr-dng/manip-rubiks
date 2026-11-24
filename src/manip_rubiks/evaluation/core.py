@@ -20,12 +20,13 @@ import argparse
 import json
 import multiprocessing as mp
 from collections.abc import Callable, Sequence
-from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+from manip_rubiks.parallel import map_resilient
 
 EVAL_SEED_OFFSET = 100_000  # disjoint from training (0..) and in-training evaluation (10_000..) seeds
 
@@ -112,8 +113,7 @@ def run_jobs(worker: Callable[[tuple], list], jobs: list[tuple], workers: int) -
     """Run the jobs (in this process for ``workers <= 1``) and concatenate their results in job order."""
     if workers <= 1:
         return [r for job in jobs for r in worker(job)]
-    with ProcessPoolExecutor(workers, mp_context=mp.get_context("spawn")) as pool:
-        return [r for batch in pool.map(worker, jobs) for r in batch]
+    return [r for batch in map_resilient(worker, jobs, workers) for r in batch]
 
 
 # ------------------------------------------------------------------- reports

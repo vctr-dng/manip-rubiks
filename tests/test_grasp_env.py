@@ -142,6 +142,64 @@ def test_push_scale_and_kind_change_only_the_wrench():
     assert not _push_wrenches({"push_scale": 0.0}).any()
 
 
+def _largest_push_force(e: GraspEnv, steps: int = 40) -> float:
+    forces = []
+    for _ in range(steps):
+        e.step(np.zeros(e.robot.n))
+        forces.append(np.linalg.norm(e.data.xfrc_applied[e.cube.core_body, :3]))
+    return max(forces)
+
+
+def test_push_scale_config_is_the_default_and_the_reset_option_overrides_it():
+    cfg = replace(GraspConfig(), push_rate=50.0, push_scale=2.0)
+    e = GraspEnv(cfg)
+    e.reset(seed=0)
+    assert 0.3 * 2.0 * cfg.push_force <= _largest_push_force(e) <= 2.0 * cfg.push_force + 1e-9
+    e.reset(seed=0, options={"push_scale": 0.5})
+    assert _largest_push_force(e) <= 0.5 * cfg.push_force + 1e-9
+    e.close()
+
+
+def test_critic_wrench_is_appended_to_the_privileged_state_only():
+    base = GraspEnv(replace(GraspConfig(), push_rate=50.0))
+    wrench = GraspEnv(replace(GraspConfig(), push_rate=50.0, critic_wrench=True))
+    base.reset(seed=0)
+    wrench.reset(seed=0)
+    assert wrench.privileged_state().size == base.privileged_state().size + 6
+    seen = []
+    for _ in range(30):
+        _, _, _, _, info_b = base.step(np.zeros(base.robot.n))
+        obs, _, _, _, info_w = wrench.step(np.zeros(wrench.robot.n))
+        np.testing.assert_allclose(
+            info_w["privileged"][:-6], info_b["privileged"][: -0 or None][: base.privileged_state().size]
+        )
+        applied = wrench.data.xfrc_applied[wrench.cube.core_body]
+        np.testing.assert_allclose(info_w["privileged"][-6:], applied / np.repeat([1.5, 0.02], 3))
+        seen.append(np.abs(info_w["privileged"][-6:]).max())
+        assert set(obs) == set(GRASP_OBS_KEYS), "the actor's observation is unchanged"
+    assert max(seen) > 0, "a push was applied"
+    base.close()
+    wrench.close()
+
+
+def test_alignment_barrier_is_zero_below_onset_and_full_at_the_limit():
+    from manip_rubiks.environments.grasp_env import GraspRewardWeights
+
+    w = GraspRewardWeights(align_barrier=3.0)
+    e = GraspEnv(replace(GraspConfig(), reward=w))
+    obs, info = e.reset(seed=0, options=PALM_DOWN)
+    _, _, _, _, info = e.step(np.zeros(e.robot.n))
+    terms = []
+    for misalignment in (0.0, w.align_onset, 0.5 * (w.align_onset + w.align_limit), w.align_limit, 2 * w.align_limit):
+        info["misalignment"] = misalignment
+        e.compute_reward(np.zeros(e.robot.n), info)
+        terms.append(info["reward_terms"]["barrier"])
+    assert terms[:2] == [0.0, 0.0]
+    assert terms[2] == pytest.approx(-3.0 * 0.25)
+    assert terms[3] == pytest.approx(-3.0) and terms[4] == pytest.approx(-3.0)  # capped at the limit
+    e.close()
+
+
 def test_push_kind_is_validated(env):
     with pytest.raises(ValueError):
         env.reset(seed=0, options={"push_kind": "spin"})
@@ -214,3 +272,11 @@ def test_reward_terms_sum_to_the_reward(env):
         assert terms["alive"] > 0 and all(v <= 0 for k, v in terms.items() if k != "alive")
         if terminated or truncated:
             break
+
+
+def test_barrier_term_exists_only_when_switched_on():
+    e = GraspEnv()
+    e.reset(seed=0, options=PALM_DOWN)
+    _, _, _, _, info = e.step(np.zeros(e.robot.n))
+    assert "barrier" not in info["reward_terms"]
+    e.close()

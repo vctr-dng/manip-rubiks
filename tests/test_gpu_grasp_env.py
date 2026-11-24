@@ -154,3 +154,33 @@ def test_truncation_after_time_limit(setup):
     assert trunc.all() and not term.any()
     assert info.is_success.all() and (info.episode_length == env.max_steps).all()
     assert (env.steps == 0).all()
+
+
+def test_push_scale_critic_wrench_and_barrier_on_the_gpu():
+    from manip_rubiks.environments.grasp_env import GraspRewardWeights
+    from manip_rubiks.gpu.grasp_env import GraspEnvGPU
+    from manip_rubiks.gpu.reset_bank import build_reset_bank
+
+    cfg = GraspConfig(
+        difficulty=1.0,
+        push_rate=50.0,
+        push_scale=2.0,
+        critic_wrench=True,
+        reward=GraspRewardWeights(align_barrier=3.0),
+    )
+    bank = build_reset_bank(cfg, range(N), workers=1)
+    env = GraspEnvGPU(N, cfg, bank=bank, seed=0)
+    cpu = GraspEnv(cfg)
+    cpu.reset(seed=0)
+    assert env.privileged_dim == cpu.privileged_state().size
+    actor, critic = env.reset(seed=0)
+    assert critic.shape == (N, env.obs_dim + env.privileged_dim)
+    norm = torch.tensor([cfg.push_force] * 3 + [cfg.push_torque] * 3, device=env.device)
+    peak = 0.0
+    for _ in range(15):
+        actor, critic, _, _, _, info, _ = env.step(torch.zeros(N, env.n_act, device=env.device))
+        torch.testing.assert_close(critic[:, -6:], env.xfrc[:, env.core] / norm)
+        peak = max(peak, float(critic[:, -6:-3].norm(dim=1).max()))
+    assert 0.3 * 2.0 <= peak <= 2.0 + 1e-5, "pushes are applied, at twice the nominal strength at most"
+    assert (info.reward_terms["barrier"] <= 0).all()
+    env.close()

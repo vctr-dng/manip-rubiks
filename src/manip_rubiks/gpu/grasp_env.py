@@ -155,7 +155,7 @@ class GraspEnvGPU(HandCubeEnvGPU):
         cfg = self.cfg
         free = t >= self.push_until
         self.xfrc[free, self.core] = 0.0
-        scale = cfg.push_force * self.difficulty
+        scale = cfg.push_force * self.difficulty * cfg.push_scale
         if scale <= 0:
             return
         start = free & (torch.rand(self.num_envs, generator=self.gen, device=self.device) < cfg.push_rate * self.dt)
@@ -163,7 +163,7 @@ class GraspEnvGPU(HandCubeEnvGPU):
         if k == 0:
             return
         force = self._unit(k) * scale * self._uniform((k, 1), 0.3, 1.0)
-        torque = self._unit(k) * cfg.push_torque * self.difficulty * self._uniform((k, 1), 0.3, 1.0)
+        torque = self._unit(k) * cfg.push_torque * self.difficulty * cfg.push_scale * self._uniform((k, 1), 0.3, 1.0)
         ids = start.nonzero().squeeze(1)
         self.xfrc[ids, self.core] = torch.cat([force, torque], dim=1)
         self.push_until[ids] = t[ids] + self._uniform(k, *cfg.push_duration)
@@ -175,6 +175,13 @@ class GraspEnvGPU(HandCubeEnvGPU):
 
     def _task_obs(self) -> list[torch.Tensor]:
         return [self.gravity_dir]
+
+    def _privileged(self, cq: dict[str, torch.Tensor]) -> torch.Tensor:
+        state = super()._privileged(cq)
+        if not self.cfg.critic_wrench:
+            return state
+        norm = self._tensor(self.ref._wrench_norm)
+        return torch.cat([state, self.xfrc[:, self.core] / norm], dim=1)
 
     def _task_reset_pre(self, ids: torch.Tensor) -> None:
         self.push_until[ids] = -1.0
@@ -201,6 +208,7 @@ class GraspEnvGPU(HandCubeEnvGPU):
         w = self.cfg.reward
         effort = self.actuator_force[:, self.act_ids] / self.force_limit
         failed = info.dropped | info.unstable | ~info.state_preserved
+        barrier = ((info.misalignment - w.align_onset) / (w.align_limit - w.align_onset)).clamp(0.0, 1.0)
         terms = {
             "alive": torch.full_like(info.displacement, w.alive),
             "displacement": -w.displacement * info.displacement / 0.01,
@@ -211,5 +219,7 @@ class GraspEnvGPU(HandCubeEnvGPU):
             "action_rate": -w.action_rate * ((action - self.last_action) ** 2).mean(1),
             "failure": -w.failure * failed.float(),
         }
+        if w.align_barrier > 0:
+            terms["barrier"] = -w.align_barrier * barrier**2
         info.reward_terms = terms
         return torch.stack(list(terms.values())).sum(0)

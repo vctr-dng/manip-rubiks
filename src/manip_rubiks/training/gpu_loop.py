@@ -79,6 +79,9 @@ class Task:
     eval_step: Callable[[StepInfo, torch.Tensor, Flags, dict], None] | None = None  # per-step eval hook
     eval_summary: Callable[[dict], dict[str, float]] | None = None  # extra metrics from the hook's state
     add_args: Callable[[argparse.ArgumentParser], None] | None = None
+    # Maps the training configuration to the one evaluation runs on (default: the same, at full
+    # difficulty); lets a task train on harder or shaped variants while evaluating the nominal task.
+    eval_config: Callable[[Any], Any] | None = None
     defaults: dict[str, Any] = field(default_factory=dict)  # CLI default overrides
     description: str = ""
 
@@ -290,6 +293,8 @@ def _train(task: Task, args: argparse.Namespace, run_dir: Path, artifacts: Artif
     device = torch.device(args.device)
     cfg = task.make_config(args, args.difficulty_start)
     full = task.make_config(args, 1.0)
+    if task.eval_config is not None:
+        full = task.eval_config(full)
     env = task.env_cls(
         args.num_envs,
         cfg,

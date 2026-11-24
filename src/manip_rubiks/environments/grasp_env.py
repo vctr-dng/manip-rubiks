@@ -59,6 +59,11 @@ class GraspRewardWeights:
     effort: float = 0.2
     action_rate: float = 0.05
     failure: float = 50.0
+    # Smooth penalty as the worst layer approaches the turn that corrupts the puzzle: zero up to
+    # ``align_onset``, ``-align_barrier`` at ``align_limit``, quadratic in between. Off by default.
+    align_barrier: float = 0.0
+    align_onset: float = np.deg2rad(10.0)
+    align_limit: float = np.deg2rad(45.0)
 
 
 @dataclass
@@ -73,6 +78,8 @@ class GraspConfig:
     push_force: float = 1.5  # largest push force on the cube [N] (cube weight: ~0.7 N)
     push_torque: float = 0.02  # largest push torque on the cube [N m]
     push_duration: tuple[float, float] = (0.1, 0.3)  # [s]
+    push_scale: float = 1.0  # multiplies push force and torque (training with > 1 leaves margin)
+    critic_wrench: bool = False  # append the active push wrench to the privileged state (critic only)
     align_tolerance: float = np.deg2rad(10.0)  # largest cubie misalignment for a successful hold [rad]
     reward: GraspRewardWeights = field(default_factory=GraspRewardWeights)
 
@@ -103,7 +110,8 @@ class GraspEnv(HandCubeEnv):
     with a single reorientation to tilt ``t`` in the in-palm direction ``p``
     (0 = towards the fingertips, pi/2 = towards the thumb side), held until
     the end of the episode. ``options={"pushes": False}`` disables pushes for
-    that episode. ``options={"push_scale": s}`` multiplies the push force and torque by ``s``, and
+    that episode. ``options={"push_scale": s}`` sets the push force and torque multiplier to ``s``
+    (default ``GraspConfig.push_scale``), and
     ``options={"push_kind": "force" | "torque"}`` applies only that half of each push (default
     ``"both"``); neither changes the random push times and directions. The base environment's
     cube-state options still apply.
@@ -123,7 +131,7 @@ class GraspEnv(HandCubeEnv):
         self.gravity_dir = self.d_nominal.copy()
         self._push_until = -1.0
         self._pushes_enabled = True
-        self._push_scale = 1.0
+        self._push_scale = float(self.grasp_cfg.push_scale)
         self._push_kind = "both"
         self._last_action = np.zeros(self.robot.n)
         self._r_cube0 = np.eye(3)
@@ -209,6 +217,20 @@ class GraspEnv(HandCubeEnv):
             self.data.xfrc_applied[body, 3:] = torque
         self._push_until = t + float(rng.uniform(*cfg.push_duration))
 
+    def privileged_state(self) -> np.ndarray:
+        """Base privileged state; with ``critic_wrench`` the active push (force / ``push_force``,
+        torque / ``push_torque``) is appended, so existing indices keep their meaning."""
+        state = super().privileged_state()
+        if not self.grasp_cfg.critic_wrench:
+            return state
+        wrench = self.data.xfrc_applied[self.cube.core_body] / self._wrench_norm
+        return np.concatenate([state, wrench])
+
+    @property
+    def _wrench_norm(self) -> np.ndarray:
+        cfg = self.grasp_cfg
+        return np.repeat([max(cfg.push_force, 1e-9), max(cfg.push_torque, 1e-9)], 3)
+
     def wrist_moving(self, t: float | None = None) -> bool:
         """Whether the wrist is mid-reorientation at time ``t`` (default: the current time)."""
         t = self._steps * self.cfg.control_dt if t is None else t
@@ -221,7 +243,7 @@ class GraspEnv(HandCubeEnv):
         super().reset(seed=seed, options=options)
         self.schedule = self._sample_schedule(options)
         self._pushes_enabled = bool(options.get("pushes", True))
-        self._push_scale = float(options.get("push_scale", 1.0))
+        self._push_scale = float(options.get("push_scale", self.grasp_cfg.push_scale))
         self._push_kind = str(options.get("push_kind", "both"))
         if self._push_kind not in PUSH_KINDS:
             raise ValueError(f"push_kind must be one of {PUSH_KINDS}, got {self._push_kind!r}")
@@ -271,6 +293,7 @@ class GraspEnv(HandCubeEnv):
         w = self.grasp_cfg.reward
         effort = self.robot.effort() / self.robot.force_limit
         failed = info["dropped"] or info["unstable"] or not info["state_preserved"]
+        barrier = np.clip((info["misalignment"] - w.align_onset) / (w.align_limit - w.align_onset), 0.0, 1.0)
         terms = {
             "alive": w.alive,
             "displacement": -w.displacement * info["displacement"] / 0.01,
@@ -281,6 +304,8 @@ class GraspEnv(HandCubeEnv):
             "action_rate": -w.action_rate * float(np.mean((action - self._last_action) ** 2)),
             "failure": -w.failure if failed else 0.0,
         }
+        if w.align_barrier > 0:
+            terms["barrier"] = -w.align_barrier * float(barrier) ** 2
         info["reward_terms"] = {k: float(v) for k, v in terms.items()}
         return float(sum(terms.values()))
 

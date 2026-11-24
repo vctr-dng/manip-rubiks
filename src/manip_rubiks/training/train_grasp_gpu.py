@@ -26,14 +26,31 @@ Example::
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 
-from manip_rubiks.environments.grasp_env import GraspConfig, GraspEnv
+from manip_rubiks.environments.grasp_env import GraspConfig, GraspEnv, GraspRewardWeights
 from manip_rubiks.gpu.grasp_env import GraspEnvGPU
 from manip_rubiks.training import gpu_loop
 
 
+def _add_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--push-scale", type=float, default=1.0, help="train with pushes this many times as strong")
+    p.add_argument("--critic-wrench", action="store_true", help="the critic also sees the active push wrench")
+    p.add_argument("--align-barrier", type=float, default=0.0, help="weight of the layer-misalignment barrier")
+
+
 def _config(args: argparse.Namespace, difficulty: float) -> GraspConfig:
-    return GraspConfig(difficulty=difficulty)
+    return GraspConfig(
+        difficulty=difficulty,
+        push_scale=args.push_scale,
+        critic_wrench=args.critic_wrench,
+        reward=GraspRewardWeights(align_barrier=args.align_barrier),
+    )
+
+
+def _eval_config(cfg: GraspConfig) -> GraspConfig:
+    """Evaluation always uses the nominal pushes and reward, so runs stay comparable."""
+    return replace(cfg, push_scale=1.0, reward=GraspRewardWeights())
 
 
 TASK = gpu_loop.Task(
@@ -41,6 +58,8 @@ TASK = gpu_loop.Task(
     env_cls=GraspEnvGPU,
     cpu_env_cls=GraspEnv,
     make_config=_config,
+    eval_config=_eval_config,
+    add_args=_add_args,
     end_fields=("misalignment", "displacement", "rotation"),
     episode_metrics=("misalignment", "displacement", "rotation", "dropped", "state_preserved"),
     description=__doc__,

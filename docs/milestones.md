@@ -12,7 +12,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 |---|---|---|---|
 | M0 | Simulation foundation | 0 | ✅ |
 | M1 | Tactile foundation | 0 (sensors) | ✅ |
-| — | Manipulation prerequisites (grasp, rigid rotation) | 1, 2 | ✅ x/y axes · 🟡 z axis and pushes |
+| — | Manipulation prerequisites (grasp, rigid rotation) | 1, 2 | ✅ x/y axes and composed z · ✅ force pushes · 🟡 torque pushes (deferred to M2) |
 | M2 | Single-turn policy | 3 | ⬜ |
 | M3 | Blindfolded estimator | 4, 5 | ⬜ |
 | M4 | Multi-turn execution | 6 | ⬜ |
@@ -80,18 +80,29 @@ T3 contact location, T4 multiple contacts, T5 robustness, repeatability, pad cal
 - ✅ `GraspEnv`: wrist reorientations and random pushes, with success defined as no layer corruption.
 - ✅ Asymmetric PPO (CPU and GPU) and SAC. Passive and scripted baselines.
 - ✅ Palm-down hold 100 %, random reorientations 100 %.
-- 🟡 With pushes: 86 % (PPO GPU), against a 95 % target. 12–18 % of pushed episodes turn a layer. Next
-  steps: a recurrent actor, alignment shaping, more seeds.
+- ✅ Pushes, re-gated on **force-only pushes** (≥ 95 %): `pushD` (4-frame actor history, critic sees the
+  push) 96 % (93–98 %), `pushB` 95 %, `pushA`/`pushC` 93 %, on one seed each at 12M steps and 300 episodes
+  ([`reports/grasp_push_levers`](../reports/grasp_push_levers/)). A 3-seed confirmation has not been run.
+- 🟡 Full pushes (force and torque up to 0.02 N m on the cube core): 77–80 % for every lever tried (longer
+  training, a critic that sees the push, an alignment penalty, actor history); 16–20 % of episodes turn a
+  layer, and force-only pushes turn none. The torque shears layers whose joints have almost no friction
+  (0.2 mN m against up to 20 mN m), so this gate is deferred to M2, which adds friction and detents to the
+  layers. Diagnosis: [`reports/grasp_push_baseline/diagnosis.md`](../reports/grasp_push_baseline/diagnosis.md).
+- 🟡 The earlier 86 % figure came from a checkpoint that is no longer available locally and was not
+  re-measured.
 - 🟡 Single seed per trainer. SAC varies across seeds (38–74 % at 6M steps).
 
 **Stage 2 — Rigid cube rotation** ✅ for x and y
 - ✅ `RotationEnv` with locked layers, a privileged teacher observation, and a goal curriculum.
-- ✅ Single quarter-turns about x and y at 97–100 %. Chains of ~7.8 goals per episode at 97 % per goal.
-  Drop rate is ~1.5 % per turn ([`reports/rotation`](../reports/rotation/rotation_report.md)).
-- ⬜ z axis (about the fingers): 0 %. Options listed in the README: a pinch grasp, help from the arm, a
-  longer exploration phase.
-- 🟡 This is a teacher on a locked cube, palm-up, without pushes, from one seed. It is not yet a tactile
-  student.
+- ✅ Single quarter-turns about x and y at 99–100 % per goal on three retrained seeds (`xy60m_s{0,1,2}`,
+  60M steps). The older single-seed report ([`reports/rotation`](../reports/rotation/rotation_report.md))
+  predates them.
+- ✅ z axis by **composition**: a z quarter-turn is three x/y quarter-turns (`compose_command`). On the
+  three seeds, ±z reaches 98–100 % per command and xyz chains of 12 commands 92–100 % per command, against
+  the 95 % and 90 % gates ([`reports/rotation_z`](../reports/rotation_z/summary.md)). The route matters
+  (one seed fails −z at 88 % on one of four routes; route 1 passes on all seeds). Training z directly
+  learned nothing in 30M steps (score 0.000).
+- 🟡 This is a teacher on a locked cube, palm-up, without pushes. It is not yet a tactile student.
 
 ## M2 — Single-turn policy ⬜
 
@@ -136,8 +147,8 @@ observations in the deployed controller.
 
 **Stage 6 — Multi-turn sequences**
 - ⬜ `SequenceEnv` and the skill controller that maps symbolic moves to physical goals.
-- ⬜ Regrasp and whole-cube reorientation between faces, reusing the Stage 2 rotation skills. The z-axis
-  gap probably matters here.
+- ⬜ Regrasp and whole-cube reorientation between faces, reusing the Stage 2 rotation skills, with z
+  turns composed from x and y turns.
 - ⬜ Symbolic belief with confirmed and uncertain moves, so the plan never advances after an uncertain
   turn (`perception/belief_filter.py`, `planning/recovery_planner.py`).
 - ⬜ Recovery cases A–E.
